@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Work+Sans:wght@400;500;600&family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+  body { margin: 0; }
+  a { text-decoration: underline; }
+  a:hover { opacity: 0.8; }
+</style>
+</helmet>
+<div style="width:100%;min-height:100%;box-sizing:border-box;background:{{tokens.bg}};font-family:{{tokens.bodyFont}};color:{{tokens.text}};padding:28px;">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{tokens.accent}}" stroke-width="1.6"><path d="M12 3c-3 3.5-7 6.4-7 10.2 0 2.5 2 4.3 4.3 4.3 1.2 0 2.2-.5 2.7-1.3-.2 1.6-1 2.9-2.4 3.8h4.8c-1.4-.9-2.2-2.2-2.4-3.8.5.8 1.5 1.3 2.7 1.3 2.3 0 4.3-1.8 4.3-4.3C19 9.4 15 6.5 12 3z"></path></svg>
+      <span style="font-family:{{tokens.headingFont}};font-weight:700;font-size:18px;">Hant Stats</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:22px;">
+      <div style="display:flex;gap:18px;font-size:13px;color:{{tokens.muted}};">
+        <span>Dashboard</span>
+        <span style="color:{{tokens.accent}};font-weight:600;">Analysis</span>
+      </div>
+      <div onClick="{{toggle}}" style="cursor:pointer;width:34px;height:34px;border-radius:6px;border:1px solid {{tokens.border}};display:flex;align-items:center;justify-content:center;color:{{tokens.text}};flex-shrink:0;">
+        <sc-if value="{{dark}}" hint-placeholder-val="{{true}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path></svg>
+        </sc-if>
+        <sc-if value="{{notDark}}" hint-placeholder-val="{{true}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"></path></svg>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:18px;">
+    <div style="font-family:{{tokens.headingFont}};font-weight:700;font-size:20px;">Analysis</div>
+    <div style="font-size:12px;color:{{tokens.muted}};margin-top:2px;">Pick a game to see how it played out</div>
+  </div>
+
+  <div style="display:flex;gap:16px;align-items:flex-start;">
+
+    <div style="width:280px;flex-shrink:0;background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:8px;padding:14px;">
+      <div style="font-size:11px;text-transform:uppercase;color:{{tokens.muted}};letter-spacing:0.06em;margin-bottom:10px;">Games</div>
+      <sc-for list="{{games}}" as="g" hint-placeholder-count="3">
+        <div onClick="{{g.pick}}" style="cursor:pointer;padding:10px 12px;border-radius:6px;border:1px solid {{g.rowBorderColor}};background:{{g.rowBg}};margin-bottom:8px;">
+          <div style="font-size:13px;font-weight:600;">{{g.date}}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+            <span style="font-size:11px;color:{{tokens.muted}};">{{g.rounds}} rounds</span>
+            <span style="font-size:10px;color:{{g.badgeColor}};background:{{tokens.bg}};border:1px solid {{tokens.border}};border-radius:4px;padding:1px 6px;">{{g.badgeLabel}}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="flex:1;background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:8px;padding:20px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <div style="font-family:{{tokens.headingFont}};font-weight:700;font-size:18px;">{{selectedGame.date}}</div>
+        <span style="font-size:10px;color:{{selectedGame.badgeColor}};background:{{tokens.bg}};border:1px solid {{tokens.border}};border-radius:4px;padding:1px 6px;">{{selectedGame.badgeLabel}}</span>
+      </div>
+      <div style="font-size:12px;color:{{tokens.muted}};margin-bottom:16px;">{{selectedGame.rounds}} rounds played</div>
+
+      <sc-if value="{{selectedGame.hasNote}}" hint-placeholder-val="{{true}}">
+        <div style="background:{{tokens.bg}};border:1px solid {{tokens.border}};border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:{{tokens.muted}};">
+          {{selectedGame.note}}
+        </div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;">
+        <div style="font-size:11px;text-transform:uppercase;color:{{tokens.muted}};padding-bottom:8px;border-bottom:1px solid {{tokens.border}};">Player</div>
+        <div style="font-size:11px;text-transform:uppercase;color:{{tokens.muted}};padding-bottom:8px;border-bottom:1px solid {{tokens.border}};">Points</div>
+        <div style="font-size:11px;text-transform:uppercase;color:{{tokens.muted}};padding-bottom:8px;border-bottom:1px solid {{tokens.border}};">Result</div>
+        <sc-for list="{{selectedGame.players}}" as="p" hint-placeholder-count="4">
+          <div style="font-size:13px;padding:10px 0;border-bottom:1px solid {{tokens.border}};">{{p.name}}</div>
+          <div style="font-size:13px;padding:10px 0;border-bottom:1px solid {{tokens.border}};color:{{p.pointsColor}};">{{p.pointsLabel}}</div>
+          <div style="font-size:13px;padding:10px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.muted}};">{{p.result}}</div>
+        </sc-for>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { dark: false, selected: 0 };
+  }
+  renderVals() {
+    const dark = this.state.dark;
+    const tokens = dark ? {
+      bg: '#16302a', surface: '#1c3a33', border: '#2a4c44',
+      text: '#f3ead9', muted: '#7fa89e', accent: '#d4af37', negative: '#c9707f',
+      headingFont: "'Bricolage Grotesque',sans-serif", bodyFont: "'Public Sans',sans-serif"
+    } : {
+      bg: '#faf8f4', surface: '#ffffff', border: '#e7e3da',
+      text: '#201f1c', muted: '#8a8578', accent: '#2f6f6a', negative: '#a15139',
+      headingFont: "'Source Serif 4',serif", bodyFont: "'Work Sans',sans-serif"
+    };
+
+    const raw = [
+      {
+        date: '24 Aug 2026 (Game 1)', rounds: 17, majstorska: true, inProgress: false,
+        hasNote: true, note: 'Great Majstorska finish — Player A closed it out with a clean Hant.',
+        players: [
+          { name: 'Player A', points: -320, result: 'Winner' },
+          { name: 'Player B', points: 90, result: '2nd' },
+          { name: 'Player D', points: 410, result: '3rd' },
+          { name: 'Player C', points: 640, result: '4th' }
+        ]
+      },
+      {
+        date: '17 Aug 2026', rounds: 17, majstorska: true, inProgress: false,
+        hasNote: false, note: '',
+        players: [
+          { name: 'Player B', points: -280, result: 'Winner' },
+          { name: 'Player A', points: 120, result: '2nd' },
+          { name: 'Player C', points: 390, result: '3rd' },
+          { name: 'Player D', points: 580, result: '4th' }
+        ]
+      },
+      {
+        date: '10 Aug 2026', rounds: 12, majstorska: false, inProgress: true,
+        hasNote: true, note: 'Rain delay, paused early.',
+        players: [
+          { name: 'Player C', points: -150, result: 'Leading' },
+          { name: 'Player A', points: 80, result: '2nd' },
+          { name: 'Player B', points: 210, result: '3rd' },
+          { name: 'Player D', points: 340, result: '4th' }
+        ]
+      }
+    ];
+
+    const games = raw.map((g, i) => ({
+      ...g,
+      rowBg: i === this.state.selected ? tokens.bg : tokens.surface,
+      rowBorderColor: i === this.state.selected ? tokens.accent : tokens.border,
+      badgeLabel: g.inProgress ? 'In progress' : (g.majstorska ? 'Majstorska' : 'No Majstorska'),
+      badgeColor: g.inProgress ? tokens.muted : (g.majstorska ? tokens.accent : tokens.muted),
+      players: g.players.map((p) => ({
+        ...p,
+        pointsLabel: (p.points >= 0 ? '+' : '') + p.points,
+        pointsColor: p.points < 0 ? tokens.accent : tokens.text
+      })),
+      pick: () => this.setState({ selected: i })
+    }));
+
+    const selectedGame = games[this.state.selected];
+
+    return { tokens, dark, notDark: !dark, toggle: () => this.setState({ dark: !this.state.dark }), games, selectedGame };
+  }
+}
+</script>
+</body>
+</html>

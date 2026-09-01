@@ -1,0 +1,247 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Work+Sans:wght@400;500;600&family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+  body { margin: 0; }
+  a { text-decoration: underline; }
+  a:hover { opacity: 0.8; }
+</style>
+</helmet>
+<div style="width:100%;min-height:100%;box-sizing:border-box;background:{{tokens.bg}};font-family:{{tokens.bodyFont}};color:{{tokens.text}};padding:28px 32px 48px;">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:44px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{tokens.accent}}" stroke-width="1.6"><path d="M12 3c-3 3.5-7 6.4-7 10.2 0 2.5 2 4.3 4.3 4.3 1.2 0 2.2-.5 2.7-1.3-.2 1.6-1 2.9-2.4 3.8h4.8c-1.4-.9-2.2-2.2-2.4-3.8.5.8 1.5 1.3 2.7 1.3 2.3 0 4.3-1.8 4.3-4.3C19 9.4 15 6.5 12 3z"></path></svg>
+      <span style="font-family:{{tokens.headingFont}};font-weight:700;font-size:19px;">Hant Stats</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button style="height:36px;padding:0 16px;border-radius:6px;border:1px solid {{tokens.border}};background:transparent;color:{{tokens.text}};font-size:13px;font-weight:600;cursor:pointer;font-family:{{tokens.bodyFont}};">Log in</button>
+      <button style="height:36px;padding:0 16px;border-radius:6px;border:none;background:{{tokens.accent}};color:{{tokens.bg}};font-size:13px;font-weight:600;cursor:pointer;font-family:{{tokens.bodyFont}};">Request access</button>
+      <div onClick="{{toggle}}" style="cursor:pointer;width:34px;height:34px;border-radius:6px;border:1px solid {{tokens.border}};display:flex;align-items:center;justify-content:center;color:{{tokens.text}};flex-shrink:0;">
+        <sc-if value="{{dark}}" hint-placeholder-val="{{true}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path></svg>
+        </sc-if>
+        <sc-if value="{{notDark}}" hint-placeholder-val="{{true}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"></path></svg>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;max-width:520px;margin:0 auto 40px;">
+    <div style="font-family:{{tokens.headingFont}};font-weight:700;font-size:34px;line-height:1.15;margin-bottom:12px;">Four players, one table, since [START YEAR].</div>
+    <div style="font-size:15px;color:{{tokens.muted}};">Every Thursday, tracked down to the last coin.</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px;">
+    <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:6px;padding:16px;text-align:center;">
+      <div style="font-family:{{tokens.headingFont}};font-size:26px;font-weight:700;">128</div>
+      <div style="font-size:11px;color:{{tokens.muted}};text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">Games played</div>
+    </div>
+    <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:6px;padding:16px;text-align:center;">
+      <div style="font-family:{{tokens.headingFont}};font-size:26px;font-weight:700;">2,176</div>
+      <div style="font-size:11px;color:{{tokens.muted}};text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">Rounds recorded</div>
+    </div>
+    <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:6px;padding:16px;text-align:center;">
+      <div style="font-family:{{tokens.headingFont}};font-size:26px;font-weight:700;">9</div>
+      <div style="font-size:11px;color:{{tokens.muted}};text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">Hants recorded</div>
+    </div>
+    <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:6px;padding:16px;text-align:center;">
+      <div style="font-family:{{tokens.headingFont}};font-size:26px;font-weight:700;">11</div>
+      <div style="font-size:11px;color:{{tokens.muted}};text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">Players</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px;">
+    <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:6px;padding:16px;text-align:center;">
+      <div style="font-family:{{tokens.headingFont}};font-size:26px;font-weight:700;">4%</div>
+      <div style="font-size:11px;color:{{tokens.muted}};text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">Rounds ending in Hant</div>
+    </div>
+    <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:6px;padding:16px;text-align:center;">
+      <div style="font-family:{{tokens.headingFont}};font-size:26px;font-weight:700;">96%</div>
+      <div style="font-size:11px;color:{{tokens.muted}};text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">Rounds closed regular</div>
+    </div>
+    <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:6px;padding:16px;text-align:center;">
+      <div style="font-family:{{tokens.headingFont}};font-size:26px;font-weight:700;">37</div>
+      <div style="font-size:11px;color:{{tokens.muted}};text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">Games with a quitter</div>
+    </div>
+  </div>
+
+  <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:8px;padding:20px;margin-bottom:32px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px;">
+      <div>
+        <div style="font-family:{{tokens.headingFont}};font-size:15px;font-weight:700;margin-bottom:2px;">Games played</div>
+        <div style="font-size:11px;color:{{tokens.muted}};">Last 52 weeks &mdash; darker means more games that week</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:3px;">
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h2}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h2}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h2}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h3}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h2}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h2}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h2}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h2}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:12px;height:12px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:5px;margin-top:10px;">
+      <span style="font-size:10px;color:{{tokens.muted}};">Less</span>
+      <div style="width:11px;height:11px;border-radius:2px;background:{{tokens.heat.h0}};"></div>
+      <div style="width:11px;height:11px;border-radius:2px;background:{{tokens.heat.h1}};"></div>
+      <div style="width:11px;height:11px;border-radius:2px;background:{{tokens.heat.h2}};"></div>
+      <div style="width:11px;height:11px;border-radius:2px;background:{{tokens.heat.h3}};"></div>
+      <span style="font-size:10px;color:{{tokens.muted}};">More</span>
+    </div>
+  </div>
+
+  <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:8px;padding:20px;margin-bottom:20px;">
+    <div style="font-family:{{tokens.headingFont}};font-size:15px;font-weight:700;margin-bottom:2px;">Player rankings</div>
+    <div style="font-size:11px;color:{{tokens.muted}};margin-bottom:16px;">Across everyone who's sat at the table &mdash; lineups rotate, it's not always the same four</div>
+    <div style="display:grid;grid-template-columns:0.5fr 1.8fr 1fr 1fr;">
+      <div style="font-size:11px;text-transform:uppercase;color:{{tokens.muted}};padding-bottom:8px;border-bottom:1px solid {{tokens.border}};">#</div>
+      <div style="font-size:11px;text-transform:uppercase;color:{{tokens.muted}};padding-bottom:8px;border-bottom:1px solid {{tokens.border}};">Player</div>
+      <div style="font-size:11px;text-transform:uppercase;color:{{tokens.muted}};padding-bottom:8px;border-bottom:1px solid {{tokens.border}};">Games</div>
+      <div style="font-size:11px;text-transform:uppercase;color:{{tokens.muted}};padding-bottom:8px;border-bottom:1px solid {{tokens.border}};">Win rate</div>
+
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.muted}};">1</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">Player A</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">128</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.accent}};">31%</div>
+
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.muted}};">2</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">Player E</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">94</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.accent}};">29%</div>
+
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.muted}};">3</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">Player B</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">128</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.accent}};">25%</div>
+
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.muted}};">4</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">Player F</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">61</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.accent}};">24%</div>
+
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.muted}};">5</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">Player C</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">128</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.accent}};">22%</div>
+
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.muted}};">6</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">Player G</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">45</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.accent}};">19%</div>
+
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.muted}};">7</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">Player D</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};">128</div>
+      <div style="font-size:13px;padding:9px 0;border-bottom:1px solid {{tokens.border}};color:{{tokens.accent}};">14%</div>
+
+      <div style="font-size:13px;padding:9px 0;color:{{tokens.muted}};">8</div>
+      <div style="font-size:13px;padding:9px 0;">Player H</div>
+      <div style="font-size:13px;padding:9px 0;">38</div>
+      <div style="font-size:13px;padding:9px 0;color:{{tokens.accent}};">12%</div>
+    </div>
+  </div>
+
+  <div style="background:{{tokens.surface}};border:1px solid {{tokens.border}};border-radius:8px;padding:20px;margin-bottom:32px;">
+    <div style="font-family:{{tokens.headingFont}};font-size:15px;font-weight:700;margin-bottom:2px;">Playstyles</div>
+    <div style="font-size:11px;color:{{tokens.muted}};margin-bottom:16px;">A quick read on how everyone plays</div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;">
+      <div><div style="font-size:13px;font-weight:600;">Player A</div><div style="font-size:11px;color:{{tokens.muted}};margin-top:2px;">Closer</div></div>
+      <div><div style="font-size:13px;font-weight:600;">Player B</div><div style="font-size:11px;color:{{tokens.muted}};margin-top:2px;">Risk-taker</div></div>
+      <div><div style="font-size:13px;font-weight:600;">Player C</div><div style="font-size:11px;color:{{tokens.muted}};margin-top:2px;">Cautious</div></div>
+      <div><div style="font-size:13px;font-weight:600;">Player D</div><div style="font-size:11px;color:{{tokens.muted}};margin-top:2px;">Early exit</div></div>
+      <div><div style="font-size:13px;font-weight:600;">Player E</div><div style="font-size:11px;color:{{tokens.muted}};margin-top:2px;">Steady</div></div>
+      <div><div style="font-size:13px;font-weight:600;">Player F</div><div style="font-size:11px;color:{{tokens.muted}};margin-top:2px;">Wildcard</div></div>
+      <div><div style="font-size:13px;font-weight:600;">Player G</div><div style="font-size:11px;color:{{tokens.muted}};margin-top:2px;">Grinder</div></div>
+      <div><div style="font-size:13px;font-weight:600;">Player H</div><div style="font-size:11px;color:{{tokens.muted}};margin-top:2px;">Newcomer</div></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <button style="height:44px;padding:0 26px;border-radius:6px;border:none;background:{{tokens.accent}};color:{{tokens.bg}};font-size:14px;font-weight:600;cursor:pointer;font-family:{{tokens.bodyFont}};">Request access</button>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { dark: false };
+  }
+  renderVals() {
+    const dark = this.state.dark;
+    const tokens = dark ? {
+      bg: '#16302a', surface: '#1c3a33', border: '#2a4c44',
+      text: '#f3ead9', muted: '#7fa89e', accent: '#d4af37', negative: '#c9707f',
+      headingFont: "'Bricolage Grotesque',sans-serif", bodyFont: "'Public Sans',sans-serif",
+      chart: { c1: '#3987e5', c2: '#d95926', c3: '#199e70', c4: '#c98500', c5: '#d55181' },
+      heat: { h0: '#2a4c44', h1: '#5c4f27', h2: '#9a8030', h3: '#d4af37' }
+    } : {
+      bg: '#faf8f4', surface: '#ffffff', border: '#e7e3da',
+      text: '#201f1c', muted: '#8a8578', accent: '#2f6f6a', negative: '#a15139',
+      headingFont: "'Source Serif 4',serif", bodyFont: "'Work Sans',sans-serif",
+      chart: { c1: '#2a78d6', c2: '#eb6834', c3: '#1baf7a', c4: '#eda100', c5: '#e87ba4' },
+      heat: { h0: '#e7e3da', h1: '#cfe3e0', h2: '#7fada6', h3: '#2f6f6a' }
+    };
+    return { tokens, dark, notDark: !dark, toggle: () => this.setState({ dark: !this.state.dark }) };
+  }
+}
+</script>
+</body>
+</html>

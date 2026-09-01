@@ -1,0 +1,23 @@
+{
+  "artboards": [
+    { "file": "Public.dc.html", "x": 0, "y": 0, "w": 880, "h": 1680, "title": "Public landing", "page": "public" },
+
+    { "file": "Login.dc.html", "x": 0, "y": 0, "w": 420, "h": 560, "title": "Login", "page": "auth" },
+    { "file": "Register.dc.html", "x": 520, "y": 0, "w": 420, "h": 760, "title": "Register", "page": "auth" },
+
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 760, "h": 820, "title": "Dashboard", "page": "stats" },
+    { "file": "Analysis.dc.html", "x": 880, "y": 0, "w": 980, "h": 620, "title": "Analysis", "page": "stats" },
+
+    { "file": "AdminApprovals.dc.html", "x": 0, "y": 0, "w": 760, "h": 560, "title": "Requests", "page": "admin" },
+    { "file": "Games.dc.html", "x": 880, "y": 0, "w": 900, "h": 720, "title": "Games", "page": "admin" },
+    { "file": "Users.dc.html", "x": 1900, "y": 0, "w": 940, "h": 620, "title": "Users", "page": "admin" },
+    { "file": "GameDetail.dc.html", "x": 0, "y": 840, "w": 940, "h": 1750, "title": "Game detail", "page": "admin" }
+  ],
+  "pages": [
+    { "id": "public", "name": "Public" },
+    { "id": "auth", "name": "Auth" },
+    { "id": "stats", "name": "Stats" },
+    { "id": "admin", "name": "Admin" }
+  ],
+  "launch": { "view": "canvas", "page": "admin" }
+}

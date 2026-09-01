@@ -1,0 +1,18 @@
+# frontend (Angular)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# api (Gradle/Spring)
+api/build/
+api/.gradle/
+api/out/
+!api/gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
