@@ -1,0 +1,24 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 880, "h": 420, "title": "Stacked by week" },
+    { "file": "Dark.dc.html", "x": 0, "y": 560, "w": 880, "h": 420, "title": "Stacked by week — dark" },
+    { "file": "Grouped.dc.html", "x": 1000, "y": 0, "w": 880, "h": 360, "title": "Alternate: grouped weeks" }
+  ],
+  "annotations": [
+    {
+      "id": "why-one-hue",
+      "x": 0,
+      "y": -150,
+      "w": 340,
+      "text": "Week 1–5 is an ordered scale, not five unrelated categories, so it reads as one hue light→dark rather than five colors. Bar height is still the month total."
+    },
+    {
+      "id": "grouped-tradeoff",
+      "x": 1000,
+      "y": -150,
+      "w": 340,
+      "text": "Grouped lets you compare the same week across months — but a week holds at most 2 games, so the axis only spans 0–2 and the bars barely vary. Close to the heatmap this replaces."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

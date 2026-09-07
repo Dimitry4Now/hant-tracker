@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Work+Sans:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #2f6f6a; }
+    a:hover { color: #235450; }
+  </style>
+</helmet>
+
+<div style="width: 100%; min-height: 100%; box-sizing: border-box; background: #faf8f4; font-family: 'Work Sans', system-ui, sans-serif; color: #201f1c; padding: 28px;">
+
+  <div style="background: #ffffff; border: 1px solid #e7e3da; border-radius: 8px; padding: 20px;">
+
+    <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 2px;">
+      <div style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 15px;">Games played</div>
+      <div style="font-size: 12px; color: #8a8578;">Sep 2025 – Aug 2026</div>
+    </div>
+    <div style="font-size: 11px; color: #8a8578; margin-bottom: 20px;">Weeks side by side, so the same week reads across months</div>
+
+    <div style="display: flex; gap: 10px;">
+
+      <div style="width: 16px; height: 132px; position: relative; flex-shrink: 0;">
+        <sc-for list="{{ticks}}" as="tick" hint-placeholder-count="3">
+          <div style="position: absolute; right: 0; bottom: {{tick.bottom}}px; transform: translateY(50%); font-size: 10px; color: #8a8578; line-height: 1;">{{tick.label}}</div>
+        </sc-for>
+      </div>
+
+      <div style="flex: 1; min-width: 0;">
+
+        <div style="position: relative; height: 132px; border-bottom: 1px solid #e7e3da;">
+          <sc-for list="{{gridlines}}" as="line" hint-placeholder-count="2">
+            <div style="position: absolute; left: 0; right: 0; bottom: {{line.bottom}}px; height: 1px; background: #f0ede6;"></div>
+          </sc-for>
+
+          <div style="position: absolute; inset: 0; display: flex; align-items: flex-end; gap: 12px;">
+            <sc-for list="{{months}}" as="month" hint-placeholder-count="12">
+              <div style="flex: 1; min-width: 0; display: flex; align-items: flex-end; gap: 2px; height: 100%;">
+                <sc-for list="{{month.weeks}}" as="week" hint-placeholder-count="5">
+                  <div style="flex: 1; min-width: 0; height: {{week.height}}px; background: {{week.color}}; border-radius: 2px 2px 0 0;"></div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 8px;">
+          <sc-for list="{{months}}" as="month" hint-placeholder-count="12">
+            <div style="flex: 1; min-width: 0; text-align: center; font-size: 11px; color: #8a8578;">{{month.label}}</div>
+          </sc-for>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid #e7e3da;">
+      <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #8a8578;">Week of month</span>
+      <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+        <sc-for list="{{legend}}" as="item" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 10px; height: 10px; border-radius: 2px; background: {{item.color}}; display: inline-block;"></span>
+            <span style="font-size: 12px; color: #201f1c;">{{item.label}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":880,"height":360}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const weekColors = ['#7fb8b1', '#5da49c', '#3c8b84', '#2f6f6a', '#1d4a46'];
+
+    const raw = [
+      { label: 'Sep', weeks: [1, 1, 2, 1, 0] },
+      { label: 'Oct', weeks: [1, 2, 1, 1, 1] },
+      { label: 'Nov', weeks: [1, 1, 1, 2, 0] },
+      { label: 'Dec', weeks: [1, 0, 1, 1, 0] },
+      { label: 'Jan', weeks: [1, 1, 1, 1, 1] },
+      { label: 'Feb', weeks: [1, 1, 2, 1, 0] },
+      { label: 'Mar', weeks: [2, 1, 1, 1, 0] },
+      { label: 'Apr', weeks: [1, 1, 1, 2, 1] },
+      { label: 'May', weeks: [1, 2, 1, 1, 0] },
+      { label: 'Jun', weeks: [1, 1, 1, 1, 0] },
+      { label: 'Jul', weeks: [1, 1, 2, 1, 0] },
+      { label: 'Aug', weeks: [2, 1, 1, 2, 0] }
+    ];
+
+    // A week holds at most two games, so this axis only ever spans 0-2.
+    const max = 2;
+    const plotHeight = 132;
+    const unit = plotHeight / max;
+
+    const months = raw.map((month) => ({
+      label: month.label,
+      weeks: month.weeks.map((count, index) => ({
+        height: Math.round(count * unit),
+        color: weekColors[index]
+      }))
+    }));
+
+    const ticks = [0, 1, 2].map((value) => ({
+      label: String(value),
+      bottom: Math.round(value * unit)
+    }));
+
+    const gridlines = [1, 2].map((value) => ({ bottom: Math.round(value * unit) }));
+
+    const legend = weekColors.map((color, index) => ({
+      color,
+      label: 'Week ' + (index + 1)
+    }));
+
+    return { months, ticks, gridlines, legend };
+  }
+}
+</script>
+</body>
+</html>

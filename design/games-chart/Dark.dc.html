@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Work+Sans:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #d4af37; }
+    a:hover { color: #e2c76f; }
+  </style>
+</helmet>
+
+<div style="width: 100%; min-height: 100%; box-sizing: border-box; background: #16302a; font-family: 'Work Sans', system-ui, sans-serif; color: #f3ead9; padding: 28px;">
+
+  <div style="background: #1c3a33; border: 1px solid #2a4c44; border-radius: 8px; padding: 20px;">
+
+    <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 2px;">
+      <div style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 15px;">Games played</div>
+      <div style="font-size: 12px; color: #7fa89e;">Sep 2025 – Aug 2026</div>
+    </div>
+    <div style="font-size: 11px; color: #7fa89e; margin-bottom: 20px;">One bar per month, split by the week it was played in</div>
+
+    <div style="display: flex; gap: 10px;">
+
+      <div style="width: 16px; height: 198px; position: relative; flex-shrink: 0;">
+        <sc-for list="{{ticks}}" as="tick" hint-placeholder-count="4">
+          <div style="position: absolute; right: 0; bottom: {{tick.bottom}}px; transform: translateY(50%); font-size: 10px; color: #7fa89e; line-height: 1;">{{tick.label}}</div>
+        </sc-for>
+      </div>
+
+      <div style="flex: 1; min-width: 0;">
+
+        <div style="position: relative; height: 198px; border-bottom: 1px solid #2a4c44;">
+          <sc-for list="{{gridlines}}" as="line" hint-placeholder-count="3">
+            <div style="position: absolute; left: 0; right: 0; bottom: {{line.bottom}}px; height: 1px; background: #24443c;"></div>
+          </sc-for>
+
+          <div style="position: absolute; inset: 0; display: flex; align-items: flex-end; gap: 10px;">
+            <sc-for list="{{months}}" as="month" hint-placeholder-count="12">
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px;">
+                <sc-for list="{{month.segments}}" as="segment" hint-placeholder-count="4">
+                  <div style="height: {{segment.height}}px; background: {{segment.color}}; border-radius: {{segment.radius}};"></div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+          <sc-for list="{{months}}" as="month" hint-placeholder-count="12">
+            <div style="flex: 1; min-width: 0; text-align: center; font-size: 11px; color: #7fa89e;">{{month.label}}</div>
+          </sc-for>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid #2a4c44;">
+      <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #7fa89e;">Week of month</span>
+      <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+        <sc-for list="{{legend}}" as="item" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 10px; height: 10px; border-radius: 2px; background: {{item.color}}; display: inline-block;"></span>
+            <span style="font-size: 12px; color: #f3ead9;">{{item.label}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":880,"height":420}}'>
+class Component extends DCLogic {
+  renderVals() {
+    // Dark mode is stepped from the gold accent, not flipped from the light
+    // ramp: week 1 stays the least prominent step, which on a dark surface
+    // means the darkest one.
+    const weekColors = ['#7b621f', '#a8862a', '#d4af37', '#e2c76f', '#efdda6'];
+
+    const raw = [
+      { label: 'Sep', weeks: [1, 1, 2, 1, 0] },
+      { label: 'Oct', weeks: [1, 2, 1, 1, 1] },
+      { label: 'Nov', weeks: [1, 1, 1, 2, 0] },
+      { label: 'Dec', weeks: [1, 0, 1, 1, 0] },
+      { label: 'Jan', weeks: [1, 1, 1, 1, 1] },
+      { label: 'Feb', weeks: [1, 1, 2, 1, 0] },
+      { label: 'Mar', weeks: [2, 1, 1, 1, 0] },
+      { label: 'Apr', weeks: [1, 1, 1, 2, 1] },
+      { label: 'May', weeks: [1, 2, 1, 1, 0] },
+      { label: 'Jun', weeks: [1, 1, 1, 1, 0] },
+      { label: 'Jul', weeks: [1, 1, 2, 1, 0] },
+      { label: 'Aug', weeks: [2, 1, 1, 2, 0] }
+    ];
+
+    const max = 6;
+    const plotHeight = 198;
+    const unit = plotHeight / max;
+
+    const months = raw.map((month) => {
+      const present = month.weeks
+        .map((count, index) => ({ count, index }))
+        .filter((week) => week.count > 0);
+
+      const segments = present
+        .slice()
+        .reverse()
+        .map((week, position) => ({
+          height: Math.round(week.count * unit) - 2,
+          color: weekColors[week.index],
+          radius: position === 0 ? '4px 4px 0 0' : '0'
+        }));
+
+      return { label: month.label, segments };
+    });
+
+    const ticks = [0, 2, 4, 6].map((value) => ({
+      label: String(value),
+      bottom: Math.round(value * unit)
+    }));
+
+    const gridlines = [2, 4, 6].map((value) => ({ bottom: Math.round(value * unit) }));
+
+    const legend = weekColors.map((color, index) => ({
+      color,
+      label: 'Week ' + (index + 1)
+    }));
+
+    return { months, ticks, gridlines, legend };
+  }
+}
+</script>
+</body>
+</html>
