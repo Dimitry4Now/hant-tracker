@@ -1,0 +1,137 @@
+<header class="topbar">
+  <app-brand [size]="22" />
+  <div class="actions">
+    <a routerLink="/login">Log in</a>
+    <a routerLink="/register" class="btn-link">Request access</a>
+    <app-theme-toggle />
+  </div>
+</header>
+
+@if (stats(); as s) {
+  <section class="hero">
+    <h1>Four players, one table, since {{ s.startYear }}.</h1>
+    <p class="muted">Every Thursday, tracked down to the last coin.</p>
+  </section>
+
+  <section class="tiles">
+    <div class="card tile">
+      <div class="stat-label">Games played</div>
+      <div class="stat-value">{{ s.gamesPlayed }}</div>
+    </div>
+    <div class="card tile">
+      <div class="stat-label">Rounds recorded</div>
+      <div class="stat-value">{{ s.roundsRecorded }}</div>
+    </div>
+    <div class="card tile">
+      <div class="stat-label">Hants recorded</div>
+      <div class="stat-value">{{ s.hantsRecorded }}</div>
+    </div>
+    <div class="card tile">
+      <div class="stat-label">Players</div>
+      <div class="stat-value">{{ s.players }}</div>
+    </div>
+  </section>
+
+  <section class="tiles three">
+    <div class="card tile">
+      <div class="stat-label">Rounds ending in Hant</div>
+      <div class="stat-value">{{ s.roundsEndingInHant }}%</div>
+    </div>
+    <div class="card tile">
+      <div class="stat-label">Rounds closed regular</div>
+      <div class="stat-value">{{ s.roundsClosedRegular }}%</div>
+    </div>
+    <div class="card tile">
+      <div class="stat-label">Games with a quitter</div>
+      <div class="stat-value">{{ s.gamesWithQuitter }}%</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="chart-head">
+      <h2>Games played</h2>
+      <span class="muted range">{{ s.gamesRange }}</span>
+    </div>
+    <p class="hint">One bar per month, split by the week it was played in</p>
+
+    <div class="chart">
+      <div class="y-axis" [style.height.px]="plotHeight">
+        @for (tick of ticks(); track tick.label) {
+          <span class="tick muted" [style.bottom.px]="tick.bottom">{{ tick.label }}</span>
+        }
+      </div>
+
+      <div class="plot-column">
+        <div class="plot" [style.height.px]="plotHeight">
+          @for (line of gridlines(); track line.label) {
+            <span class="gridline" [style.bottom.px]="line.bottom"></span>
+          }
+
+          <div class="bars">
+            @for (month of months(); track month.label) {
+              <div class="bar" [attr.aria-label]="month.label + ': ' + month.total + ' games'">
+                @for (segment of month.segments; track $index) {
+                  <span class="segment"
+                        [style.height.px]="segment.height"
+                        [style.background]="segment.color"
+                        [style.border-radius]="segment.radius"></span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="month-labels">
+          @for (month of months(); track month.label) {
+            <span class="muted">{{ month.label }}</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-legend">
+      <span class="stat-label legend-title">Week of month</span>
+      <div class="legend-items">
+        @for (item of legend; track item.label) {
+          <span class="legend-item">
+            <span class="swatch" [style.background]="item.color"></span>
+            {{ item.label }}
+          </span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="card section">
+    <h2>Player rankings</h2>
+    <div class="grid-table rankings">
+      <div class="th">Player</div>
+      <div class="th">Games</div>
+      <div class="th">Win rate</div>
+      @for (row of s.rankings; track row.name; let last = $last) {
+        <div class="td" [class.last-row]="last">{{ row.name }}</div>
+        <div class="td muted" [class.last-row]="last">{{ row.games }}</div>
+        <div class="td" [class.last-row]="last">{{ row.winRate }}%</div>
+      }
+    </div>
+  </section>
+
+  <section class="card section">
+    <h2>Playstyles</h2>
+    <p class="hint">A quick read on how everyone plays</p>
+    <div class="styles">
+      @for (row of s.playstyles; track row.name) {
+        <div class="style-row">
+          <span>{{ row.name }}</span>
+          <span class="badge badge-accent">{{ row.style }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="cta">
+    <a routerLink="/register" class="btn">Request access</a>
+  </section>
+} @else {
+  <p class="muted">Loading…</p>
+}

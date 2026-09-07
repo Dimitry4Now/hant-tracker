@@ -1,0 +1,28 @@
+<div class="wrap">
+  <div class="toggle-slot"><app-theme-toggle /></div>
+  <div class="brand-slot"><app-brand [size]="22" /></div>
+
+  <div class="card">
+    <h1>Log in</h1>
+    <p class="lede">Track the games, split the money.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="you@example.com" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" formControlName="password" placeholder="password" />
+      </div>
+      @if (error()) {
+        <div class="error">{{ error() }}</div>
+      }
+      <button type="submit" class="btn" [disabled]="submitting()">
+        {{ submitting() ? 'Logging in…' : 'Log in' }}
+      </button>
+    </form>
+
+    <div class="alt">No account yet? <a routerLink="/register">Request one</a></div>
+  </div>
+</div>

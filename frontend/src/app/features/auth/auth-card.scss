@@ -1,0 +1,66 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  position: relative;
+}
+
+.toggle-slot {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.brand-slot {
+  margin-bottom: 28px;
+}
+
+.card {
+  width: 100%;
+  max-width: 340px;
+  padding: 28px;
+}
+
+h1 {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.lede {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.btn {
+  height: 42px;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.error {
+  font-size: 12px;
+  color: var(--negative);
+}
+
+.alt {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 18px;
+}

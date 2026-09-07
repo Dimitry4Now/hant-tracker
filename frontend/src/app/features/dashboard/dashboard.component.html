@@ -1,0 +1,62 @@
+@if (stats(); as s) {
+  <div class="row-3">
+    <div class="card">
+      <div class="stat-label">Games this month</div>
+      <div class="stat-value">{{ s.gamesThisMonth }}</div>
+      <div class="stat-delta accent">{{ s.gamesThisMonth - s.gamesLastMonth | signed }} vs last month</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">Net money this month</div>
+      <div class="stat-value">{{ s.netDenThisMonth | signed: 'ден' }}</div>
+      <div class="stat-delta" [class.accent]="s.netDenThisMonth >= 0" [class.negative]="s.netDenThisMonth < 0">
+        ≈ {{ s.netDenThisMonth | denToEur }} · vs {{ s.netDenLastMonth | signed: 'ден' }} last month
+      </div>
+    </div>
+    <div class="card">
+      <div class="stat-label">Win rate this month</div>
+      <div class="stat-value">{{ s.winRateThisMonth }}%</div>
+      <div class="stat-delta"
+           [class.accent]="s.winRateThisMonth >= s.winRateLastMonth"
+           [class.negative]="s.winRateThisMonth < s.winRateLastMonth">
+        {{ s.winRateThisMonth - s.winRateLastMonth | signed }}% vs last month
+      </div>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="stat-label">All-time win rate</div>
+      <div class="stat-value">{{ s.allTimeWinRate }}%</div>
+      <div class="stat-delta muted">across {{ s.allTimeGames }} games</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">All-time net money</div>
+      <div class="stat-value">{{ s.allTimeNetDen | signed: 'ден' }}</div>
+      <div class="stat-delta muted">≈ {{ s.allTimeNetDen | denToEur }} · since your first game</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Leaderboard</span>
+      <span class="muted">All-time</span>
+    </div>
+    <div class="grid-table leaderboard">
+      <div class="th">Player</div>
+      <div class="th">Pts</div>
+      <div class="th">W-L</div>
+      <div class="th">Net</div>
+
+      @for (row of s.leaderboard; track row.playerId; let last = $last) {
+        <div class="td" [class.last-row]="last">{{ row.name }}</div>
+        <div class="td" [class.last-row]="last">{{ row.points }}</div>
+        <div class="td muted" [class.last-row]="last">{{ row.wins }}-{{ row.losses }}</div>
+        <div class="td" [class.last-row]="last" [class.accent]="row.netDen >= 0" [class.negative]="row.netDen < 0">
+          {{ row.netDen | signed: 'ден' }}
+        </div>
+      }
+    </div>
+  </div>
+} @else {
+  <p class="muted">Loading…</p>
+}
