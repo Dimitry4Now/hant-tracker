@@ -1,0 +1,19 @@
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+
+.users {
+  grid-template-columns: 2fr 0.9fr 0.9fr 1.2fr 2.4fr;
+}
+
+.email {
+  font-size: 11px;
+}
+
+.actions {
+  flex-wrap: wrap;
+}

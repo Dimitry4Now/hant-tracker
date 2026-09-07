@@ -1,0 +1,145 @@
+@if (game(); as g) {
+  <div class="crumbs muted"><a routerLink="/admin/games">Games</a> / {{ gameLabel(g) }}</div>
+
+  <div class="title-block">
+    <div class="title-row">
+      <h1>{{ formatDate(g.playedOn) }}</h1>
+      @if (g.gamesThatDay > 1) {
+        <span class="muted small">Game {{ g.gameOfDay }} of {{ g.gamesThatDay }} played this day</span>
+      }
+    </div>
+    <div class="players">
+      @for (player of players(); track player.id) {
+        <span class="badge">{{ player.name }}</span>
+      }
+    </div>
+  </div>
+
+  @if (g.note) {
+    <div class="card note-card">
+      <span class="stat-label">Session note</span>
+      <div>{{ g.note }}</div>
+    </div>
+  }
+
+  <!-- Rounds -->
+  <div class="card">
+    <div class="grid-table rounds" [style.grid-template-columns]="roundsColumns()">
+      <div class="th">Round</div>
+      @for (player of players(); track player.id) {
+        <div class="th">{{ player.name }}</div>
+      }
+      <div class="th">Comment</div>
+
+      @for (round of g.rounds; track round.id; let last = $last) {
+        <div class="td round-no" [class.last-row]="last" [class.final]="round.majstorska">
+          {{ round.number }}@if (round.majstorska) { · Majstorska } @else if (round.hant) { · Hant }
+        </div>
+        @for (player of players(); track player.id) {
+          <div class="td" [class.last-row]="last" [class.final]="round.majstorska"
+               [class.negative]="(pointsInRound(round, player.id)?.points ?? 0) < 0">
+            {{ pointsInRound(round, player.id)?.points | signed }}
+          </div>
+        }
+        <div class="td muted" [class.last-row]="last" [class.final]="round.majstorska">
+          {{ round.comment ?? '' }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Money -->
+  <div class="card section">
+    <h2>Money for this game</h2>
+    <p class="hint">
+      Settled by hand, entered as whole denars — euro shown for reference, no calculation happens on the site
+    </p>
+    <form [formGroup]="moneyForm" class="grid-table money">
+      <ng-container formArrayName="amounts">
+      <div class="th">Player</div>
+      <div class="th">Amount (ден)</div>
+      <div class="th">≈ Euro</div>
+
+      @for (player of players(); track player.id; let i = $index; let last = $last) {
+        <div class="td" [class.last-row]="last">{{ player.name }}</div>
+        <div class="td" [class.last-row]="last">
+          <input type="number" step="1" [formControlName]="i" class="amount" />
+        </div>
+        <div class="td muted" [class.last-row]="last">{{ amounts.at(i).value | denToEur }}</div>
+      }
+      </ng-container>
+    </form>
+    <button type="button" class="btn save" (click)="saveMoney()">Save amounts</button>
+    @if (saved()) {
+      <span class="saved accent">{{ saved() }}</span>
+    }
+  </div>
+
+  <!-- Add round -->
+  <div class="card section">
+    <h2>Add round</h2>
+    <p class="hint">Log a hand for this game — pick the round number, dealer, and each player's outcome</p>
+
+    <form [formGroup]="roundForm" (ngSubmit)="saveRound()">
+      <div class="round-meta">
+        <div class="field">
+          <label for="number">Round #</label>
+          <input id="number" type="number" formControlName="number" class="small-input" />
+        </div>
+        <div class="field">
+          <label for="dealer">Dealer</label>
+          <select id="dealer" formControlName="dealerId">
+            @for (player of players(); track player.id) {
+              <option [value]="player.id">{{ player.name }}</option>
+            }
+          </select>
+        </div>
+        <label class="check">
+          <input type="checkbox" formControlName="majstorska" />
+          Majstorska (final round)
+        </label>
+        <label class="check">
+          <input type="checkbox" formControlName="hant" />
+          Hant (win–win)
+        </label>
+      </div>
+
+      <div class="grid-table entries" formArrayName="entries">
+        <div class="th">Player</div>
+        <div class="th">Outcome</div>
+        <div class="th">Card value</div>
+        <div class="th">Points</div>
+
+        @for (entry of entries.controls; let i = $index; track i; let last = $last) {
+          <ng-container [formGroupName]="i">
+            <div class="td" [class.last-row]="last">{{ players()[i].name }}</div>
+            <div class="td" [class.last-row]="last">
+              <select formControlName="outcome">
+                @for (outcome of outcomes; track outcome) {
+                  <option [value]="outcome">{{ outcomeLabels[outcome] }}</option>
+                }
+              </select>
+            </div>
+            <div class="td" [class.last-row]="last">
+              <input type="number" formControlName="cardValue"
+                     [attr.disabled]="entry.get('outcome')?.value === 'OPENED' ? null : ''" />
+            </div>
+            <div class="td" [class.last-row]="last" [class.negative]="previewPoints(i) < 0">
+              {{ previewPoints(i) | signed }}
+            </div>
+          </ng-container>
+        }
+      </div>
+
+      <div class="field comment-field">
+        <label for="comment">Round comment</label>
+        <textarea id="comment" rows="2" formControlName="comment"
+                  placeholder="e.g. Player B stayed in too long on a weak hand"></textarea>
+      </div>
+
+      <button type="submit" class="btn save">Save round</button>
+    </form>
+  </div>
+} @else {
+  <p class="muted">Game not found.</p>
+}

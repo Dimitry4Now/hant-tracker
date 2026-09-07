@@ -1,0 +1,27 @@
+<div class="head">
+  <span class="page-title">Pending approvals</span>
+  <span class="count">{{ requests().length }}</span>
+</div>
+
+<div class="card">
+  @if (requests().length) {
+    <div class="grid-table requests">
+      <div class="th">Name</div>
+      <div class="th">Email</div>
+      <div class="th">Requested</div>
+      <div class="th">Actions</div>
+
+      @for (request of requests(); track request.id; let last = $last) {
+        <div class="td" [class.last-row]="last">{{ request.fullName }}</div>
+        <div class="td muted" [class.last-row]="last">{{ request.email }}</div>
+        <div class="td muted" [class.last-row]="last">{{ formatDate(request.requestedOn) }}</div>
+        <div class="td" [class.last-row]="last">
+          <button type="button" class="btn btn-sm" (click)="approve(request.id)">Approve</button>
+          <button type="button" class="btn btn-sm btn-danger" (click)="reject(request.id)">Reject</button>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="muted">Nothing waiting for review.</p>
+  }
+</div>

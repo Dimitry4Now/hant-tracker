@@ -1,0 +1,19 @@
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+
+.games {
+  grid-template-columns: 1.6fr 1.8fr 1.8fr 0.6fr;
+}
+
+.note {
+  overflow: hidden;
+}
+
+.view {
+  justify-content: flex-end;
+}

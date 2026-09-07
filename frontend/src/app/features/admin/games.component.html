@@ -1,0 +1,75 @@
+<div class="head">
+  <div>
+    <div class="page-title">Games</div>
+    <div class="page-subtitle">All logged games — more than one can share a date</div>
+  </div>
+  <button type="button" class="btn" (click)="openForm()">+ New game</button>
+</div>
+
+@if (showForm()) {
+  <form class="card new-form" [formGroup]="form" (ngSubmit)="create()">
+    <h2>New game</h2>
+    <p class="hint">It starts in progress with no rounds — add those on the game itself</p>
+
+    <div class="form-row">
+      <div class="field">
+        <label for="playedOn">Date</label>
+        <input id="playedOn" type="date" formControlName="playedOn" />
+      </div>
+      <div class="field grow">
+        <label for="note">Session note <span class="muted">(optional)</span></label>
+        <input id="note" type="text" formControlName="note" placeholder="e.g. Rain delay, paused early" />
+      </div>
+    </div>
+
+    <div class="field players-field">
+      <label>Players</label>
+      <div class="player-picks">
+        @for (user of users(); track user.id) {
+          <label class="pick" [class.picked]="picked().includes(user.id)">
+            <input type="checkbox"
+                   [checked]="picked().includes(user.id)"
+                   (change)="togglePlayer(user.id)" />
+            {{ user.displayName }}
+          </label>
+        }
+      </div>
+      @if (picked().length < 2) {
+        <span class="error">Pick at least two players.</span>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn" [disabled]="saving()">
+        {{ saving() ? 'Creating…' : 'Create game' }}
+      </button>
+      <button type="button" class="btn-ghost" (click)="cancel()">Cancel</button>
+    </div>
+  </form>
+}
+
+<div class="card">
+  <div class="grid-table games">
+    <div class="th">Date</div>
+    <div class="th">Rounds</div>
+    <div class="th">Note</div>
+    <div class="th"></div>
+
+    @for (game of games(); track game.id; let last = $last) {
+      <div class="td" [class.last-row]="last">
+        {{ formatDate(game.playedOn) }}
+        @if (game.gamesThatDay > 1) {
+          <span class="badge">Game {{ game.gameOfDay }}</span>
+        }
+      </div>
+      <div class="td" [class.last-row]="last">
+        {{ game.rounds.length }} rounds
+        <span class="badge" [class.badge-accent]="!game.inProgress && game.majstorska">{{ status(game) }}</span>
+      </div>
+      <div class="td muted note" [class.last-row]="last">{{ game.note ?? '—' }}</div>
+      <div class="td view" [class.last-row]="last">
+        <a [routerLink]="['/admin/games', game.id]">View</a>
+      </div>
+    }
+  </div>
+</div>

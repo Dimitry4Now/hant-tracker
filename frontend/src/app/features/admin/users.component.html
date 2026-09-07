@@ -1,0 +1,88 @@
+<div class="head">
+  <div>
+    <div class="page-title">Users</div>
+    <div class="page-subtitle">Everyone with an account</div>
+  </div>
+  <button type="button" class="btn" (click)="openForm()">+ New user</button>
+</div>
+
+@if (showForm()) {
+  <form class="card new-form" [formGroup]="form" (ngSubmit)="create()">
+    <h2>New user</h2>
+    <p class="hint">Created active — no approval step, since you are adding them directly</p>
+
+    <div class="form-row">
+      <div class="field grow">
+        <label for="fullName">Full name</label>
+        <input id="fullName" type="text" formControlName="fullName" placeholder="Marko Petrovski" />
+      </div>
+      <div class="field grow">
+        <label for="displayName">Display name</label>
+        <input id="displayName" type="text" formControlName="displayName" placeholder="Marko" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field grow">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="you@example.com" />
+      </div>
+      <div class="field">
+        <label for="role">Role</label>
+        <select id="role" formControlName="role">
+          <option value="USER">User</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+      </div>
+    </div>
+
+    @if (form.invalid && form.touched) {
+      <span class="error">Fill in every field with a valid email.</span>
+    }
+
+    <div class="form-actions">
+      <button type="submit" class="btn" [disabled]="saving()">
+        {{ saving() ? 'Creating…' : 'Create user' }}
+      </button>
+      <button type="button" class="btn-ghost" (click)="cancel()">Cancel</button>
+    </div>
+  </form>
+}
+
+<div class="card">
+  <div class="grid-table users">
+    <div class="th">Name</div>
+    <div class="th">Role</div>
+    <div class="th">Status</div>
+    <div class="th">Joined</div>
+    <div class="th">Actions</div>
+
+    @for (user of users(); track user.id; let last = $last) {
+      <div class="td name" [class.last-row]="last">
+        <div>
+          <div>{{ user.displayName }}</div>
+          <div class="email muted">{{ user.email }}</div>
+        </div>
+      </div>
+      <div class="td" [class.last-row]="last">
+        <span class="badge" [class.badge-accent]="user.role === 'ADMIN'">
+          {{ user.role === 'ADMIN' ? 'Admin' : 'User' }}
+        </span>
+      </div>
+      <div class="td" [class.last-row]="last">
+        <span class="badge" [class.badge-accent]="user.status === 'ACTIVE'"
+              [class.badge-negative]="user.status === 'LOCKED'">
+          {{ user.status === 'ACTIVE' ? 'Active' : 'Locked' }}
+        </span>
+      </div>
+      <div class="td muted" [class.last-row]="last">{{ formatDate(user.joinedOn) }}</div>
+      <div class="td actions" [class.last-row]="last">
+        <button type="button" class="btn-ghost" (click)="toggleLock(user)">
+          {{ user.status === 'LOCKED' ? 'Unlock' : 'Lock' }}
+        </button>
+        <button type="button" class="btn-ghost" (click)="resetPassword(user)">Reset password</button>
+        <button type="button" class="btn-ghost" (click)="rename(user)">Rename</button>
+      </div>
+    }
+  </div>
+</div>

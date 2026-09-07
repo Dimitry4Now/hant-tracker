@@ -1,0 +1,138 @@
+.crumbs {
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.crumbs a {
+  color: var(--muted);
+}
+
+.title-block {
+  margin-bottom: 16px;
+}
+
+.title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+h1 {
+  font-size: 22px;
+}
+
+h2 {
+  font-family: var(--heading-font);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.small {
+  font-size: 11px;
+}
+
+.players {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.players .badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  color: var(--text);
+}
+
+.note-card {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  font-size: 13px;
+}
+
+.section {
+  margin-top: 18px;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+
+.rounds .td {
+  font-size: 12px;
+  padding: 8px 0;
+}
+
+.rounds .td.final {
+  background: var(--bg);
+  padding: 10px 0;
+  font-weight: 600;
+}
+
+.round-no {
+  white-space: nowrap;
+}
+
+.money {
+  grid-template-columns: 1.6fr 1fr 1fr;
+}
+
+.amount {
+  height: 32px;
+  width: 100px;
+  font-size: 12px;
+}
+
+.save {
+  margin-top: 14px;
+  height: 38px;
+}
+
+.saved {
+  margin-left: 12px;
+  font-size: 12px;
+}
+
+.round-meta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.small-input {
+  width: 90px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  height: 40px;
+}
+
+.entries {
+  grid-template-columns: 1.6fr 1.6fr 1.2fr 1fr;
+  margin-bottom: 16px;
+}
+
+.entries select,
+.entries input {
+  height: 32px;
+  width: 100%;
+  font-size: 12px;
+  padding: 0 8px;
+}
+
+.entries input:disabled {
+  opacity: 0.5;
+}
+
+.comment-field {
+  margin-bottom: 14px;
+}

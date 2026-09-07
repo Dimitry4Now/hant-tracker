@@ -1,0 +1,46 @@
+<div class="head">
+  <div class="page-title">Analysis</div>
+  <div class="page-subtitle">Pick a game to see how it played out</div>
+</div>
+
+<div class="split">
+  <aside class="card list">
+    <div class="stat-label">Games</div>
+    @for (game of games(); track game.id) {
+      <button type="button" class="game-row" [class.selected]="game.id === selectedId()" (click)="select(game.id)">
+        <div class="date">{{ label(game) }}</div>
+        <div class="meta">
+          <span class="muted">{{ game.rounds.length }} rounds</span>
+          <span class="badge" [class.badge-accent]="!game.inProgress && game.majstorska">{{ status(game) }}</span>
+        </div>
+      </button>
+    }
+  </aside>
+
+  <section class="card detail">
+    @if (selected(); as game) {
+      <div class="detail-head">
+        <h2>{{ label(game) }}</h2>
+        <span class="badge" [class.badge-accent]="!game.inProgress && game.majstorska">{{ status(game) }}</span>
+      </div>
+      <div class="muted rounds-line">{{ game.rounds.length }} rounds played</div>
+
+      @if (game.note) {
+        <div class="note">{{ game.note }}</div>
+      }
+
+      <div class="grid-table standings">
+        <div class="th">Player</div>
+        <div class="th">Points</div>
+        <div class="th">Result</div>
+        @for (row of standings(); track row.playerId; let last = $last) {
+          <div class="td" [class.last-row]="last">{{ row.name }}</div>
+          <div class="td" [class.last-row]="last" [class.accent]="row.points < 0">{{ row.points | signed }}</div>
+          <div class="td muted" [class.last-row]="last">{{ row.result }}</div>
+        }
+      </div>
+    } @else {
+      <p class="muted">No games recorded yet.</p>
+    }
+  </section>
+</div>
