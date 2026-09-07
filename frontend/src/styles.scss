@@ -1,1 +1,332 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global design tokens and shared primitives.
+   Values come straight from the design canvas artboards in /design. */
+
+:root {
+  --bg: #faf8f4;
+  --surface: #ffffff;
+  --border: #e7e3da;
+  --text: #201f1c;
+  --muted: #8a8578;
+  --accent: #2f6f6a;
+  --negative: #a15139;
+  --grid: #f0ede6;
+
+  /* Week-of-month ramp: one hue, light to dark, because week 1–5 is an
+     ordered scale rather than five unrelated categories. */
+  --week-1: #7fb8b1;
+  --week-2: #5da49c;
+  --week-3: #3c8b84;
+  --week-4: #2f6f6a;
+  --week-5: #1d4a46;
+
+  /* One type pair for both themes — the artboards swapped fonts per theme,
+     which reflowed the whole page on toggle. */
+  --heading-font: 'Source Serif 4', Georgia, serif;
+  --body-font: 'Work Sans', system-ui, sans-serif;
+
+  --radius: 6px;
+  --radius-lg: 8px;
+  --page-max: 1120px;
+}
+
+[data-theme='dark'] {
+  --bg: #16302a;
+  --surface: #1c3a33;
+  --border: #2a4c44;
+  --text: #f3ead9;
+  --muted: #7fa89e;
+  --accent: #d4af37;
+  --negative: #c9707f;
+  --grid: #24443c;
+
+  /* Stepped from the gold accent, not flipped: week 1 stays the least
+     prominent step, which on a dark surface is the darkest one. */
+  --week-1: #7b621f;
+  --week-2: #a8862a;
+  --week-3: #d4af37;
+  --week-4: #e2c76f;
+  --week-5: #efdda6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body-font);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  margin: 0;
+}
+
+/* --- primitives ------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.page-title {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.page-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.negative {
+  color: var(--negative);
+}
+
+.btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--body-font);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-sm {
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12px;
+  border-radius: 5px;
+}
+
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--negative);
+  color: var(--negative);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--body-font);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+.badge-accent {
+  color: var(--accent);
+}
+
+.badge-negative {
+  color: var(--negative);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+input,
+select,
+textarea {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-family: var(--body-font);
+}
+
+textarea {
+  height: auto;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+input[type='checkbox'] {
+  height: auto;
+  width: auto;
+}
+
+/* Grid tables — the design uses CSS grid rather than <table>. */
+.grid-table {
+  display: grid;
+}
+
+.grid-table .th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.grid-table .td {
+  font-size: 13px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grid-table .td.last-row {
+  border-bottom: none;
+}
+
+/* Inline create panels (new game, new user) */
+.new-form {
+  margin-bottom: 18px;
+}
+
+.new-form h2 {
+  font-family: var(--heading-font);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.new-form .hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 2px 0 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.form-row .grow {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.form-actions .btn-ghost {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.player-picks {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pick.picked {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.error {
+  font-size: 12px;
+  color: var(--negative);
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-family: var(--heading-font);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.stat-delta {
+  font-size: 12px;
+  margin-top: 4px;
+}

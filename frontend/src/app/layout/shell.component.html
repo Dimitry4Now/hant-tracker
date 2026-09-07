@@ -1,0 +1,25 @@
+<div class="shell">
+  <header class="topbar">
+    <a routerLink="/dashboard" class="brand-link"><app-brand /></a>
+
+    <div class="right">
+      <nav>
+        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/analysis" routerLinkActive="active">Analysis</a>
+        @if (auth.isAdmin()) {
+          <a routerLink="/admin/requests" routerLinkActive="active">Requests</a>
+          <a routerLink="/admin/games" routerLinkActive="active">Games</a>
+          <a routerLink="/admin/users" routerLinkActive="active">Users</a>
+        }
+      </nav>
+      @if (auth.user(); as user) {
+        <button type="button" class="logout" (click)="logout()">{{ user.displayName }} · Log out</button>
+      }
+      <app-theme-toggle />
+    </div>
+  </header>
+
+  <main>
+    <router-outlet />
+  </main>
+</div>

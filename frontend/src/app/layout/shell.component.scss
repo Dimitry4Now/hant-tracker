@@ -1,0 +1,59 @@
+.shell {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.topbar {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 28px 28px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand-link {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+nav {
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+}
+
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+nav a.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.logout {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--body-font);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+main {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 28px 40px;
+}
