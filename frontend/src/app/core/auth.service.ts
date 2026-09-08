@@ -1,33 +1,60 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
-import { USERS } from './mock-data';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, catchError, map, of, tap } from 'rxjs';
+import { API_BASE } from './api.config';
 import { User } from './models';
 
-const STORAGE_KEY = 'hant-user';
+const STORAGE_KEY = 'hant-auth';
 
-/**
- * Placeholder auth. Any password is accepted for a known email until the
- * API exposes a real login endpoint.
- */
+interface StoredSession {
+  token: string;
+  user: User;
+}
+
+interface LoginResponse {
+  token: string;
+  user: User;
+}
+
+export interface RegisterInput {
+  fullName: string;
+  displayName: string;
+  email: string;
+  password: string;
+}
+
+/** Holds the JWT the API issues and the account it belongs to. */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly currentUser = signal<User | null>(readStoredUser());
+  private readonly http = inject(HttpClient);
+  private readonly session = signal<StoredSession | null>(readStoredSession());
 
-  readonly user = this.currentUser.asReadonly();
-  readonly isLoggedIn = computed(() => this.currentUser() !== null);
-  readonly isAdmin = computed(() => this.currentUser()?.role === 'ADMIN');
+  readonly user = computed(() => this.session()?.user ?? null);
+  readonly isLoggedIn = computed(() => this.session() !== null);
+  readonly isAdmin = computed(() => this.session()?.user.role === 'ADMIN');
 
-  login(email: string, _password: string): Observable<User | null> {
-    const user = USERS.find((u) => u.email.toLowerCase() === email.trim().toLowerCase()) ?? null;
-    if (user) {
-      this.currentUser.set(user);
-      this.store(user);
-    }
-    return of(user).pipe(delay(200));
+  get token(): string | null {
+    return this.session()?.token ?? null;
+  }
+
+  /** Resolves to null on wrong credentials or a locked account. */
+  login(email: string, password: string): Observable<User | null> {
+    return this.http
+      .post<LoginResponse>(`${API_BASE}/auth/login`, { email: email.trim(), password })
+      .pipe(
+        tap((response) => this.store(response)),
+        map((response) => response.user),
+        catchError(() => of(null))
+      );
+  }
+
+  /** Sign-up lands in the admin queue — no account exists until it is approved. */
+  register(input: RegisterInput): Observable<void> {
+    return this.http.post<void>(`${API_BASE}/auth/register`, input);
   }
 
   logout(): void {
-    this.currentUser.set(null);
+    this.session.set(null);
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch {
@@ -35,19 +62,20 @@ export class AuthService {
     }
   }
 
-  private store(user: User): void {
+  private store(session: StoredSession): void {
+    this.session.set(session);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
     } catch {
       // ignore
     }
   }
 }
 
-function readStoredUser(): User | null {
+function readStoredSession(): StoredSession | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as User) : null;
+    return raw ? (JSON.parse(raw) as StoredSession) : null;
   } catch {
     return null;
   }

@@ -1,6 +1,7 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
-import { ACCOUNT_REQUESTS, DASHBOARD, GAMES, PUBLIC_STATS, USERS } from './mock-data';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
+import { API_BASE } from './api.config';
 import {
   AccountRequest,
   DashboardStats,
@@ -11,45 +12,41 @@ import {
   User
 } from './models';
 
-/**
- * In-memory stand-in for the Spring Boot API. Every method returns an
- * Observable so swapping the bodies for HttpClient calls needs no changes
- * in the components.
- */
+/** Thin HTTP layer over the Spring Boot API. */
 @Injectable({ providedIn: 'root' })
 export class HantDataService {
-  private readonly users = signal<User[]>(structuredClone(USERS));
-  private readonly requests = signal<AccountRequest[]>(structuredClone(ACCOUNT_REQUESTS));
-  private readonly games = signal<Game[]>(structuredClone(GAMES));
+  private readonly http = inject(HttpClient);
 
   // --- read ------------------------------------------------------------
 
   getPublicStats(): Observable<PublicStats> {
-    return this.respond(PUBLIC_STATS);
+    return this.http.get<PublicStats>(`${API_BASE}/stats/public`);
   }
 
   getDashboard(): Observable<DashboardStats> {
-    return this.respond(DASHBOARD);
+    return this.http.get<DashboardStats>(`${API_BASE}/stats/dashboard`);
   }
 
   /** Newest day first; within a day, in the order they were played. */
   getGames(): Observable<Game[]> {
-    const sorted = [...this.games()].sort(
-      (a, b) => b.playedOn.localeCompare(a.playedOn) || a.gameOfDay - b.gameOfDay
-    );
-    return this.respond(sorted);
+    return this.http.get<Game[]>(`${API_BASE}/games`);
   }
 
   getGame(id: number): Observable<Game | undefined> {
-    return this.respond(this.games().find((g) => g.id === id));
+    return this.http.get<Game>(`${API_BASE}/games/${id}`).pipe(
+      catchError((error: unknown) => {
+        const notFound = error instanceof HttpErrorResponse && error.status === 404;
+        return notFound ? of(undefined) : throwError(() => error);
+      })
+    );
   }
 
   getUsers(): Observable<User[]> {
-    return this.respond(this.users());
+    return this.http.get<User[]>(`${API_BASE}/users`);
   }
 
   getAccountRequests(): Observable<AccountRequest[]> {
-    return this.respond(this.requests());
+    return this.http.get<AccountRequest[]>(`${API_BASE}/account-requests`);
   }
 
   // --- write -----------------------------------------------------------
@@ -60,29 +57,7 @@ export class HantDataService {
     playerIds: number[];
     note: string | null;
   }): Observable<Game> {
-    const sameDay = this.games().filter((g) => g.playedOn === input.playedOn);
-    const gamesThatDay = sameDay.length + 1;
-
-    const game: Game = {
-      id: Math.max(0, ...this.games().map((g) => g.id)) + 1,
-      playedOn: input.playedOn,
-      gameOfDay: gamesThatDay,
-      gamesThatDay,
-      inProgress: true,
-      majstorska: false,
-      note: input.note,
-      playerIds: input.playerIds,
-      rounds: [],
-      money: []
-    };
-
-    // The other games that day now belong to a larger set.
-    this.games.update((gs) => [
-      game,
-      ...gs.map((g) => (g.playedOn === input.playedOn ? { ...g, gamesThatDay } : g))
-    ]);
-
-    return this.respond(game);
+    return this.http.post<Game>(`${API_BASE}/games`, input);
   }
 
   createUser(input: {
@@ -91,76 +66,36 @@ export class HantDataService {
     email: string;
     role: User['role'];
   }): Observable<User> {
-    const user: User = {
-      id: Math.max(0, ...this.users().map((u) => u.id)) + 1,
-      fullName: input.fullName,
-      displayName: input.displayName,
-      email: input.email,
-      role: input.role,
-      status: 'ACTIVE',
-      joinedOn: new Date().toISOString().slice(0, 10)
-    };
-    this.users.update((us) => [...us, user]);
-    return this.respond(user);
+    return this.http.post<User>(`${API_BASE}/users`, input);
   }
 
   approveRequest(id: number): Observable<void> {
-    const request = this.requests().find((r) => r.id === id);
-    if (request) {
-      const nextId = Math.max(0, ...this.users().map((u) => u.id)) + 1;
-      this.users.update((users) => [
-        ...users,
-        {
-          id: nextId,
-          fullName: request.fullName,
-          displayName: request.fullName,
-          email: request.email,
-          role: 'USER',
-          status: 'ACTIVE',
-          joinedOn: new Date().toISOString().slice(0, 10)
-        }
-      ]);
-    }
-    this.requests.update((rs) => rs.filter((r) => r.id !== id));
-    return this.respond(undefined as void);
+    return this.http.post<void>(`${API_BASE}/account-requests/${id}/approve`, {}).pipe(toVoid());
   }
 
   rejectRequest(id: number): Observable<void> {
-    this.requests.update((rs) => rs.filter((r) => r.id !== id));
-    return this.respond(undefined as void);
+    return this.http.post<void>(`${API_BASE}/account-requests/${id}/reject`, {});
   }
 
   setUserStatus(id: number, status: User['status']): Observable<void> {
-    this.users.update((us) => us.map((u) => (u.id === id ? { ...u, status } : u)));
-    return this.respond(undefined as void);
+    return this.http.patch<void>(`${API_BASE}/users/${id}/status`, { status }).pipe(toVoid());
   }
 
   renameUser(id: number, displayName: string): Observable<void> {
-    this.users.update((us) => us.map((u) => (u.id === id ? { ...u, displayName } : u)));
-    return this.respond(undefined as void);
+    return this.http.patch<void>(`${API_BASE}/users/${id}/name`, { displayName }).pipe(toVoid());
   }
 
+  /** Points are computed client-side by `scoring.ts` and stored as sent. */
   addRound(gameId: number, round: Omit<Round, 'id'>): Observable<void> {
-    this.games.update((gs) =>
-      gs.map((g) =>
-        g.id === gameId
-          ? {
-              ...g,
-              rounds: [...g.rounds, { ...round, id: Math.max(0, ...g.rounds.map((r) => r.id)) + 1 }]
-            }
-          : g
-      )
-    );
-    return this.respond(undefined as void);
+    return this.http.post<Game>(`${API_BASE}/games/${gameId}/rounds`, round).pipe(toVoid());
   }
 
   saveMoney(gameId: number, money: GameMoney[]): Observable<void> {
-    this.games.update((gs) => gs.map((g) => (g.id === gameId ? { ...g, money } : g)));
-    return this.respond(undefined as void);
+    return this.http.put<Game>(`${API_BASE}/games/${gameId}/money`, { money }).pipe(toVoid());
   }
+}
 
-  private respond<T>(value: T): Observable<T> {
-    // Small delay so loading states behave like they will against the API.
-    return of(structuredClone(value)).pipe(delay(50));
-  }
+/** These endpoints answer with the updated entity; callers only need completion. */
+function toVoid<T>() {
+  return map<T, void>(() => undefined);
 }
