@@ -2,7 +2,8 @@
 
 ## Structure
 
-- `design/` — design canvas artboards (`.dc.html`) and reference mockups
+- `design/` — design canvas artboards (`.dc.html`), reference mockups, and
+  `link.txt` with the canvas URLs
 - `frontend/` — Angular app
 - `api/` — Spring Boot API (Java 21, Gradle, JPA/Hibernate, H2 in dev, PostgreSQL in prod)
 
@@ -21,6 +22,9 @@ games and two pending sign-ups. Log in with any seeded email — `playera@exampl
 (admin), `playerb@example.com`, `playerc@example.com` — and the password
 `password` (`app.seed.password`). `playerd@example.com` is seeded LOCKED on
 purpose, so it is the one to test a rejected login with.
+
+The dev database lives in memory: every restart drops it and seeds again, so
+anything entered through the UI is gone with it.
 
 ## Frontend
 
@@ -56,8 +60,13 @@ cd api
 ./gradlew bootRun --args='--spring.profiles.active=prod'   # PostgreSQL
 ```
 
-The prod profile reads `DB_URL`, `DB_USER`, `DB_PASSWORD`, and — set these
-before exposing it anywhere — `JWT_SECRET` and `CORS_ORIGINS`.
+The active profile also comes from `SPRING_PROFILES_ACTIVE`, and it is `dev`
+when nothing sets it. The prod profile reads `DB_URL`, `DB_USER`, `DB_PASSWORD`,
+and — set these before exposing it anywhere — `JWT_SECRET` and `CORS_ORIGINS`.
+It runs no seeder, so create the first admin directly in the database.
+
+A player an admin adds by hand gets `app.default-password` (`DEFAULT_PASSWORD`,
+`changeme` by default) until they are given a real one.
 
 Auth is a stateless JWT: `POST /api/auth/login` returns a token plus the user,
 and the token goes back as `Authorization: Bearer …`. Sign-ups (`POST
@@ -84,3 +93,17 @@ Endpoints:
 `/api/stats/*` returns the exact shapes in `frontend/src/app/core/models.ts`
 (`DashboardStats`, `PublicStats`), so the screens render them as they arrive.
 Dashboard numbers are the signed-in player's own; the leaderboard is all-time.
+
+Round points are stored as the client computed them (`core/scoring.ts`) — the
+API does not recompute or enforce the scoring rules.
+
+## Packaging
+
+```
+cd frontend && npm run build     # dist/frontend
+cd api && ./gradlew bootJar      # build/libs/api-0.0.1-SNAPSHOT.jar
+```
+
+The frontend calls `/api` on its own origin, so serving `dist/frontend` behind
+the same host as the API needs no extra configuration; hosting it elsewhere
+means setting `CORS_ORIGINS` on the API.
