@@ -63,7 +63,8 @@ cd api
 The active profile also comes from `SPRING_PROFILES_ACTIVE`, and it is `dev`
 when nothing sets it. The prod profile reads `DB_URL`, `DB_USER`, `DB_PASSWORD`,
 and — set these before exposing it anywhere — `JWT_SECRET` and `CORS_ORIGINS`.
-It runs no seeder, so create the first admin directly in the database.
+It runs no seeder; the first admin comes from `ADMIN_EMAIL` / `ADMIN_PASSWORD`,
+which are used once on an empty database and can be removed afterwards.
 
 A player an admin adds by hand gets `app.default-password` (`DEFAULT_PASSWORD`,
 `changeme` by default) until they are given a real one.
@@ -107,3 +108,6 @@ cd api && ./gradlew bootJar      # build/libs/api-0.0.1-SNAPSHOT.jar
 The frontend calls `/api` on its own origin, so serving `dist/frontend` behind
 the same host as the API needs no extra configuration; hosting it elsewhere
 means setting `CORS_ORIGINS` on the API.
+
+`DEPLOYMENT.md` walks through a first production install — file layout under
+`/opt/hant-tracker`, the systemd unit, nginx, logs and updates.
