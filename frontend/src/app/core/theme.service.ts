@@ -1,5 +1,7 @@
 import { Injectable, effect, signal } from '@angular/core';
 
+/** Also read by the inline script in index.html, which applies the theme
+ *  before the app boots. Changing the key means changing it there too. */
 const STORAGE_KEY = 'hant-theme';
 
 export type Theme = 'light' | 'dark';

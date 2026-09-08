@@ -2,6 +2,10 @@
    Values come straight from the design canvas artboards in /design. */
 
 :root {
+  /* Tells the browser which way to style what it draws itself: scrollbars,
+     form controls, autofilled inputs. */
+  color-scheme: light;
+
   --bg: #faf8f4;
   --surface: #ffffff;
   --border: #e7e3da;
@@ -30,6 +34,8 @@
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
+
   --bg: #16302a;
   --surface: #1c3a33;
   --border: #2a4c44;
