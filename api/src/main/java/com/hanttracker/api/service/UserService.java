@@ -78,6 +78,17 @@ public class UserService {
         return UserDto.of(user);
     }
 
+    /** Admin-side, so no password check — the admin is fixing someone else's account. */
+    public UserDto changeEmail(Long id, String email) {
+        UserAccount user = findUser(id);
+        String trimmed = email.trim();
+        if (!trimmed.equalsIgnoreCase(user.getEmail())) {
+            requireEmailFree(trimmed);
+        }
+        user.setEmail(trimmed);
+        return UserDto.of(user);
+    }
+
     // --- own account ----------------------------------------------------
 
     /** Changing the email needs the current password; the display name does not. */

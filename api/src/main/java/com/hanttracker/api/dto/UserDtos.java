@@ -25,4 +25,6 @@ public final class UserDtos {
     public record UpdateStatusRequest(@NotNull UserStatus status) {}
 
     public record RenameRequest(@NotBlank String displayName) {}
+
+    public record ChangeEmailRequest(@NotBlank @Email String email) {}
 }
