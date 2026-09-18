@@ -1,0 +1,149 @@
+<div class="m-page">
+  <div class="m-page-head">
+    <h1 class="m-title">Games</h1>
+    <div class="m-subtitle">{{ store.games().length }} games since {{ since() }}</div>
+  </div>
+
+  @if (live(); as game) {
+    <section class="live" aria-label="Game in progress">
+      <div class="live-head">
+        <span class="m-status-dot">In progress</span>
+        <span class="m-subtitle">{{ shortDate(game) }} · {{ game.rounds.length }} rounds</span>
+      </div>
+      <div class="standings" [style.grid-template-columns]="'repeat(' + liveStandings().length + ', minmax(0, 1fr))'">
+        @for (row of liveStandings(); track row.playerId; let first = $first) {
+          <div class="standing" [class.lead]="first && game.rounds.length">
+            <span class="name">{{ row.name }}</span>
+            <span class="total">{{ row.points }}</span>
+          </div>
+        }
+      </div>
+      <div class="live-actions">
+        <a class="m-btn grow" [routerLink]="['/admin/games', game.id]" [queryParams]="{ sheet: 'round' }">
+          <app-icon name="plus" [size]="18" />Add round {{ game.rounds.length + 1 }}
+        </a>
+        <a class="m-btn-outline" [routerLink]="['/admin/games', game.id]">Sheet</a>
+      </div>
+    </section>
+  }
+
+  <div class="m-chips" role="group" aria-label="Filter games">
+    @for (f of filters; track f.id) {
+      <button type="button" class="m-chip" [attr.aria-pressed]="filter() === f.id" (click)="setFilter(f.id)">
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  @for (month of visibleMonths(); track month.key) {
+    <section class="month">
+      <div class="month-head">
+        <h2>{{ month.label }}</h2>
+        <span class="m-subtitle">{{ month.games.length }} {{ month.games.length === 1 ? 'game' : 'games' }}</span>
+      </div>
+      <div class="m-list">
+        @for (game of month.games; track game.id) {
+          <a class="m-row" [routerLink]="['/admin/games', game.id]">
+            <div class="date">
+              <span class="day">{{ day(game) }}</span>
+              <span class="weekday">{{ weekday(game) }}</span>
+            </div>
+            <div class="body">
+              <div class="line-1">
+                <span>{{ title(game) }}</span>
+                @if (game.gamesThatDay > 1) {
+                  <span class="m-tag">Game {{ game.gameOfDay }}</span>
+                }
+              </div>
+              <div class="line-2">
+                <span>{{ game.rounds.length }} rounds</span>
+                <span aria-hidden="true">·</span>
+                <span [class.accent]="!game.inProgress && game.majstorska">{{ status(game) }}</span>
+              </div>
+              @if (game.note) {
+                <div class="note">“{{ game.note }}”</div>
+              }
+            </div>
+            <app-icon name="chevron" [size]="18" class="chevron" />
+          </a>
+        }
+      </div>
+    </section>
+  } @empty {
+    <p class="m-subtitle">No games match this filter.</p>
+  }
+
+  @if (nextMonth(); as month) {
+    <button type="button" class="m-btn-outline" (click)="showMore()">Show {{ month.label }}</button>
+  }
+</div>
+
+<button type="button" class="m-fab" (click)="openNewGame()">
+  <app-icon name="plus" [size]="20" />New game
+</button>
+
+@if (sheet.value() === 'new-game') {
+  <app-sheet title="New game" (closed)="sheet.close()">
+    <form class="new-game" [formGroup]="store.form" (ngSubmit)="create()" id="new-game-form">
+      <div class="date-note">
+        <div class="m-field">
+          <label for="m-played-on">Date</label>
+          <input id="m-played-on" class="m-input" type="date" formControlName="playedOn" />
+        </div>
+        <div class="m-field">
+          <label for="m-note">Note <span class="m-optional">(optional)</span></label>
+          <input id="m-note" class="m-input" type="text" formControlName="note" placeholder="e.g. Rain delay" />
+        </div>
+      </div>
+
+      <fieldset class="m-field">
+        <legend>Players <span class="m-optional">· same as last game</span></legend>
+        <div class="picks">
+          @for (user of store.users(); track user.id) {
+            <label class="m-pick" [class.on]="store.picked().includes(user.id)">
+              <input type="checkbox" [checked]="store.picked().includes(user.id)"
+                     (change)="store.togglePlayer(user.id)" />
+              {{ user.displayName }}
+            </label>
+          }
+        </div>
+        @if (store.picked().length < 2) {
+          <span class="error">Pick at least two players.</span>
+        }
+      </fieldset>
+
+      @if (store.picked().length > 1) {
+        <section class="m-field">
+          <div>
+            <h3 class="m-label">Seating</h3>
+            <div class="m-hint">Seat 1 deals first, then counterclockwise.</div>
+          </div>
+          <ol class="m-list seats">
+            @for (id of store.picked(); track id; let i = $index; let first = $first) {
+              <li class="seat">
+                <span class="m-seat">{{ i + 1 }}</span>
+                <span class="grow">{{ nameOf(id) }}</span>
+                @if (first) {
+                  <span class="m-tag-accent">Deals first</span>
+                } @else {
+                  <button type="button" class="m-icon-btn" (click)="moveUp(i)"
+                          [attr.aria-label]="'Move ' + nameOf(id) + ' up'">
+                    <app-icon name="back" [size]="18" class="up" />
+                  </button>
+                }
+              </li>
+            }
+          </ol>
+        </section>
+      }
+    </form>
+
+    <div sheet-footer>
+      <button type="submit" form="new-game-form" class="m-btn block"
+              [disabled]="store.saving() || store.picked().length < 2">
+        {{ store.saving() ? 'Creating…' : 'Create game' }}
+      </button>
+      <div class="m-hint center">Starts in progress with no rounds</div>
+    </div>
+  </app-sheet>
+}
