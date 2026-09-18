@@ -83,7 +83,8 @@ export class UsersComponent {
       return;
     }
     this.data.changeUserEmail(user.id, email).subscribe({
-      next: () => this.load(),
+      // Swap in the row the API sent back, so the grid never waits on a refetch.
+      next: (updated) => this.users.update((users) => users.map((u) => (u.id === updated.id ? updated : u))),
       error: (error: unknown) => {
         const status = error instanceof HttpErrorResponse ? error.status : 0;
         alert(

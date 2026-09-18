@@ -85,8 +85,8 @@ export class HantDataService {
     return this.http.patch<void>(`${API_BASE}/users/${id}/name`, { displayName }).pipe(toVoid());
   }
 
-  changeUserEmail(id: number, email: string): Observable<void> {
-    return this.http.patch<void>(`${API_BASE}/users/${id}/email`, { email }).pipe(toVoid());
+  changeUserEmail(id: number, email: string): Observable<User> {
+    return this.http.patch<User>(`${API_BASE}/users/${id}/email`, { email });
   }
 
   /** Points are computed client-side by `scoring.ts` and stored as sent. */
