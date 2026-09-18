@@ -1,7 +1,9 @@
 package com.hanttracker.api.dto;
 
 import com.hanttracker.api.domain.Game;
+import com.hanttracker.api.domain.Round;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 public record GameDto(
@@ -27,7 +29,11 @@ public record GameDto(
                 game.isMajstorska(),
                 game.getNote(),
                 List.copyOf(game.getPlayerIds()),
-                game.getRounds().stream().map(RoundDto::of).toList(),
+                // Sorted here too: an edit can renumber rounds after they were loaded.
+                game.getRounds().stream()
+                        .sorted(Comparator.comparingInt(Round::getNumber))
+                        .map(RoundDto::of)
+                        .toList(),
                 game.getMoney().stream().map(GameMoneyDto::of).toList());
     }
 }

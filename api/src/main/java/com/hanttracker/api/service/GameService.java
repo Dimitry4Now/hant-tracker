@@ -5,12 +5,15 @@ import com.hanttracker.api.domain.Round;
 import com.hanttracker.api.dto.GameDto;
 import com.hanttracker.api.dto.GameDtos.CreateGameRequest;
 import com.hanttracker.api.dto.GameDtos.CreateRoundRequest;
+import com.hanttracker.api.dto.GameDtos.UpdateGameRequest;
 import com.hanttracker.api.dto.GameMoneyDto;
 import com.hanttracker.api.dto.RoundEntryDto;
 import com.hanttracker.api.repo.GameRepository;
+import com.hanttracker.api.web.ConflictException;
 import com.hanttracker.api.web.NotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -84,6 +87,71 @@ public class GameService {
         return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
     }
 
+    /**
+     * A new date moves the game to the end of that day and closes the gap it
+     * left behind, so "Game N of the day" stays 1..n on both dates.
+     */
+    public GameDto update(Long gameId, UpdateGameRequest request) {
+        Game game = find(gameId);
+
+        if (!game.getPlayerIds().equals(request.playerIds())) {
+            if (!game.getRounds().isEmpty()) {
+                throw new ConflictException("Players cannot change once the game has rounds");
+            }
+            game.setPlayerIds(new ArrayList<>(request.playerIds()));
+            game.getMoney().removeIf(entry -> !request.playerIds().contains(entry.getPlayerId()));
+        }
+
+        LocalDate previousDate = game.getPlayedOn();
+        if (!previousDate.equals(request.playedOn())) {
+            game.setGameOfDay(games.findByPlayedOn(request.playedOn()).size() + 1);
+            game.setPlayedOn(request.playedOn());
+            games.flush();
+            renumberDay(previousDate);
+        }
+
+        game.setNote(request.note());
+        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+    }
+
+    public void delete(Long gameId) {
+        Game game = find(gameId);
+        games.delete(game);
+        games.flush();
+        renumberDay(game.getPlayedOn());
+    }
+
+    /** Same rules as adding one; the points arrive recomputed by the client. */
+    public GameDto updateRound(Long gameId, Long roundId, CreateRoundRequest request) {
+        Game game = find(gameId);
+        Round round = findRound(game, roundId);
+
+        round.setNumber(request.number() > 0 ? request.number() : round.getNumber());
+        round.setDealerId(request.dealerId());
+        round.setMajstorska(request.majstorska());
+        round.setHant(request.hant());
+        round.setComment(request.comment());
+        round.getEntries().clear();
+        request.entries().stream().map(RoundEntryDto::toEntity).forEach(round.getEntries()::add);
+
+        syncMajstorska(game);
+        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+    }
+
+    /** Later rounds move up one, so the numbers stay 1..n. */
+    public GameDto deleteRound(Long gameId, Long roundId) {
+        Game game = find(gameId);
+        game.getRounds().remove(findRound(game, roundId));
+
+        List<Round> remaining = new ArrayList<>(game.getRounds());
+        remaining.sort(Comparator.comparingInt(Round::getNumber));
+        for (int i = 0; i < remaining.size(); i++) {
+            remaining.get(i).setNumber(i + 1);
+        }
+        syncMajstorska(game);
+        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+    }
+
     public GameDto saveMoney(Long gameId, List<GameMoneyDto> money) {
         Game game = find(gameId);
         game.setMoney(money.stream().map(GameMoneyDto::toEntity).collect(Collectors.toCollection(ArrayList::new)));
@@ -94,6 +162,35 @@ public class GameService {
         Game game = find(gameId);
         game.setInProgress(inProgress);
         return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+    }
+
+    /**
+     * The game's Majstorska flag follows its rounds. Recording one closes the
+     * game; editing or deleting the last one away reopens it.
+     */
+    private void syncMajstorska(Game game) {
+        boolean hasMajstorska = game.getRounds().stream().anyMatch(Round::isMajstorska);
+        if (hasMajstorska && !game.isMajstorska()) {
+            game.setInProgress(false);
+        } else if (!hasMajstorska && game.isMajstorska()) {
+            game.setInProgress(true);
+        }
+        game.setMajstorska(hasMajstorska);
+    }
+
+    private void renumberDay(LocalDate day) {
+        List<Game> sameDay = new ArrayList<>(games.findByPlayedOn(day));
+        sameDay.sort(Comparator.comparingInt(Game::getGameOfDay));
+        for (int i = 0; i < sameDay.size(); i++) {
+            sameDay.get(i).setGameOfDay(i + 1);
+        }
+    }
+
+    private Round findRound(Game game, Long roundId) {
+        return game.getRounds().stream()
+                .filter(round -> round.getId().equals(roundId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("No round with id " + roundId + " in this game"));
     }
 
     private Game find(Long id) {
