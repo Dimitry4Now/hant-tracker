@@ -4,6 +4,8 @@ import com.hanttracker.api.domain.AccountRequest;
 import com.hanttracker.api.domain.UserAccount;
 import com.hanttracker.api.domain.UserRole;
 import com.hanttracker.api.domain.UserStatus;
+import com.hanttracker.api.dto.AccountDtos.ChangePasswordRequest;
+import com.hanttracker.api.dto.AccountDtos.UpdateProfileRequest;
 import com.hanttracker.api.dto.AccountRequestDto;
 import com.hanttracker.api.dto.AuthDtos.RegisterRequest;
 import com.hanttracker.api.dto.UserDto;
@@ -15,10 +17,12 @@ import com.hanttracker.api.web.NotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -74,6 +78,29 @@ public class UserService {
         return UserDto.of(user);
     }
 
+    // --- own account ----------------------------------------------------
+
+    /** Changing the email needs the current password; the display name does not. */
+    public UserDto updateProfile(Long id, UpdateProfileRequest request) {
+        UserAccount user = findUser(id);
+        String email = request.email().trim();
+
+        if (!email.equalsIgnoreCase(user.getEmail())) {
+            requireCurrentPassword(user, request.currentPassword());
+            requireEmailFree(email);
+        }
+
+        user.setDisplayName(request.displayName().trim());
+        user.setEmail(email);
+        return UserDto.of(user);
+    }
+
+    public void changePassword(Long id, ChangePasswordRequest request) {
+        UserAccount user = findUser(id);
+        requireCurrentPassword(user, request.currentPassword());
+        user.setPasswordHash(encoder.encode(request.newPassword()));
+    }
+
     // --- sign-up requests -----------------------------------------------
 
     @Transactional(readOnly = true)
@@ -122,6 +149,16 @@ public class UserService {
 
     private UserAccount findUser(Long id) {
         return users.findById(id).orElseThrow(() -> new NotFoundException("No user with id " + id));
+    }
+
+    /**
+     * 400 rather than 401/403: the frontend treats those as an expired session
+     * and logs the user out.
+     */
+    private void requireCurrentPassword(UserAccount user, String password) {
+        if (!StringUtils.hasText(password) || !encoder.matches(password, user.getPasswordHash())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is wrong");
+        }
     }
 
     private void requireEmailFree(String email) {
