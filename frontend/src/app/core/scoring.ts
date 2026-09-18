@@ -10,7 +10,9 @@ export interface ScoreContext {
  *
  * Low score wins, so the round winner takes a negative number. An "opened"
  * player scores the value of the cards left in hand; everyone else takes a
- * flat penalty, doubled in the Majstorska (final) round.
+ * flat penalty, doubled in the Majstorska (final) round. A player who never
+ * opened also pays double when the round ends in a Hant — but only once, so a
+ * Majstorska Hant is still 200.
  */
 export function pointsFor(
   outcome: RoundOutcome,
@@ -23,7 +25,7 @@ export function pointsFor(
     case 'OPENED':
       return cardValue ?? 0;
     case 'NOT_OPENED':
-      return ctx.majstorska ? 200 : 100;
+      return ctx.majstorska || ctx.hant ? 200 : 100;
     case 'QUIT':
       return ctx.majstorska ? 200 : 50;
   }
