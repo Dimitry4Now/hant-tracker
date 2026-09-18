@@ -1,3 +1,56 @@
+@if (viewport.isMobile()) {
+  <div class="m-shell" [class.bare]="viewport.bare()">
+    @if (!viewport.bare()) {
+      <header class="m-appbar">
+        <a routerLink="/dashboard" class="brand-link"><app-brand [size]="19" /></a>
+        <div class="m-appbar-actions">
+          <button type="button" class="m-icon-btn" (click)="theme.toggle()"
+                  [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'">
+            <app-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" [size]="20" />
+          </button>
+          @if (auth.user(); as user) {
+            <a routerLink="/account" class="m-icon-btn" [attr.aria-label]="'Account — ' + user.displayName">
+              <span class="m-avatar">{{ initials(user.displayName) }}</span>
+            </a>
+          }
+        </div>
+      </header>
+    }
+
+    <main class="m-main">
+      <router-outlet />
+    </main>
+
+    @if (!viewport.bare()) {
+      <nav class="m-tabbar" aria-label="Main">
+        <a routerLink="/dashboard" routerLinkActive="active" ariaCurrentWhenActive="page">
+          <app-icon name="dashboard" />Dashboard
+        </a>
+        <a routerLink="/analysis" routerLinkActive="active" ariaCurrentWhenActive="page">
+          <app-icon name="analysis" />Analysis
+        </a>
+        @if (auth.isAdmin()) {
+          <a routerLink="/admin/games" routerLinkActive="active" ariaCurrentWhenActive="page">
+            <app-icon name="games" />Games
+          </a>
+          <a routerLink="/admin/requests" [class.active]="adminActive()"
+             [attr.aria-current]="adminActive() ? 'page' : null">
+            <app-icon name="admin" />Admin
+            @if (pendingRequests() > 0) {
+              <span class="m-tab-badge" [attr.aria-label]="pendingRequests() + ' pending requests'">
+                {{ pendingRequests() }}
+              </span>
+            }
+          </a>
+        } @else {
+          <a routerLink="/account" routerLinkActive="active" ariaCurrentWhenActive="page">
+            <app-icon name="account" />Account
+          </a>
+        }
+      </nav>
+    }
+  </div>
+} @else {
 <div class="shell">
   <header class="topbar">
     <a routerLink="/dashboard" class="brand-link"><app-brand /></a>
@@ -27,3 +80,4 @@
     <router-outlet />
   </main>
 </div>
+}

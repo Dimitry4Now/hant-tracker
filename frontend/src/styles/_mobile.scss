@@ -1,0 +1,138 @@
+/* Mobile app layout — primitives for the phone screens in design/mobile.
+   Everything is prefixed m- so none of it reaches the desktop web, which
+   only ever renders its own class names. */
+
+/* Keep in step with MOBILE_QUERY in core/viewport.service.ts. */
+$mobile-max: 767px;
+
+$appbar-height: 56px;
+$tabbar-height: 64px;
+
+/* --- shell --------------------------------------------------------------- */
+
+.m-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+.m-appbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: $appbar-height;
+  padding: 0 8px 0 16px;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+
+  .brand-link {
+    color: var(--text);
+    text-decoration: none;
+  }
+}
+
+.m-appbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.m-icon-btn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.m-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Leaves room at the bottom so the last card clears the fixed tab bar.
+   Qualified by .m-shell to outrank the shell's own `main` rule. */
+.m-shell .m-main {
+  max-width: none;
+  margin: 0;
+  padding: 20px 16px calc(#{$tabbar-height} + 32px + env(safe-area-inset-bottom));
+}
+
+.m-shell.bare .m-main {
+  padding: 0;
+}
+
+.m-tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  height: calc(#{$tabbar-height} + env(safe-area-inset-bottom));
+  padding: 6px 8px env(safe-area-inset-bottom);
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+
+  a {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a:hover {
+    opacity: 1;
+  }
+
+  a.active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+}
+
+.m-tab-badge {
+  position: absolute;
+  top: 2px;
+  left: calc(50% + 6px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--negative);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
