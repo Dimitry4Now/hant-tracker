@@ -39,6 +39,13 @@
       }
     </div>
 
+    @if (picked().length > 1) {
+      <div class="field seats-field">
+        <label>Seating <span class="muted">— seat 1 deals first, then counterclockwise</span></label>
+        <app-seat-order [(seats)]="picked" [users]="users()" />
+      </div>
+    }
+
     <div class="form-actions">
       <button type="submit" class="btn" [disabled]="saving()">
         {{ saving() ? 'Creating…' : 'Create game' }}

@@ -13,8 +13,8 @@
       </div>
     </div>
     <div class="players">
-      @for (player of players(); track player.id) {
-        <span class="badge">{{ player.name }}</span>
+      @for (player of players(); track player.id; let i = $index) {
+        <span class="badge"><span class="muted">{{ i + 1 }}</span> {{ player.name }}</span>
       }
     </div>
   </div>
@@ -24,7 +24,7 @@
       <h2>Edit game</h2>
       <p class="hint">
         Changing the date moves the game to the end of that day.
-        @if (g.rounds.length) { Players are fixed once rounds are logged. }
+        @if (g.rounds.length) { Players are fixed once rounds are logged, but the seating can still change. }
       </p>
 
       <div class="form-row">
@@ -55,6 +55,13 @@
           <span class="error">Pick at least two players.</span>
         }
       </div>
+
+      @if (picked().length > 1) {
+        <div class="field seats-field">
+          <label>Seating <span class="muted">— seat 1 deals first, then counterclockwise</span></label>
+          <app-seat-order [(seats)]="picked" [users]="users()" />
+        </div>
+      }
 
       @if (gameError(); as message) {
         <span class="error">{{ message }}</span>
@@ -92,6 +99,9 @@
           <div class="td" [class.last-row]="last" [class.final]="round.majstorska"
                [class.negative]="(pointsInRound(round, player.id)?.points ?? 0) < 0">
             {{ pointsInRound(round, player.id)?.points | signed }}
+            @if (round.dealerId === player.id) {
+              <span class="dealer" title="Dealer">D</span>
+            }
           </div>
         }
         <div class="td muted" [class.last-row]="last" [class.final]="round.majstorska">

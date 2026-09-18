@@ -5,11 +5,12 @@ import { forkJoin } from 'rxjs';
 import { HantDataService } from '../../core/hant-data.service';
 import { formatDate, gameLabel, statusLabel } from '../../core/game-stats';
 import { Game, User } from '../../core/models';
+import { SeatOrderComponent } from '../../shared/seat-order.component';
 
 @Component({
   selector: 'app-games',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, SeatOrderComponent],
   templateUrl: './games.component.html',
   styleUrl: './games.component.scss'
 })

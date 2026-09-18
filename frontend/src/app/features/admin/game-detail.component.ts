@@ -8,12 +8,13 @@ import { formatDate, gameLabel } from '../../core/game-stats';
 import { Game, Round, RoundEntry, RoundOutcome, User } from '../../core/models';
 import { OUTCOMES, OUTCOME_LABELS, pointsFor } from '../../core/scoring';
 import { DenToEurPipe } from '../../shared/den-to-eur.pipe';
+import { SeatOrderComponent } from '../../shared/seat-order.component';
 import { SignedPipe } from '../../shared/signed.pipe';
 
 @Component({
   selector: 'app-game-detail',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, DenToEurPipe, SignedPipe],
+  imports: [ReactiveFormsModule, RouterLink, DenToEurPipe, SignedPipe, SeatOrderComponent],
   templateUrl: './game-detail.component.html',
   styleUrl: './game-detail.component.scss'
 })
