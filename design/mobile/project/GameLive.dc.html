@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Game in progress — mobile sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&amp;family=Work+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Work Sans',system-ui,sans-serif;background:#faf8f4;color:#201f1c;-webkit-font-smoothing:antialiased}
+a{color:#2f6f6a;text-decoration:none}a:hover{color:#24574f}
+</style>
+</helmet>
+<div style="width: 390px; height: 1120px; position: relative; overflow: hidden; background: #faf8f4; display: flex; flex-direction: column;">
+
+  <!-- App bar -->
+  <header style="height: 56px; flex-shrink: 0; box-sizing: border-box; padding: 0 4px; display: flex; align-items: center; gap: 4px; border-bottom: 1px solid #e7e3da;">
+    <a href="Main.dc.html" aria-label="Back to games" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #201f1c;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+    </a>
+    <div style="flex-grow: 1; min-width: 0;">
+      <div style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 18px; line-height: 1.2;">17 Sept 2026</div>
+      <div style="font-size: 12px; color: #2f6f6a; font-weight: 500;">In progress · 12 rounds</div>
+    </div>
+    <button type="button" aria-label="Game options: edit or delete" style="width: 44px; height: 44px; border: none; background: transparent; color: #201f1c; display: flex; align-items: center; justify-content: center;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg>
+    </button>
+  </header>
+
+  <!-- Section switch -->
+  <div style="padding: 12px 16px 0;">
+    <div role="tablist" aria-label="Game sections" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 10px; background: #efebe3;">
+      <button type="button" role="tab" aria-selected="true" style="height: 36px; border: none; border-radius: 7px; background: #ffffff; color: #201f1c; font-family: inherit; font-size: 14px; font-weight: 600; box-shadow: 0 1px 2px rgba(32, 31, 28, 0.12);">Sheet</button>
+      <button type="button" role="tab" aria-selected="false" style="height: 36px; border: none; border-radius: 7px; background: transparent; color: #57534a; font-family: inherit; font-size: 14px;">Money</button>
+      <button type="button" role="tab" aria-selected="false" style="height: 36px; border: none; border-radius: 7px; background: transparent; color: #57534a; font-family: inherit; font-size: 14px;">Details</button>
+    </div>
+  </div>
+
+  <!-- Score sheet -->
+  <section aria-label="Score sheet — running totals, low score wins" style="margin: 12px 16px 0; background: #ffffff; border: 1px solid #e7e3da; border-radius: 12px; overflow: hidden;">
+    <!-- Header doubles as the standings: seat order, name, current total -->
+    <div style="display: grid; grid-template-columns: 46px repeat(4, minmax(0, 1fr)); padding: 10px 8px 10px 10px; background: #faf8f4; border-bottom: 1px solid #e7e3da;">
+      <div style="font-size: 11px; color: #6f6a5f; text-transform: uppercase; letter-spacing: 0.06em; align-self: end; padding-bottom: 2px;">Rd</div>
+      <sc-for list="{{players}}" as="p" hint-placeholder-count="4">
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding-right: 4px;">
+          <span style="font-size: 11px; color: #6f6a5f; white-space: nowrap;">{{p.seat}} · {{p.name}}</span>
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 19px; font-variant-numeric: tabular-nums; color: {{p.color}};">{{p.total}}</span>
+          <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: {{p.color}}; height: 12px;">{{p.place}}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-for list="{{rounds}}" as="r" hint-placeholder-count="12">
+      <a href="AddRound.dc.html" aria-label="{{r.label}}" style="display: block; color: #201f1c; border-top: {{r.divider}};">
+        <div style="display: grid; grid-template-columns: 46px repeat(4, minmax(0, 1fr)); align-items: center; min-height: 48px; padding: 4px 8px 4px 10px; background: {{r.bg}};">
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <span style="font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums;">{{r.number}}</span>
+            <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #9a6a12;">{{r.tag}}</span>
+          </div>
+          <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 4px;">
+              <span style="display: flex; align-items: center; gap: 4px; font-size: 15px; font-variant-numeric: tabular-nums; font-weight: {{c.weight}}; color: {{c.color}};">
+                <sc-if value="{{c.dealer}}" hint-placeholder-val="{{false}}">
+                  <span title="Dealer" aria-label="dealer" style="width: 15px; height: 15px; border-radius: 8px; border: 1px solid #cdc7ba; color: #6f6a5f; font-size: 9px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">D</span>
+                </sc-if>
+                {{c.total}}
+              </span>
+              <span style="font-size: 11px; font-variant-numeric: tabular-nums; color: #7d786c;">{{c.delta}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{r.comment}}" hint-placeholder-val="{{false}}">
+          <div style="padding: 0 12px 10px 56px; font-size: 12px; font-style: italic; color: #6f6a5f; background: {{r.bg}};">“{{r.comment}}”</div>
+        </sc-if>
+      </a>
+    </sc-for>
+  </section>
+
+  <p style="margin: 10px 16px 0; font-size: 12px; color: #6f6a5f; line-height: 1.45;">Tap a round to edit or delete it. Winner of each round in rust; small figures are the round's own points.</p>
+
+  <!-- Sticky action bar -->
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 12px 16px 24px; background: #ffffff; border-top: 1px solid #e7e3da; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 -4px 14px rgba(32, 31, 28, 0.06);">
+    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #6f6a5f;">
+      <span>Next up: round 13</span>
+      <span><strong style="color: #201f1c; font-weight: 600;">Player A</strong> deals</span>
+    </div>
+    <a href="AddRound.dc.html" style="height: 52px; border-radius: 10px; background: #2f6f6a; color: #faf8f4; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+      Add round 13
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const names = ['Player A', 'Player B', 'Player C', 'Player D'];
+    // [dealer seat, hant, points per seat, comment]
+    const raw = [
+      [0, false, [-50, 100, 100, 100]],
+      [1, false, [100, -50, 70, 100]],
+      [2, false, [100, 100, -50, 50]],
+      [3, false, [-50, 80, 100, 100]],
+      [0, false, [100, -50, 100, 100]],
+      [1, false, [50, 100, -50, 100]],
+      [2, false, [-50, 100, 60, 100]],
+      [3, false, [100, 100, 100, -50]],
+      [0, true, [-150, 140, 100, 100], 'First Hant of the day!'],
+      [1, false, [100, -50, 100, 50]],
+      [2, false, [90, 100, -50, 100]],
+      [3, false, [-50, 100, 100, 100]]
+    ];
+    const sums = [0, 0, 0, 0];
+    const sign = (n) => (n > 0 ? '+' + n : n < 0 ? '−' + Math.abs(n) : '0');
+    const plain = (n) => (n < 0 ? '−' + Math.abs(n) : String(n));
+    const rounds = raw.map(([dealer, hant, pts, comment], i) => {
+      pts.forEach((p, s) => { sums[s] += p; });
+      return {
+        number: String(i + 1),
+        tag: hant ? 'Hant' : '',
+        comment: comment || '',
+        label: 'Round ' + (i + 1) + ', edit',
+        divider: i === 0 ? 'none' : '1px solid #efebe3',
+        bg: hant ? '#fdf8ec' : '#ffffff',
+        cells: pts.map((p, s) => ({
+          total: plain(sums[s]),
+          delta: sign(p),
+          dealer: s === dealer,
+          color: p < 0 ? '#a15139' : '#201f1c',
+          weight: p < 0 ? '600' : '400'
+        }))
+      };
+    });
+    const order = sums.map((t, s) => ({ t, s })).sort((a, b) => a.t - b.t);
+    const places = ['Leading', '2nd', '3rd', '4th'];
+    const players = names.map((name, s) => {
+      const place = order.findIndex((o) => o.s === s);
+      return {
+        seat: String(s + 1),
+        name: name.replace('Player ', ''),
+        total: plain(sums[s]),
+        place: places[place],
+        color: place === 0 ? '#2f6f6a' : '#201f1c'
+      };
+    });
+    return { rounds, players };
+  }
+}
+</script>
+</body>
+</html>

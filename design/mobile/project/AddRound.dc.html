@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add round — mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&amp;family=Work+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Work Sans',system-ui,sans-serif;background:#faf8f4;color:#201f1c;-webkit-font-smoothing:antialiased}
+a{color:#2f6f6a;text-decoration:none}a:hover{color:#24574f}
+input::placeholder,textarea::placeholder{color:#8a8578}
+</style>
+</helmet>
+<form style="width: 390px; height: 1300px; position: relative; overflow: hidden; background: #faf8f4; display: flex; flex-direction: column; margin: 0;">
+
+  <!-- Top bar -->
+  <header style="height: 56px; flex-shrink: 0; box-sizing: border-box; padding: 0 8px 0 4px; display: flex; align-items: center; gap: 4px; border-bottom: 1px solid #e7e3da; background: #ffffff;">
+    <a href="GameLive.dc.html" aria-label="Cancel and go back to the sheet" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #201f1c;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+    </a>
+    <div style="flex-grow: 1;">
+      <div style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 18px; line-height: 1.2;">Add round 13</div>
+      <div style="font-size: 12px; color: #6f6a5f;">17 Sept 2026</div>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; box-sizing: border-box; padding: 16px 16px 120px; display: flex; flex-direction: column; gap: 20px;">
+
+    <!-- Dealer -->
+    <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+      <legend style="padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 500; color: #57534a;">Dealer <span style="font-weight: 400; color: #6f6a5f;">· next in seat order</span></legend>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;">
+        <sc-for list="{{dealers}}" as="d" hint-placeholder-count="4">
+          <label style="height: 44px; border-radius: 8px; border: 1px solid {{d.border}}; background: {{d.bg}}; color: {{d.color}}; font-size: 14px; font-weight: {{d.weight}}; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;">
+            <input type="radio" name="dealer" value="{{d.name}}" checked="{{d.on}}" style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+            <span style="font-size: 11px; opacity: 0.75;">{{d.seat}}</span>{{d.short}}
+          </label>
+        </sc-for>
+      </div>
+    </fieldset>
+
+    <!-- Round type -->
+    <div style="background: #ffffff; border: 1px solid #e7e3da; border-radius: 12px;">
+      <label style="min-height: 60px; box-sizing: border-box; padding: 10px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer;">
+        <span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 15px; font-weight: 500;">Majstorska</span>
+          <span style="font-size: 12px; color: #6f6a5f;">Final round — penalties are doubled</span>
+        </span>
+        <input type="checkbox" role="switch" style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+        <span aria-hidden="true" style="width: 46px; height: 28px; border-radius: 14px; background: #d9d4c9; position: relative; flex-shrink: 0;"><span style="position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 11px; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span></span>
+      </label>
+      <label style="min-height: 60px; box-sizing: border-box; padding: 10px 14px; display: flex; align-items: center; gap: 12px; border-top: 1px solid #efebe3; cursor: pointer;">
+        <span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 15px; font-weight: 500;">Hant</span>
+          <span style="font-size: 12px; color: #6f6a5f;">Win–win — winner −150, not opened pays 200</span>
+        </span>
+        <input type="checkbox" role="switch" style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+        <span aria-hidden="true" style="width: 46px; height: 28px; border-radius: 14px; background: #d9d4c9; position: relative; flex-shrink: 0;"><span style="position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 11px; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span></span>
+      </label>
+    </div>
+
+    <!-- Entry mode -->
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div role="radiogroup" aria-label="How to enter this round" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 10px; background: #efebe3;">
+        <button type="button" role="radio" aria-checked="true" style="height: 36px; border: none; border-radius: 7px; background: #ffffff; color: #201f1c; font-family: inherit; font-size: 14px; font-weight: 600; box-shadow: 0 1px 2px rgba(32, 31, 28, 0.12);">Running totals</button>
+        <button type="button" role="radio" aria-checked="false" style="height: 36px; border: none; border-radius: 7px; background: transparent; color: #57534a; font-family: inherit; font-size: 14px;">Outcomes</button>
+      </div>
+      <p style="margin: 0; font-size: 12px; color: #6f6a5f; line-height: 1.45;">Copy each total from the paper sheet. The round's points and outcome are worked out — change the outcome if the guess is wrong.</p>
+    </div>
+
+    <!-- Players -->
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <sc-for list="{{entries}}" as="e" hint-placeholder-count="4">
+        <div style="background: #ffffff; border: 1px solid #e7e3da; border-radius: 12px; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <label for="{{e.id}}" style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+              <span style="font-size: 15px; font-weight: 600;">{{e.name}}</span>
+              <span style="font-size: 12px; color: #6f6a5f;">was {{e.was}}</span>
+            </label>
+            <span style="min-width: 52px; text-align: right; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: {{e.deltaColor}};">{{e.delta}}</span>
+            <input id="{{e.id}}" type="text" inputmode="numeric" value="{{e.total}}" placeholder="{{e.was}}" aria-label="{{e.name}} total after round 13" style="width: 104px; height: 48px; box-sizing: border-box; border-radius: 8px; border: 1px solid #cdc7ba; background: #faf8f4; padding: 0 12px; text-align: right; font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 20px; color: #201f1c; font-variant-numeric: tabular-nums;">
+          </div>
+          <div role="radiogroup" aria-label="{{e.name}} outcome" style="display: flex; gap: 6px;">
+            <sc-for list="{{e.outcomes}}" as="o" hint-placeholder-count="4">
+              <button type="button" role="radio" aria-checked="{{o.on}}" style="height: 44px; padding: 0 11px; border-radius: 8px; border: 1px solid {{o.border}}; background: {{o.bg}}; color: {{o.color}}; font-family: inherit; font-size: 13px; font-weight: {{o.weight}}; white-space: nowrap;">{{o.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <label for="comment" style="font-size: 13px; font-weight: 500; color: #57534a;">Round comment <span style="font-weight: 400; color: #6f6a5f;">(optional)</span></label>
+      <textarea id="comment" rows="2" placeholder="e.g. Player B stayed in too long on a weak hand" style="box-sizing: border-box; width: 100%; min-height: 72px; border-radius: 8px; border: 1px solid #cdc7ba; background: #ffffff; padding: 10px 12px; font-family: inherit; font-size: 15px; color: #201f1c; resize: none;"></textarea>
+    </div>
+  </div>
+
+  <!-- Sticky save -->
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; padding: 12px 16px 24px; background: #ffffff; border-top: 1px solid #e7e3da; box-shadow: 0 -4px 14px rgba(32, 31, 28, 0.06);">
+    <a href="GameLive.dc.html" style="height: 52px; border-radius: 10px; background: #2f6f6a; color: #faf8f4; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center;">Save round 13</a>
+  </div>
+</form>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dealers = ['A', 'B', 'C', 'D'].map((short, i) => {
+      const on = i === 0;
+      return {
+        short, name: 'Player ' + short, seat: String(i + 1), on,
+        bg: on ? '#2f6f6a' : '#ffffff', color: on ? '#faf8f4' : '#201f1c',
+        border: on ? '#2f6f6a' : '#e7e3da', weight: on ? '600' : '400'
+      };
+    });
+    const labels = { WINNER: 'Winner', OPENED: 'Opened', NOT_OPENED: 'Not opened', QUIT: 'Quit' };
+    const rows = [
+      ['Player A', 290, 390, 'NOT_OPENED'],
+      ['Player B', 770, 720, 'WINNER'],
+      ['Player C', 680, 780, 'NOT_OPENED'],
+      ['Player D', 950, 1020, 'OPENED']
+    ];
+    const entries = rows.map(([name, was, total, outcome], i) => {
+      const d = total - was;
+      return {
+        id: 'total-' + i, name, was: String(was), total: String(total),
+        delta: d > 0 ? '+' + d : '−' + Math.abs(d),
+        deltaColor: d < 0 ? '#a15139' : '#57534a',
+        outcomes: Object.keys(labels).map((k) => {
+          const on = k === outcome;
+          return {
+            label: labels[k], on: on ? 'true' : 'false',
+            bg: on ? '#e4efed' : '#ffffff', border: on ? '#2f6f6a' : '#e7e3da',
+            color: on ? '#24574f' : '#57534a', weight: on ? '600' : '400'
+          };
+        })
+      };
+    });
+    return { dealers, entries };
+  }
+}
+</script>
+</body>
+</html>
