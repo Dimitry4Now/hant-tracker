@@ -89,9 +89,30 @@ export class HantDataService {
     return this.http.patch<User>(`${API_BASE}/users/${id}/email`, { email });
   }
 
+  /** Players can only change while the game has no rounds; the API answers 409 otherwise. */
+  updateGame(
+    id: number,
+    input: { playedOn: string; playerIds: number[]; note: string | null }
+  ): Observable<void> {
+    return this.http.put<Game>(`${API_BASE}/games/${id}`, input).pipe(toVoid());
+  }
+
+  deleteGame(id: number): Observable<void> {
+    return this.http.delete<void>(`${API_BASE}/games/${id}`);
+  }
+
   /** Points are computed client-side by `scoring.ts` and stored as sent. */
   addRound(gameId: number, round: Omit<Round, 'id'>): Observable<void> {
     return this.http.post<Game>(`${API_BASE}/games/${gameId}/rounds`, round).pipe(toVoid());
+  }
+
+  updateRound(gameId: number, roundId: number, round: Omit<Round, 'id'>): Observable<void> {
+    return this.http.put<Game>(`${API_BASE}/games/${gameId}/rounds/${roundId}`, round).pipe(toVoid());
+  }
+
+  /** Later rounds are renumbered by the API so the numbers stay 1..n. */
+  deleteRound(gameId: number, roundId: number): Observable<void> {
+    return this.http.delete<Game>(`${API_BASE}/games/${gameId}/rounds/${roundId}`).pipe(toVoid());
   }
 
   saveMoney(gameId: number, money: GameMoney[]): Observable<void> {

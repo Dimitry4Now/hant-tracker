@@ -7,6 +7,10 @@
       @if (g.gamesThatDay > 1) {
         <span class="muted small">Game {{ g.gameOfDay }} of {{ g.gamesThatDay }} played this day</span>
       }
+      <div class="game-actions">
+        <button type="button" class="btn-ghost" (click)="openGameForm()">Edit game</button>
+        <button type="button" class="btn-ghost danger" (click)="deleteGame()">Delete game</button>
+      </div>
     </div>
     <div class="players">
       @for (player of players(); track player.id) {
@@ -14,6 +18,54 @@
       }
     </div>
   </div>
+
+  @if (editingGame()) {
+    <form class="card new-form" [formGroup]="gameForm" (ngSubmit)="saveGame()">
+      <h2>Edit game</h2>
+      <p class="hint">
+        Changing the date moves the game to the end of that day.
+        @if (g.rounds.length) { Players are fixed once rounds are logged. }
+      </p>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="playedOn">Date</label>
+          <input id="playedOn" type="date" formControlName="playedOn" />
+        </div>
+        <div class="field grow">
+          <label for="note">Session note <span class="muted">(optional)</span></label>
+          <input id="note" type="text" formControlName="note" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Players</label>
+        <div class="player-picks">
+          @for (user of users(); track user.id) {
+            <label class="pick" [class.picked]="picked().includes(user.id)" [class.locked]="g.rounds.length > 0">
+              <input type="checkbox"
+                     [checked]="picked().includes(user.id)"
+                     [disabled]="g.rounds.length > 0"
+                     (change)="togglePlayer(user.id)" />
+              {{ user.displayName }}
+            </label>
+          }
+        </div>
+        @if (picked().length < 2) {
+          <span class="error">Pick at least two players.</span>
+        }
+      </div>
+
+      @if (gameError(); as message) {
+        <span class="error">{{ message }}</span>
+      }
+
+      <div class="form-actions">
+        <button type="submit" class="btn">Save game</button>
+        <button type="button" class="btn-ghost" (click)="editingGame.set(false)">Cancel</button>
+      </div>
+    </form>
+  }
 
   @if (g.note) {
     <div class="card note-card">
@@ -30,6 +82,7 @@
         <div class="th">{{ player.name }}</div>
       }
       <div class="th">Comment</div>
+      <div class="th"></div>
 
       @for (round of g.rounds; track round.id; let last = $last) {
         <div class="td round-no" [class.last-row]="last" [class.final]="round.majstorska">
@@ -43,6 +96,11 @@
         }
         <div class="td muted" [class.last-row]="last" [class.final]="round.majstorska">
           {{ round.comment ?? '' }}
+        </div>
+        <div class="td round-actions" [class.last-row]="last" [class.final]="round.majstorska"
+             [class.editing]="editingRound()?.id === round.id">
+          <button type="button" class="btn-ghost" (click)="editRound(round, roundCard)">Edit</button>
+          <button type="button" class="btn-ghost danger" (click)="deleteRound(round)">Delete</button>
         </div>
       }
     </div>
@@ -75,10 +133,15 @@
     }
   </div>
 
-  <!-- Add round -->
-  <div class="card section">
-    <h2>Add round</h2>
-    <p class="hint">Log a hand for this game — pick the round number, dealer, and each player's outcome</p>
+  <!-- Add or edit round -->
+  <div class="card section" #roundCard [class.editing-card]="editingRound()">
+    @if (editingRound(); as r) {
+      <h2>Edit round {{ r.number }}</h2>
+      <p class="hint">Points are recalculated from the outcomes when you save</p>
+    } @else {
+      <h2>Add round</h2>
+      <p class="hint">Log a hand for this game — pick the round number, dealer, and each player's outcome</p>
+    }
 
     <form [formGroup]="roundForm" (ngSubmit)="saveRound()">
       <div class="round-meta">
@@ -110,7 +173,9 @@
         <div class="th">Card value</div>
         <div class="th">Points</div>
 
-        @for (entry of entries.controls; let i = $index; track i; let last = $last) {
+        <!-- Tracked by control: the form rebuilds its controls after each save, and
+             reusing the old rows by index would leave stale values in the selects. -->
+        @for (entry of entries.controls; let i = $index; track entry; let last = $last) {
           <ng-container [formGroupName]="i">
             <div class="td" [class.last-row]="last">{{ players()[i].name }}</div>
             <div class="td" [class.last-row]="last">
@@ -137,7 +202,12 @@
                   placeholder="e.g. Player B stayed in too long on a weak hand"></textarea>
       </div>
 
-      <button type="submit" class="btn save">Save round</button>
+      <div class="round-buttons">
+        <button type="submit" class="btn save">{{ editingRound() ? 'Save changes' : 'Save round' }}</button>
+        @if (editingRound()) {
+          <button type="button" class="btn-ghost cancel" (click)="cancelRoundEdit()">Cancel</button>
+        }
+      </div>
     </form>
   </div>
 } @else {

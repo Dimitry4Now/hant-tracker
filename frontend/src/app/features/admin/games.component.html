@@ -69,6 +69,7 @@
       <div class="td muted note" [class.last-row]="last">{{ game.note ?? '—' }}</div>
       <div class="td view" [class.last-row]="last">
         <a [routerLink]="['/admin/games', game.id]">View</a>
+        <button type="button" class="delete" (click)="deleteGame(game)">Delete</button>
       </div>
     }
   </div>

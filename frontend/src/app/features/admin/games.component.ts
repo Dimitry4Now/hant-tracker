@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { HantDataService } from '../../core/hant-data.service';
-import { formatDate, statusLabel } from '../../core/game-stats';
+import { formatDate, gameLabel, statusLabel } from '../../core/game-stats';
 import { Game, User } from '../../core/models';
 
 @Component({
@@ -68,6 +68,13 @@ export class GamesComponent {
         this.showForm.set(false);
         void this.router.navigate(['/admin/games', game.id]);
       });
+  }
+
+  deleteGame(game: Game): void {
+    if (!confirm(`Delete the game from ${gameLabel(game)} and its ${game.rounds.length} rounds? This cannot be undone.`)) {
+      return;
+    }
+    this.data.deleteGame(game.id).subscribe(() => this.load());
   }
 
   private load(): void {

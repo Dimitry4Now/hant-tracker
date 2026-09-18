@@ -136,3 +136,47 @@ h2 {
 .comment-field {
   margin-bottom: 14px;
 }
+
+.game-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.btn-ghost.danger {
+  border-color: var(--negative);
+  color: var(--negative);
+}
+
+.round-actions {
+  gap: 6px;
+  justify-content: flex-end;
+  padding-left: 12px !important;
+}
+
+.round-actions.editing .btn-ghost:first-child {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.editing-card {
+  border-color: var(--accent);
+}
+
+.round-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.round-buttons .cancel {
+  margin-top: 14px;
+  height: 38px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.pick.locked {
+  cursor: default;
+  opacity: 0.6;
+}

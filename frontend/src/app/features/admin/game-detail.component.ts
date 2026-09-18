@@ -1,6 +1,7 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { HantDataService } from '../../core/hant-data.service';
 import { formatDate, gameLabel } from '../../core/game-stats';
@@ -20,6 +21,7 @@ export class GameDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly data = inject(HantDataService);
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   readonly game = signal<Game | null>(null);
   readonly users = signal<User[]>([]);
@@ -41,7 +43,9 @@ export class GameDetailComponent {
   });
 
   /** Column layout depends on the player count, so it is built at runtime. */
-  readonly roundsColumns = computed(() => `0.7fr repeat(${this.players().length}, 0.9fr) 2.2fr`);
+  readonly roundsColumns = computed(
+    () => `0.7fr repeat(${this.players().length}, 0.9fr) 2.2fr auto`
+  );
 
   readonly moneyForm = this.fb.nonNullable.group({
     amounts: this.fb.nonNullable.array<number>([])
@@ -57,6 +61,19 @@ export class GameDetailComponent {
   });
 
   readonly saved = signal<string | null>(null);
+
+  /** The round loaded into the round form, or null when it adds a new one. */
+  readonly editingRound = signal<Round | null>(null);
+
+  readonly editingGame = signal(false);
+  readonly gameError = signal<string | null>(null);
+  /** Player ids ticked in the edit-game form. */
+  readonly picked = signal<number[]>([]);
+
+  readonly gameForm = this.fb.nonNullable.group({
+    playedOn: ['', Validators.required],
+    note: ['']
+  });
 
   constructor() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -135,7 +152,104 @@ export class GameDetailComponent {
         };
       })
     };
-    this.data.addRound(game.id, round).subscribe(() => this.reload(game.id));
+    const editing = this.editingRound();
+    const request = editing
+      ? this.data.updateRound(game.id, editing.id, round)
+      : this.data.addRound(game.id, round);
+    request.subscribe(() => {
+      this.editingRound.set(null);
+      this.reload(game.id);
+    });
+  }
+
+  /** Loads a round into the round form; saving then replaces it. */
+  editRound(round: Round, form: HTMLElement): void {
+    this.editingRound.set(round);
+    this.roundForm.patchValue({
+      number: round.number,
+      dealerId: round.dealerId,
+      majstorska: round.majstorska,
+      hant: round.hant,
+      comment: round.comment ?? ''
+    });
+    this.entries.controls.forEach((control) => {
+      const entry = round.entries.find((e) => e.playerId === control.get('playerId')?.value);
+      control.patchValue({
+        outcome: entry?.outcome ?? 'NOT_OPENED',
+        cardValue: entry?.cardValue ?? null
+      });
+    });
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  cancelRoundEdit(): void {
+    const game = this.game();
+    this.editingRound.set(null);
+    if (game) {
+      this.buildForms(game);
+    }
+  }
+
+  deleteRound(round: Round): void {
+    const game = this.game();
+    if (!game || !confirm(`Delete round ${round.number}? Later rounds move up one.`)) {
+      return;
+    }
+    this.data.deleteRound(game.id, round.id).subscribe(() => {
+      if (this.editingRound()?.id === round.id) {
+        this.editingRound.set(null);
+      }
+      this.reload(game.id);
+    });
+  }
+
+  openGameForm(): void {
+    const game = this.game();
+    if (!game) {
+      return;
+    }
+    this.gameForm.setValue({ playedOn: game.playedOn, note: game.note ?? '' });
+    this.picked.set([...game.playerIds]);
+    this.gameError.set(null);
+    this.editingGame.set(true);
+  }
+
+  togglePlayer(id: number): void {
+    this.picked.update((ids) =>
+      ids.includes(id) ? ids.filter((existing) => existing !== id) : [...ids, id]
+    );
+  }
+
+  saveGame(): void {
+    const game = this.game();
+    if (!game || this.gameForm.invalid || this.picked().length < 2) {
+      this.gameForm.markAllAsTouched();
+      return;
+    }
+    const { playedOn, note } = this.gameForm.getRawValue();
+    this.data
+      .updateGame(game.id, { playedOn, playerIds: this.picked(), note: note.trim() || null })
+      .subscribe({
+        next: () => {
+          this.editingGame.set(false);
+          this.reload(game.id);
+        },
+        error: (error: unknown) => {
+          const conflict = error instanceof HttpErrorResponse && error.status === 409;
+          this.gameError.set(
+            conflict ? 'Players cannot change once the game has rounds.' : 'Could not save the game.'
+          );
+        }
+      });
+  }
+
+  deleteGame(): void {
+    const game = this.game();
+    const rounds = game?.rounds.length ?? 0;
+    if (!game || !confirm(`Delete this game and its ${rounds} rounds? This cannot be undone.`)) {
+      return;
+    }
+    this.data.deleteGame(game.id).subscribe(() => void this.router.navigate(['/admin/games']));
   }
 
   private reload(id: number): void {
@@ -168,7 +282,10 @@ export class GameDetailComponent {
 
     this.roundForm.patchValue({
       number: game.rounds.length + 1,
-      dealerId: game.playerIds[game.rounds.length % game.playerIds.length]
+      dealerId: game.playerIds[game.rounds.length % game.playerIds.length],
+      majstorska: false,
+      hant: false,
+      comment: ''
     });
   }
 }

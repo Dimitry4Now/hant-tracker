@@ -7,7 +7,7 @@
 }
 
 .games {
-  grid-template-columns: 1.6fr 1.8fr 1.8fr 0.6fr;
+  grid-template-columns: 1.6fr 1.8fr 1.8fr 1fr;
 }
 
 .note {
@@ -16,4 +16,15 @@
 
 .view {
   justify-content: flex-end;
+  gap: 14px;
+}
+
+.delete {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: var(--body-font);
+  font-size: 13px;
+  color: var(--negative);
+  cursor: pointer;
 }
