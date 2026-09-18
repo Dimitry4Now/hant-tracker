@@ -32,6 +32,12 @@ export class RegisterComponent {
     { validators: passwordsMatch }
   );
 
+  /** Whether a field should show its message — only after the user has been there. */
+  invalid(name: keyof typeof this.form.controls): boolean {
+    const control = this.form.controls[name];
+    return control.invalid && control.touched;
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

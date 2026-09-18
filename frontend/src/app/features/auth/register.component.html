@@ -15,22 +15,37 @@
         <div class="field">
           <label for="fullName">Full name</label>
           <input id="fullName" type="text" formControlName="fullName" placeholder="Marko Petrovski" />
+          @if (invalid('fullName')) {
+            <div class="error">Enter your full name.</div>
+          }
         </div>
         <div class="field">
           <label for="displayName">Display name</label>
           <input id="displayName" type="text" formControlName="displayName" placeholder="Marko" />
+          @if (invalid('displayName')) {
+            <div class="error">Enter a display name.</div>
+          }
         </div>
         <div class="field">
           <label for="email">Email</label>
           <input id="email" type="email" formControlName="email" placeholder="you@example.com" />
+          @if (invalid('email')) {
+            <div class="error">Enter a valid email.</div>
+          }
         </div>
         <div class="field">
           <label for="password">Password</label>
-          <input id="password" type="password" formControlName="password" placeholder="password" />
+          <input id="password" type="password" formControlName="password" placeholder="At least 8 characters" />
+          @if (invalid('password')) {
+            <div class="error">The password needs at least 8 characters.</div>
+          }
         </div>
         <div class="field">
           <label for="confirmPassword">Confirm password</label>
-          <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="password" />
+          <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Repeat the password" />
+          @if (invalid('confirmPassword')) {
+            <div class="error">Repeat the password.</div>
+          }
         </div>
         @if (form.hasError('passwordMismatch') && form.get('confirmPassword')?.touched) {
           <div class="error">Passwords do not match.</div>
