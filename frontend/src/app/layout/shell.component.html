@@ -13,7 +13,11 @@
         }
       </nav>
       @if (auth.user(); as user) {
-        <button type="button" class="logout" (click)="logout()">{{ user.displayName }} · Log out</button>
+        <div class="user">
+          <a routerLink="/account" routerLinkActive="active" class="account-link">{{ user.displayName }}</a>
+          <span class="dot">·</span>
+          <button type="button" class="logout" (click)="logout()">Log out</button>
+        </div>
       }
       <app-theme-toggle />
     </div>

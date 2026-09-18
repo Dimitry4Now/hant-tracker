@@ -31,6 +31,11 @@ export const routes: Routes = [
           import('./features/analysis/analysis.component').then((m) => m.AnalysisComponent)
       },
       {
+        path: 'account',
+        loadComponent: () =>
+          import('./features/account/account.component').then((m) => m.AccountComponent)
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         children: [

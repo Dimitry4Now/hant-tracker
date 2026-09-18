@@ -1,0 +1,81 @@
+<div class="head">
+  <div class="page-title">Account</div>
+  <div class="page-subtitle">Your name, email and password</div>
+</div>
+
+<div class="sections">
+  <form class="card new-form" [formGroup]="profile" (ngSubmit)="saveProfile()">
+    <h2>Profile</h2>
+    <p class="hint">The display name is what other players see on the leaderboard</p>
+
+    <div class="field">
+      <label for="displayName">Display name</label>
+      <input id="displayName" type="text" formControlName="displayName" />
+    </div>
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" autocomplete="email" />
+    </div>
+    @if (emailChanged()) {
+      <div class="field">
+        <label for="profileCurrentPassword">Current password</label>
+        <input id="profileCurrentPassword" type="password" formControlName="currentPassword"
+               autocomplete="current-password" />
+      </div>
+    }
+
+    @if (profile.invalid && profile.touched) {
+      <span class="error">Fill in a display name and a valid email.</span>
+    }
+    @if (profileError(); as message) {
+      <span class="error">{{ message }}</span>
+    }
+    @if (profileSaved()) {
+      <span class="saved">Profile saved.</span>
+    }
+
+    <div class="form-actions">
+      <button type="submit" class="btn" [disabled]="savingProfile()">
+        {{ savingProfile() ? 'Saving…' : 'Save profile' }}
+      </button>
+    </div>
+  </form>
+
+  <form class="card new-form" [formGroup]="password" (ngSubmit)="savePassword()">
+    <h2>Password</h2>
+    <p class="hint">At least 8 characters</p>
+
+    <div class="field">
+      <label for="currentPassword">Current password</label>
+      <input id="currentPassword" type="password" formControlName="currentPassword"
+             autocomplete="current-password" />
+    </div>
+    <div class="field">
+      <label for="newPassword">New password</label>
+      <input id="newPassword" type="password" formControlName="newPassword" autocomplete="new-password" />
+    </div>
+    <div class="field">
+      <label for="confirmPassword">Confirm new password</label>
+      <input id="confirmPassword" type="password" formControlName="confirmPassword"
+             autocomplete="new-password" />
+    </div>
+
+    @if (password.hasError('passwordMismatch') && password.get('confirmPassword')?.touched) {
+      <span class="error">Passwords do not match.</span>
+    } @else if (password.invalid && password.touched) {
+      <span class="error">Fill in every field; the new password needs at least 8 characters.</span>
+    }
+    @if (passwordError(); as message) {
+      <span class="error">{{ message }}</span>
+    }
+    @if (passwordSaved()) {
+      <span class="saved">Password changed.</span>
+    }
+
+    <div class="form-actions">
+      <button type="submit" class="btn" [disabled]="savingPassword()">
+        {{ savingPassword() ? 'Saving…' : 'Change password' }}
+      </button>
+    </div>
+  </form>
+</div>

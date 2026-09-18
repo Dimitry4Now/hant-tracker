@@ -23,6 +23,12 @@ export interface RegisterInput {
   password: string;
 }
 
+export interface ProfileInput {
+  displayName: string;
+  email: string;
+  currentPassword?: string;
+}
+
 /** Holds the JWT the API issues and the account it belongs to. */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -53,12 +59,31 @@ export class AuthService {
     return this.http.post<void>(`${API_BASE}/auth/register`, input);
   }
 
+  /** `currentPassword` is only checked by the API when the email changes. */
+  updateProfile(input: ProfileInput): Observable<User> {
+    return this.http
+      .put<User>(`${API_BASE}/account/profile`, input)
+      .pipe(tap((user) => this.updateUser(user)));
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.put<void>(`${API_BASE}/account/password`, { currentPassword, newPassword });
+  }
+
   logout(): void {
     this.session.set(null);
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch {
       // ignore
+    }
+  }
+
+  /** The token identifies the user by id, so it stays valid after an edit. */
+  private updateUser(user: User): void {
+    const token = this.token;
+    if (token) {
+      this.store({ token, user });
     }
   }
 
