@@ -85,6 +85,10 @@ export class HantDataService {
     return this.http.patch<void>(`${API_BASE}/users/${id}/name`, { displayName }).pipe(toVoid());
   }
 
+  changeUserEmail(id: number, email: string): Observable<void> {
+    return this.http.patch<void>(`${API_BASE}/users/${id}/email`, { email }).pipe(toVoid());
+  }
+
   /** Points are computed client-side by `scoring.ts` and stored as sent. */
   addRound(gameId: number, round: Omit<Round, 'id'>): Observable<void> {
     return this.http.post<Game>(`${API_BASE}/games/${gameId}/rounds`, round).pipe(toVoid());

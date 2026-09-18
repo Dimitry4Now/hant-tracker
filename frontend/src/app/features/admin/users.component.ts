@@ -1,5 +1,8 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../core/auth.service';
 import { HantDataService } from '../../core/hant-data.service';
 import { formatDate } from '../../core/game-stats';
 import { User } from '../../core/models';
@@ -7,13 +10,14 @@ import { User } from '../../core/models';
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
 })
 export class UsersComponent {
   private readonly data = inject(HantDataService);
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
 
   readonly users = signal<User[]>([]);
   readonly showForm = signal(false);
@@ -63,6 +67,34 @@ export class UsersComponent {
     if (name && name.trim()) {
       this.data.renameUser(user.id, name.trim()).subscribe(() => this.load());
     }
+  }
+
+  /**
+   * The admin's own row gets no actions: locking yourself locks you out, and
+   * your name, email and password are edited on the account page.
+   */
+  isMe(user: User): boolean {
+    return user.id === this.auth.user()?.id;
+  }
+
+  changeEmail(user: User): void {
+    const email = prompt(`New email for ${user.displayName}`, user.email)?.trim();
+    if (!email || email === user.email) {
+      return;
+    }
+    this.data.changeUserEmail(user.id, email).subscribe({
+      next: () => this.load(),
+      error: (error: unknown) => {
+        const status = error instanceof HttpErrorResponse ? error.status : 0;
+        alert(
+          status === 409
+            ? 'That email is already used by another account or a pending request.'
+            : status === 400
+              ? `"${email}" is not a valid email.`
+              : 'Could not change the email.'
+        );
+      }
+    });
   }
 
   resetPassword(user: User): void {

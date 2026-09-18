@@ -60,7 +60,12 @@
     @for (user of users(); track user.id; let last = $last) {
       <div class="td name" [class.last-row]="last">
         <div>
-          <div>{{ user.displayName }}</div>
+          <div>
+            {{ user.displayName }}
+            @if (isMe(user)) {
+              <span class="badge badge-accent you">You</span>
+            }
+          </div>
           <div class="email muted">{{ user.email }}</div>
         </div>
       </div>
@@ -77,11 +82,16 @@
       </div>
       <div class="td muted" [class.last-row]="last">{{ formatDate(user.joinedOn) }}</div>
       <div class="td actions" [class.last-row]="last">
-        <button type="button" class="btn-ghost" (click)="toggleLock(user)">
-          {{ user.status === 'LOCKED' ? 'Unlock' : 'Lock' }}
-        </button>
-        <button type="button" class="btn-ghost" (click)="resetPassword(user)">Reset password</button>
-        <button type="button" class="btn-ghost" (click)="rename(user)">Rename</button>
+        @if (isMe(user)) {
+          <a routerLink="/account" class="btn-ghost">Edit on your account page</a>
+        } @else {
+          <button type="button" class="btn-ghost" (click)="toggleLock(user)">
+            {{ user.status === 'LOCKED' ? 'Unlock' : 'Lock' }}
+          </button>
+          <button type="button" class="btn-ghost" (click)="resetPassword(user)">Reset password</button>
+          <button type="button" class="btn-ghost" (click)="rename(user)">Rename</button>
+          <button type="button" class="btn-ghost" (click)="changeEmail(user)">Change email</button>
+        }
       </div>
     }
   </div>

@@ -10,10 +10,20 @@
   grid-template-columns: 2fr 0.9fr 0.9fr 1.2fr 2.4fr;
 }
 
+.you {
+  margin-left: 6px;
+  vertical-align: 1px;
+}
+
 .email {
   font-size: 11px;
 }
 
 .actions {
   flex-wrap: wrap;
+}
+
+.actions a.btn-ghost {
+  text-decoration: none;
+  color: var(--muted);
 }
