@@ -6,6 +6,7 @@ import { standingsFor, statusLabel } from '../../../core/game-stats';
 import { Game } from '../../../core/models';
 import { IconComponent } from '../../../shared/mobile/icon.component';
 import { queryState } from '../../../shared/mobile/query-state';
+import { SeatListComponent } from '../../../shared/mobile/seat-list.component';
 import { SheetComponent } from '../../../shared/mobile/sheet.component';
 import { GamesStore } from '../../admin/games.store';
 
@@ -23,7 +24,7 @@ const INITIAL_MONTHS = 2;
 @Component({
   selector: 'app-games-mobile',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, IconComponent, SheetComponent],
+  imports: [ReactiveFormsModule, RouterLink, IconComponent, SheetComponent, SeatListComponent],
   templateUrl: './games-mobile.component.html',
   styleUrl: './games-mobile.component.scss'
 })
@@ -144,19 +145,6 @@ export class GamesMobileComponent {
       weekday: 'short',
       day: 'numeric',
       month: 'short'
-    });
-  }
-
-  nameOf(id: number): string {
-    return this.store.users().find((u) => u.id === id)?.displayName ?? `Player ${id}`;
-  }
-
-  /** Seat order is the pick order, so moving a player up swaps them with the seat above. */
-  moveUp(index: number): void {
-    this.store.picked.update((ids) => {
-      const next = [...ids];
-      [next[index - 1], next[index]] = [next[index], next[index - 1]];
-      return next;
     });
   }
 

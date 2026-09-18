@@ -118,22 +118,7 @@
             <h3 class="m-label">Seating</h3>
             <div class="m-hint">Seat 1 deals first, then counterclockwise.</div>
           </div>
-          <ol class="m-list seats">
-            @for (id of store.picked(); track id; let i = $index; let first = $first) {
-              <li class="seat">
-                <span class="m-seat">{{ i + 1 }}</span>
-                <span class="grow">{{ nameOf(id) }}</span>
-                @if (first) {
-                  <span class="m-tag-accent">Deals first</span>
-                } @else {
-                  <button type="button" class="m-icon-btn" (click)="moveUp(i)"
-                          [attr.aria-label]="'Move ' + nameOf(id) + ' up'">
-                    <app-icon name="back" [size]="18" class="up" />
-                  </button>
-                }
-              </li>
-            }
-          </ol>
+          <app-seat-list [(seats)]="store.picked" [users]="store.users()" />
         </section>
       }
     </form>

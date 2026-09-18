@@ -531,3 +531,99 @@ span.m-subtitle {
     gap: 8px;
   }
 }
+
+/* --- detail screens ------------------------------------------------------ */
+
+/* Header for screens that hide the tab bar: back, title, one action. */
+.m-detail-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: $appbar-height;
+  padding: 0 4px;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.m-detail-title {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.m-detail-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.m-detail-sub.accent {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Sticky bar at the bottom of a detail screen, where the tab bar would be. */
+.m-action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 14px var(--shadow);
+
+  .next {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-secondary);
+
+    strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+  }
+}
+
+/* Action list sliding up from the bottom, iOS style. */
+.m-menu {
+  position: fixed;
+  z-index: 31;
+  left: 8px;
+  right: 8px;
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: m-sheet-up 0.18s ease-out;
+
+  button {
+    height: 56px;
+    border: none;
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--accent);
+    font-family: var(--body-font);
+    font-size: 17px;
+    cursor: pointer;
+  }
+
+  button.negative {
+    color: var(--negative);
+  }
+
+  button.cancel {
+    font-weight: 600;
+    color: var(--text);
+  }
+}

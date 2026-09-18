@@ -1,3 +1,6 @@
+@if (viewport.isMobile()) {
+  <app-game-detail-mobile />
+} @else {
 @if (game(); as g) {
   <div class="crumbs muted"><a routerLink="/admin/games">Games</a> / {{ gameLabel(g) }}</div>
 
@@ -256,4 +259,5 @@
   </div>
 } @else {
   <p class="muted">Game not found.</p>
+}
 }

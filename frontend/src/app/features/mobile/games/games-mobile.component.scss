@@ -146,16 +146,3 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
-
-.seat {
-  height: 56px;
-  padding: 0 4px 0 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-}
-
-.up {
-  transform: rotate(90deg);
-}
