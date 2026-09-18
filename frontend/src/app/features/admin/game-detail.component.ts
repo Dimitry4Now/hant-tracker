@@ -43,6 +43,22 @@ export class GameDetailComponent {
     }));
   });
 
+  /**
+   * Each player's running score after every round, keyed by round id then
+   * player id — the sheet shows totals, like the paper one, not per-round points.
+   */
+  readonly runningTotals = computed(() => {
+    const totals = new Map<number, Map<number, number>>();
+    const sums = new Map<number, number>();
+    for (const round of this.game()?.rounds ?? []) {
+      for (const entry of round.entries) {
+        sums.set(entry.playerId, (sums.get(entry.playerId) ?? 0) + entry.points);
+      }
+      totals.set(round.id, new Map(sums));
+    }
+    return totals;
+  });
+
   /** Column layout depends on the player count, so it is built at runtime. */
   readonly roundsColumns = computed(
     () => `0.7fr repeat(${this.players().length}, 0.9fr) 2.2fr auto`

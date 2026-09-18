@@ -96,9 +96,12 @@
           {{ round.number }}@if (round.majstorska) { · Majstorska } @else if (round.hant) { · Hant }
         </div>
         @for (player of players(); track player.id) {
+          <!-- Running total; the round winner keeps the highlight, and the
+               round's own points are in the tooltip. -->
           <div class="td" [class.last-row]="last" [class.final]="round.majstorska"
-               [class.negative]="(pointsInRound(round, player.id)?.points ?? 0) < 0">
-            {{ pointsInRound(round, player.id)?.points | signed }}
+               [class.negative]="pointsInRound(round, player.id)?.outcome === 'WINNER'"
+               [title]="'This round: ' + (pointsInRound(round, player.id)?.points ?? 0 | signed)">
+            {{ runningTotals().get(round.id)?.get(player.id) ?? 0 | signed }}
             @if (round.dealerId === player.id) {
               <span class="dealer" title="Dealer">D</span>
             }
