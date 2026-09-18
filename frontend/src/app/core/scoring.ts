@@ -31,6 +31,26 @@ export function pointsFor(
   }
 }
 
+/**
+ * Best guess at how a player finished, from the points they took in a round.
+ * Used when rounds are entered as running totals off the paper sheet. It can
+ * be wrong — an opened hand worth exactly the penalty reads as not opened, and
+ * in the Majstorska quitting and not opening cost the same — so the form lets
+ * the outcome be changed.
+ */
+export function guessOutcome(points: number, ctx: ScoreContext): RoundOutcome {
+  if (points < 0) {
+    return 'WINNER';
+  }
+  if (points === pointsFor('NOT_OPENED', null, ctx)) {
+    return 'NOT_OPENED';
+  }
+  if (points === pointsFor('QUIT', null, ctx)) {
+    return 'QUIT';
+  }
+  return 'OPENED';
+}
+
 export const OUTCOME_LABELS: Record<RoundOutcome, string> = {
   WINNER: 'Winner',
   OPENED: 'Opened',

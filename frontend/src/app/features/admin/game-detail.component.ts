@@ -6,7 +6,7 @@ import { forkJoin } from 'rxjs';
 import { HantDataService } from '../../core/hant-data.service';
 import { formatDate, gameLabel } from '../../core/game-stats';
 import { Game, Round, RoundEntry, RoundOutcome, User } from '../../core/models';
-import { OUTCOMES, OUTCOME_LABELS, pointsFor } from '../../core/scoring';
+import { OUTCOMES, OUTCOME_LABELS, guessOutcome as guessOutcomeFor, pointsFor } from '../../core/scoring';
 import { DenToEurPipe } from '../../shared/den-to-eur.pipe';
 import { SeatOrderComponent } from '../../shared/seat-order.component';
 import { SignedPipe } from '../../shared/signed.pipe';
@@ -74,10 +74,13 @@ export class GameDetailComponent {
     majstorska: [false],
     hant: [false],
     comment: [''],
+    /** Enter each player's running total, as on the paper sheet, instead of the outcome. */
+    cumulative: [true],
     entries: this.fb.array<ReturnType<FormBuilder['group']>>([])
   });
 
   readonly saved = signal<string | null>(null);
+  readonly roundError = signal<string | null>(null);
 
   /** The round loaded into the round form, or null when it adds a new one. */
   readonly editingRound = signal<Round | null>(null);
@@ -93,6 +96,11 @@ export class GameDetailComponent {
   });
 
   constructor() {
+    // Hant and Majstorska change what a not-opened or quit hand costs, so the
+    // guessed outcomes are redone when either is ticked.
+    this.roundForm.controls.hant.valueChanges.subscribe(() => this.guessAllOutcomes());
+    this.roundForm.controls.majstorska.valueChanges.subscribe(() => this.guessAllOutcomes());
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     forkJoin({ game: this.data.getGame(id), users: this.data.getUsers() }).subscribe(
       ({ game, users }) => {
@@ -109,18 +117,52 @@ export class GameDetailComponent {
     return this.roundForm.get('entries') as FormArray;
   }
 
+  /** Whether the round form takes running totals rather than outcomes. */
+  get cumulative(): boolean {
+    return this.roundForm.controls.cumulative.value;
+  }
+
   get amounts(): FormArray<FormControl<number>> {
     return this.moneyForm.controls.amounts;
   }
 
-  /** Points preview for a row of the add-round form. */
-  previewPoints(index: number): number {
-    const entry = this.entries.at(index).getRawValue() as {
-      outcome: RoundOutcome;
-      cardValue: number | null;
-    };
-    const { majstorska, hant } = this.roundForm.getRawValue();
-    return pointsFor(entry.outcome, entry.cardValue, { majstorska, hant });
+  /**
+   * A player's total before the round in the form: every round numbered lower,
+   * leaving out the one being edited.
+   */
+  previousTotal(playerId: number): number {
+    const number = this.roundForm.controls.number.value;
+    const editingId = this.editingRound()?.id;
+    return (this.game()?.rounds ?? [])
+      .filter((round) => round.number < number && round.id !== editingId)
+      .reduce((sum, round) => sum + (this.pointsInRound(round, playerId)?.points ?? 0), 0);
+  }
+
+  /**
+   * Points for a row of the round form. With running totals it is the change
+   * from the previous total, taken as written; otherwise the scoring rules
+   * work it out from the outcome. Null while a total is still empty.
+   */
+  previewPoints(index: number): number | null {
+    const entry = this.entryValue(index);
+    if (this.roundForm.controls.cumulative.value) {
+      return entry.total === null ? null : entry.total - this.previousTotal(entry.playerId);
+    }
+    return pointsFor(entry.outcome, entry.cardValue, this.scoreContext());
+  }
+
+  /**
+   * What the rules would give for the chosen outcome, when a running total
+   * says otherwise — usually a typo, or the wrong outcome picked. Null if they agree.
+   */
+  ruleMismatch(index: number): number | null {
+    const entry = this.entryValue(index);
+    const points = this.previewPoints(index);
+    if (!this.roundForm.controls.cumulative.value || points === null || entry.outcome === 'OPENED') {
+      return null;
+    }
+    const expected = pointsFor(entry.outcome, null, this.scoreContext());
+    return expected === points ? null : expected;
   }
 
   pointsInRound(round: Round, playerId: number): RoundEntry | undefined {
@@ -153,19 +195,28 @@ export class GameDetailComponent {
       return;
     }
     const raw = this.roundForm.getRawValue();
+    if (raw.cumulative && this.entries.controls.some((_, index) => this.previewPoints(index) === null)) {
+      this.roundError.set("Enter every player's total.");
+      return;
+    }
+    this.roundError.set(null);
+
     const round: Omit<Round, 'id'> = {
       number: raw.number,
       dealerId: raw.dealerId,
       majstorska: raw.majstorska,
       hant: raw.hant,
       comment: raw.comment.trim() || null,
-      entries: this.entries.controls.map((control, index) => {
-        const value = control.getRawValue() as { playerId: number; outcome: RoundOutcome; cardValue: number | null };
+      entries: this.entries.controls.map((_, index) => {
+        const value = this.entryValue(index);
+        const points = this.previewPoints(index) ?? 0;
+        // From a running total, an opened hand's card value is just its points.
+        const cardValue = raw.cumulative ? points : value.cardValue;
         return {
           playerId: value.playerId,
           outcome: value.outcome,
-          cardValue: value.outcome === 'OPENED' ? value.cardValue : null,
-          points: this.previewPoints(index)
+          cardValue: value.outcome === 'OPENED' ? cardValue : null,
+          points
         };
       })
     };
@@ -182,19 +233,28 @@ export class GameDetailComponent {
   /** Loads a round into the round form; saving then replaces it. */
   editRound(round: Round, form: HTMLElement): void {
     this.editingRound.set(round);
-    this.roundForm.patchValue({
-      number: round.number,
-      dealerId: round.dealerId,
-      majstorska: round.majstorska,
-      hant: round.hant,
-      comment: round.comment ?? ''
-    });
+    // Without events: the stored outcomes must not be replaced by guesses.
+    this.roundForm.patchValue(
+      {
+        number: round.number,
+        dealerId: round.dealerId,
+        majstorska: round.majstorska,
+        hant: round.hant,
+        comment: round.comment ?? ''
+      },
+      { emitEvent: false }
+    );
     this.entries.controls.forEach((control) => {
-      const entry = round.entries.find((e) => e.playerId === control.get('playerId')?.value);
-      control.patchValue({
-        outcome: entry?.outcome ?? 'NOT_OPENED',
-        cardValue: entry?.cardValue ?? null
-      });
+      const playerId = control.get('playerId')?.value as number;
+      const entry = round.entries.find((e) => e.playerId === playerId);
+      control.patchValue(
+        {
+          outcome: entry?.outcome ?? 'NOT_OPENED',
+          cardValue: entry?.cardValue ?? null,
+          total: this.previousTotal(playerId) + (entry?.points ?? 0)
+        },
+        { emitEvent: false }
+      );
     });
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -288,21 +348,54 @@ export class GameDetailComponent {
           game.money.find((m) => m.playerId === playerId)?.amountDen ?? 0
         )
       );
-      this.entries.push(
-        this.fb.nonNullable.group({
-          playerId: [playerId],
-          outcome: ['NOT_OPENED' as RoundOutcome],
-          cardValue: [null as number | null]
-        })
-      );
+      const entry = this.fb.nonNullable.group({
+        playerId: [playerId],
+        outcome: ['NOT_OPENED' as RoundOutcome],
+        cardValue: [null as number | null],
+        /** Running total after this round, when entering from the paper sheet. */
+        total: [null as number | null]
+      });
+      entry.controls.total.valueChanges.subscribe(() => this.guessOutcome(this.entries.controls.indexOf(entry)));
+      this.entries.push(entry);
     }
 
-    this.roundForm.patchValue({
-      number: game.rounds.length + 1,
-      dealerId: game.playerIds[game.rounds.length % game.playerIds.length],
-      majstorska: false,
-      hant: false,
-      comment: ''
-    });
+    this.roundError.set(null);
+    this.roundForm.patchValue(
+      {
+        number: game.rounds.length + 1,
+        dealerId: game.playerIds[game.rounds.length % game.playerIds.length],
+        majstorska: false,
+        hant: false,
+        comment: ''
+      },
+      { emitEvent: false }
+    );
+  }
+
+  private entryValue(index: number) {
+    return this.entries.at(index).getRawValue() as {
+      playerId: number;
+      outcome: RoundOutcome;
+      cardValue: number | null;
+      total: number | null;
+    };
+  }
+
+  private scoreContext() {
+    const { majstorska, hant } = this.roundForm.getRawValue();
+    return { majstorska, hant };
+  }
+
+  /** Pre-selects the outcome a running total points to; it can still be changed. */
+  private guessOutcome(index: number): void {
+    const points = this.previewPoints(index);
+    if (index < 0 || !this.roundForm.controls.cumulative.value || points === null) {
+      return;
+    }
+    this.entries.at(index).patchValue({ outcome: guessOutcomeFor(points, this.scoreContext()) }, { emitEvent: false });
+  }
+
+  private guessAllOutcomes(): void {
+    this.entries.controls.forEach((_, index) => this.guessOutcome(index));
   }
 }

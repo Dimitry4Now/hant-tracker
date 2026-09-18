@@ -150,11 +150,16 @@
   <div class="card section" #roundCard [class.editing-card]="editingRound()">
     @if (editingRound(); as r) {
       <h2>Edit round {{ r.number }}</h2>
-      <p class="hint">Points are recalculated from the outcomes when you save</p>
     } @else {
       <h2>Add round</h2>
-      <p class="hint">Log a hand for this game — pick the round number, dealer, and each player's outcome</p>
     }
+    <p class="hint">
+      @if (cumulative) {
+        Copy each player's total from the paper sheet — the round's points and outcome are worked out from it
+      } @else {
+        Pick each player's outcome — the points follow the scoring rules
+      }
+    </p>
 
     <form [formGroup]="roundForm" (ngSubmit)="saveRound()">
       <div class="round-meta">
@@ -178,19 +183,34 @@
           <input type="checkbox" formControlName="hant" />
           Hant (win–win)
         </label>
+        <label class="check cumulative">
+          <input type="checkbox" formControlName="cumulative" />
+          Enter running totals
+        </label>
       </div>
 
       <div class="grid-table entries" formArrayName="entries">
         <div class="th">Player</div>
+        @if (cumulative) {
+          <div class="th">Total after round</div>
+        }
         <div class="th">Outcome</div>
-        <div class="th">Card value</div>
-        <div class="th">Points</div>
+        @if (!cumulative) {
+          <div class="th">Card value</div>
+        }
+        <div class="th">{{ cumulative ? 'This round' : 'Points' }}</div>
 
         <!-- Tracked by control: the form rebuilds its controls after each save, and
              reusing the old rows by index would leave stale values in the selects. -->
         @for (entry of entries.controls; let i = $index; track entry; let last = $last) {
           <ng-container [formGroupName]="i">
             <div class="td" [class.last-row]="last">{{ players()[i].name }}</div>
+            @if (cumulative) {
+              <div class="td" [class.last-row]="last">
+                <input type="number" formControlName="total"
+                       [placeholder]="'was ' + (previousTotal(players()[i].id) | signed)" />
+              </div>
+            }
             <div class="td" [class.last-row]="last">
               <select formControlName="outcome">
                 @for (outcome of outcomes; track outcome) {
@@ -198,12 +218,19 @@
                 }
               </select>
             </div>
-            <div class="td" [class.last-row]="last">
-              <input type="number" formControlName="cardValue"
-                     [attr.disabled]="entry.get('outcome')?.value === 'OPENED' ? null : ''" />
-            </div>
-            <div class="td" [class.last-row]="last" [class.negative]="previewPoints(i) < 0">
+            @if (!cumulative) {
+              <div class="td" [class.last-row]="last">
+                <input type="number" formControlName="cardValue"
+                       [attr.disabled]="entry.get('outcome')?.value === 'OPENED' ? null : ''" />
+              </div>
+            }
+            <div class="td points" [class.last-row]="last" [class.negative]="(previewPoints(i) ?? 0) < 0">
               {{ previewPoints(i) | signed }}
+              @if (ruleMismatch(i); as expected) {
+                <span class="mismatch" [title]="'The rules give ' + (expected | signed) + ' for this outcome'">
+                  rules: {{ expected | signed }}
+                </span>
+              }
             </div>
           </ng-container>
         }
@@ -214,6 +241,10 @@
         <textarea id="comment" rows="2" formControlName="comment"
                   placeholder="e.g. Player B stayed in too long on a weak hand"></textarea>
       </div>
+
+      @if (roundError(); as message) {
+        <span class="error">{{ message }}</span>
+      }
 
       <div class="round-buttons">
         <button type="submit" class="btn save">{{ editingRound() ? 'Save changes' : 'Save round' }}</button>

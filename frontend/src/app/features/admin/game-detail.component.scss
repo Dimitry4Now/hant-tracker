@@ -176,6 +176,25 @@ h2 {
   font-size: 13px;
 }
 
+.check.cumulative {
+  margin-left: auto;
+}
+
+.points {
+  gap: 8px;
+}
+
+/* A running total that does not match what the rules give for the outcome. */
+.mismatch {
+  font-size: 10px;
+  color: var(--negative);
+  border: 1px solid var(--negative);
+  border-radius: 3px;
+  padding: 0 4px;
+  line-height: 14px;
+  white-space: nowrap;
+}
+
 .seats-field {
   margin-top: 14px;
 }
