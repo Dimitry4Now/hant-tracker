@@ -22,7 +22,10 @@ public final class GameDtos {
             String comment,
             @NotEmpty @Valid List<RoundEntryDto> entries) {}
 
-    /** Players can only change while the game has no rounds — entries point at them. */
+    /**
+     * {@code playerIds} is the seating order. It can be reordered at any time, but
+     * who plays can only change while the game has no rounds — entries point at them.
+     */
     public record UpdateGameRequest(
             @NotNull LocalDate playedOn, @NotEmpty List<Long> playerIds, String note) {}
 

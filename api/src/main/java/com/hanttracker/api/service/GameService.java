@@ -14,6 +14,7 @@ import com.hanttracker.api.web.NotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -95,10 +96,14 @@ public class GameService {
         Game game = find(gameId);
 
         if (!game.getPlayerIds().equals(request.playerIds())) {
-            if (!game.getRounds().isEmpty()) {
+            boolean samePlayers = new HashSet<>(game.getPlayerIds()).equals(new HashSet<>(request.playerIds()))
+                    && game.getPlayerIds().size() == request.playerIds().size();
+            if (!samePlayers && !game.getRounds().isEmpty()) {
                 throw new ConflictException("Players cannot change once the game has rounds");
             }
-            game.setPlayerIds(new ArrayList<>(request.playerIds()));
+            // Only the seating order changes when the players are the same.
+            game.getPlayerIds().clear();
+            game.getPlayerIds().addAll(request.playerIds());
             game.getMoney().removeIf(entry -> !request.playerIds().contains(entry.getPlayerId()));
         }
 
