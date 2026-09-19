@@ -1,0 +1,148 @@
+.live {
+  background: var(--surface);
+  border: 1px solid var(--accent-soft);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.live-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.standings {
+  display: grid;
+  gap: 6px;
+}
+
+.standing {
+  border-radius: 8px;
+  padding: 8px 8px 9px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .name {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .total {
+    font-family: var(--heading-font);
+    font-weight: 700;
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &.lead {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+}
+
+.live-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.month-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 2px;
+
+  h2 {
+    font-size: 17px;
+  }
+}
+
+.date {
+  width: 40px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .day {
+    font-family: var(--heading-font);
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .weekday {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.body {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.line-1 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.line-2 {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 6px;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  color: var(--muted);
+}
+
+.new-game {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.date-note {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.picks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}

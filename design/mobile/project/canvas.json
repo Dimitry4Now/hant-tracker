@@ -1,0 +1,191 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-09-19T12:00:00Z"
+  },
+  "title": "Hant Stats — Mobile",
+  "launch": {
+    "view": "canvas",
+    "page": "games"
+  },
+  "pages": [
+    {
+      "id": "games",
+      "name": "Games"
+    },
+    {
+      "id": "stats",
+      "name": "Dashboard & Analysis"
+    },
+    {
+      "id": "admin",
+      "name": "Admin"
+    },
+    {
+      "id": "account",
+      "name": "Account"
+    }
+  ],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 1320,
+      "title": "Games list",
+      "is_interactive": true,
+      "page": "games"
+    },
+    "NewGame.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 860,
+      "title": "New game sheet",
+      "is_interactive": true,
+      "page": "games"
+    },
+    "GameLive.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 1120,
+      "title": "Game in progress — sheet",
+      "is_interactive": true,
+      "page": "games"
+    },
+    "AddRound.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 1300,
+      "title": "Add round (running totals)",
+      "is_interactive": true,
+      "page": "games"
+    },
+    "GameDone.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 1180,
+      "title": "Finished game — money",
+      "is_interactive": true,
+      "page": "games"
+    },
+    "Dashboard.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 1200,
+      "title": "Dashboard",
+      "page": "stats",
+      "is_interactive": true
+    },
+    "Analysis.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 1060,
+      "title": "Analysis — pick a game",
+      "page": "stats",
+      "is_interactive": true
+    },
+    "AnalysisGame.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Analysis — game",
+      "page": "stats",
+      "is_interactive": true
+    },
+    "Requests.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Requests",
+      "page": "admin",
+      "is_interactive": true
+    },
+    "Users.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Users",
+      "page": "admin",
+      "is_interactive": true
+    },
+    "UserActions.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "User actions sheet",
+      "page": "admin",
+      "is_interactive": true
+    },
+    "NewUser.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "New user sheet",
+      "page": "admin",
+      "is_interactive": true
+    },
+    "Account.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 1240,
+      "title": "Account",
+      "page": "account",
+      "is_interactive": true
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "NewGame.dc.html",
+    "GameLive.dc.html",
+    "AddRound.dc.html",
+    "GameDone.dc.html",
+    "Dashboard.dc.html",
+    "Analysis.dc.html",
+    "AnalysisGame.dc.html",
+    "Requests.dc.html",
+    "Users.dc.html",
+    "UserActions.dc.html",
+    "NewUser.dc.html",
+    "Account.dc.html"
+  ],
+  "notes": {
+    "flow": {
+      "x": 0,
+      "y": -300,
+      "text": "Games — mobile flow",
+      "kind": "title1",
+      "maxW": 2270,
+      "page": "games"
+    },
+    "stats-title": {
+      "x": 0,
+      "y": -300,
+      "text": "Dashboard & Analysis",
+      "kind": "title1",
+      "maxW": 1330,
+      "page": "stats"
+    },
+    "admin-title": {
+      "x": 0,
+      "y": -300,
+      "text": "Admin — requests & users",
+      "kind": "title1",
+      "maxW": 1800,
+      "page": "admin"
+    }
+  },
+  "designSystems": []
+}

@@ -1,0 +1,117 @@
+<div class="m-page">
+  <app-admin-tabs />
+  <p class="m-hint">Everyone with an account · {{ store.users().length }} people</p>
+
+  <ul class="m-list">
+    @for (user of store.users(); track user.id) {
+      <li>
+        @if (store.isMe(user)) {
+          <a class="m-row user" routerLink="/account">
+            <ng-container *ngTemplateOutlet="row; context: { $implicit: user }" />
+          </a>
+        } @else {
+          <button type="button" class="m-row user" (click)="open(user)">
+            <ng-container *ngTemplateOutlet="row; context: { $implicit: user }" />
+          </button>
+        }
+      </li>
+    }
+  </ul>
+</div>
+
+<ng-template #row let-user>
+  <span class="m-avatar lg" [class.locked]="user.status === 'LOCKED'">{{ initials(user.displayName) }}</span>
+  <span class="grow who">
+    <span class="name">{{ user.displayName }}
+      @if (store.isMe(user)) {
+        <span class="m-tag-accent">You</span>
+      }
+      @if (user.role === 'ADMIN') {
+        <span class="m-tag">Admin</span>
+      }
+      @if (user.status === 'LOCKED') {
+        <span class="m-tag negative">Locked</span>
+      }
+    </span>
+    <span class="m-hint">{{ user.email }}</span>
+  </span>
+  <app-icon name="chevron" [size]="18" class="chevron" />
+</ng-template>
+
+<button type="button" class="m-fab" (click)="sheet.open('new')">
+  <app-icon name="plus" [size]="20" />New user
+</button>
+
+@if (selected(); as user) {
+  <app-sheet [title]="user.displayName" (closed)="sheet.close()">
+    <div class="info">
+      <span class="m-avatar lg" [class.locked]="user.status === 'LOCKED'">{{ initials(user.displayName) }}</span>
+      <div>
+        <div>{{ user.email }}</div>
+        <div class="tags">
+          <span [class]="user.role === 'ADMIN' ? 'm-tag-accent' : 'm-tag'">{{ user.role === 'ADMIN' ? 'Admin' : 'User' }}</span>
+          <span class="m-tag" [class.negative]="user.status === 'LOCKED'">{{ user.status === 'LOCKED' ? 'Locked' : 'Active' }}</span>
+          <span class="m-hint">joined {{ formatDate(user.joinedOn) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="m-list actions">
+      <button type="button" (click)="store.rename(user)">
+        <span class="title">Rename</span><span class="m-hint">Currently “{{ user.displayName }}”</span>
+      </button>
+      <button type="button" (click)="store.changeEmail(user)">
+        <span class="title">Change email</span><span class="m-hint">{{ user.email }}</span>
+      </button>
+      <button type="button" (click)="store.resetPassword(user)">
+        <span class="title">Reset password</span><span class="m-hint">Sends a reset to their email</span>
+      </button>
+      <button type="button" (click)="store.toggleLock(user)">
+        @if (user.status === 'LOCKED') {
+          <span class="title">Unlock account</span><span class="m-hint">They can log in again</span>
+        } @else {
+          <span class="title negative">Lock account</span><span class="m-hint">They can’t log in until unlocked</span>
+        }
+      </button>
+    </div>
+    <div sheet-footer>
+      <button type="button" class="m-btn-outline" (click)="sheet.close()">Cancel</button>
+    </div>
+  </app-sheet>
+}
+
+@if (sheet.value() === 'new') {
+  <app-sheet title="New user" (closed)="sheet.close()">
+    <form class="new-user" [formGroup]="store.form" (ngSubmit)="create()" id="new-user-form">
+      <p class="m-hint">Created active — no approval step, since you're adding them yourself.</p>
+      <div class="m-field">
+        <label for="m-full-name">Full name</label>
+        <input id="m-full-name" class="m-input" type="text" formControlName="fullName" autocomplete="name" />
+      </div>
+      <div class="m-field">
+        <label for="m-display-name">Display name <span class="m-optional">· shown on the leaderboard</span></label>
+        <input id="m-display-name" class="m-input" type="text" formControlName="displayName" />
+      </div>
+      <div class="m-field">
+        <label for="m-email">Email</label>
+        <input id="m-email" class="m-input" type="email" formControlName="email" autocomplete="email" />
+      </div>
+      <fieldset class="m-field">
+        <legend>Role</legend>
+        <div class="m-segmented" role="radiogroup" aria-label="Role">
+          <button type="button" role="radio" [attr.aria-checked]="store.form.controls.role.value === 'USER'"
+                  (click)="setRole('USER')">User</button>
+          <button type="button" role="radio" [attr.aria-checked]="store.form.controls.role.value === 'ADMIN'"
+                  (click)="setRole('ADMIN')">Admin</button>
+        </div>
+      </fieldset>
+      @if (store.form.invalid && store.form.touched) {
+        <span class="error">Fill in every field with a valid email.</span>
+      }
+    </form>
+    <div sheet-footer>
+      <button type="submit" form="new-user-form" class="m-btn block" [disabled]="store.saving()">
+        {{ store.saving() ? 'Creating…' : 'Create user' }}
+      </button>
+    </div>
+  </app-sheet>
+}

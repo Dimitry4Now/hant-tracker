@@ -1,0 +1,741 @@
+/* Mobile app layout — primitives for the phone screens in design/mobile.
+   Everything is prefixed m- so none of it reaches the desktop web, which
+   only ever renders its own class names. */
+
+/* Keep in step with MOBILE_QUERY in core/viewport.service.ts. */
+$mobile-max: 767px;
+
+$appbar-height: 56px;
+$tabbar-height: 64px;
+
+/* --- shell --------------------------------------------------------------- */
+
+.m-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+.m-appbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: $appbar-height;
+  padding: 0 8px 0 16px;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+
+  .brand-link {
+    color: var(--text);
+    text-decoration: none;
+  }
+}
+
+.m-appbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.m-icon-btn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.m-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Leaves room at the bottom so the last card clears the fixed tab bar.
+   Qualified by .m-shell to outrank the shell's own `main` rule. */
+.m-shell .m-main {
+  max-width: none;
+  margin: 0;
+  padding: 20px 16px calc(#{$tabbar-height} + 32px + env(safe-area-inset-bottom));
+}
+
+.m-shell.bare .m-main {
+  padding: 0;
+}
+
+/* Qualified by .m-shell to outrank the shell's own `nav` rule (a flex row). */
+.m-shell .m-tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  height: calc(#{$tabbar-height} + env(safe-area-inset-bottom));
+  padding: 6px 8px env(safe-area-inset-bottom);
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 0;
+  font-size: 11px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+
+  a {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a:hover {
+    opacity: 1;
+  }
+
+  a.active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+}
+
+.m-tab-badge {
+  position: absolute;
+  top: 2px;
+  left: calc(50% + 6px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--negative);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- page --------------------------------------------------------------- */
+
+.m-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.m-title {
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.m-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+span.m-subtitle {
+  margin-top: 0;
+}
+
+.m-status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+.m-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-top: 2px;
+}
+
+.m-hint.center {
+  text-align: center;
+}
+
+/* --- buttons ------------------------------------------------------------ */
+
+.m-btn,
+.m-btn-outline {
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-family: var(--body-font);
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.m-btn {
+  border: none;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.m-btn:disabled {
+  opacity: 0.5;
+}
+
+.m-btn-outline {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.m-btn.block {
+  width: 100%;
+  height: 52px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.m-btn-danger {
+  color: var(--negative);
+  border-color: var(--negative);
+}
+
+.grow {
+  flex-grow: 1;
+}
+
+.m-fab {
+  position: fixed;
+  z-index: 15;
+  right: 16px;
+  bottom: calc(#{$tabbar-height} + 16px + env(safe-area-inset-bottom));
+  height: 52px;
+  padding: 0 20px 0 16px;
+  border: none;
+  border-radius: 26px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--body-font);
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 18px var(--shadow);
+  cursor: pointer;
+}
+
+/* --- chips, tags, segmented ---------------------------------------------- */
+
+.m-chips {
+  display: flex;
+  gap: 8px;
+  margin: 0 -16px;
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.m-chip {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--body-font);
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &[aria-pressed='true'],
+  &[aria-checked='true'] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 500;
+  }
+}
+
+.m-tag {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  background: var(--bg);
+  white-space: nowrap;
+}
+
+.m-tag-accent {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 4px;
+  padding: 3px 7px;
+  white-space: nowrap;
+}
+
+.m-segmented {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--surface-sunken);
+
+  button {
+    height: 36px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--body-font);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  button[aria-selected='true'],
+  button[aria-checked='true'] {
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: 0 1px 2px var(--shadow);
+  }
+}
+
+/* --- lists -------------------------------------------------------------- */
+
+.m-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+
+  > * + * {
+    border-top: 1px solid var(--divider);
+  }
+}
+
+.m-row {
+  min-height: 72px;
+  padding: 12px 8px 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.m-row:hover {
+  opacity: 1;
+}
+
+.m-seat {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-sunken);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* --- forms -------------------------------------------------------------- */
+
+.m-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  border: none;
+  margin: 0;
+  padding: 0;
+
+  > label,
+  > legend {
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  > legend {
+    margin-bottom: 8px;
+  }
+}
+
+.m-label {
+  font-family: var(--body-font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.m-optional {
+  font-weight: 400;
+}
+
+.m-input {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: var(--surface);
+  font-size: 16px;
+}
+
+.m-pick {
+  height: 48px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+
+  input {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: var(--accent);
+  }
+
+  &.on {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+}
+
+/* --- sheets ------------------------------------------------------------- */
+
+.m-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(32, 31, 28, 0.42);
+}
+
+.m-sheet {
+  position: fixed;
+  z-index: 31;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: calc(48px + env(safe-area-inset-top));
+  background: var(--bg);
+  border-radius: 18px 18px 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: m-sheet-up 0.22s ease-out;
+}
+
+@keyframes m-sheet-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+.m-sheet-handle {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+
+  span {
+    width: 40px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--input-border);
+  }
+}
+
+.m-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px 4px 20px;
+
+  h2 {
+    font-size: 22px;
+  }
+}
+
+.m-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 20px 16px;
+}
+
+.m-sheet-foot {
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+
+  > * {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* --- detail screens ------------------------------------------------------ */
+
+/* Header for screens that hide the tab bar: back, title, one action. */
+.m-detail-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: $appbar-height;
+  padding: 0 4px;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.m-detail-title {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.m-detail-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.m-detail-sub.accent {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Sticky bar at the bottom of a detail screen, where the tab bar would be. */
+.m-action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 14px var(--shadow);
+
+  .next {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-secondary);
+
+    strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+  }
+}
+
+/* Action list sliding up from the bottom, iOS style. */
+.m-menu {
+  position: fixed;
+  z-index: 31;
+  left: 8px;
+  right: 8px;
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: m-sheet-up 0.18s ease-out;
+
+  button {
+    height: 56px;
+    border: none;
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--accent);
+    font-family: var(--body-font);
+    font-size: 17px;
+    cursor: pointer;
+  }
+
+  button.negative {
+    color: var(--negative);
+  }
+
+  button.cancel {
+    font-weight: 600;
+    color: var(--text);
+  }
+}
+
+/* --- switches ----------------------------------------------------------- */
+
+.m-switch-row {
+  position: relative;
+  min-height: 60px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+
+  > .grow {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+}
+
+.m-switch-title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.m-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 46px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--input-border);
+  transition: background 0.15s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s;
+  }
+}
+
+input:checked + .m-switch {
+  background: var(--accent);
+
+  &::after {
+    transform: translateX(18px);
+  }
+}
+
+input:focus-visible + .m-switch {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.m-overline {
+  margin: 0 2px;
+  font-family: var(--body-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.m-avatar.lg {
+  width: 40px;
+  height: 40px;
+  font-size: 13px;
+}
+
+.m-avatar.locked {
+  background: color-mix(in srgb, var(--negative) 15%, var(--surface));
+  color: var(--negative);
+}
+
+/* --- signed-out landing ------------------------------------------------- */
+
+.m-btn.m-btn-sm {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 14px;
+  margin: 0 4px 0 6px;
+}
+
+/* The landing page keeps a 16px gutter on phones; its app bar runs edge to edge. */
+.m-public-bar {
+  margin: 0 -16px 28px;
+}
+
+.m-public-cta {
+  width: 100%;
+  margin-top: 20px;
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}

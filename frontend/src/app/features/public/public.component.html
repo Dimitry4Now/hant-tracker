@@ -1,3 +1,15 @@
+@if (viewport.isMobile()) {
+  <header class="m-appbar m-public-bar">
+    <app-brand [size]="19" />
+    <div class="m-appbar-actions">
+      <button type="button" class="m-icon-btn" (click)="theme.toggle()"
+              [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'">
+        <app-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" [size]="20" />
+      </button>
+      <a routerLink="/login" class="m-btn m-btn-sm">Log in</a>
+    </div>
+  </header>
+} @else {
 <header class="topbar">
   <app-brand [size]="22" />
   <div class="actions">
@@ -6,11 +18,15 @@
     <app-theme-toggle />
   </div>
 </header>
+}
 
 @if (stats(); as s) {
   <section class="hero">
     <h1>Four players, one table, since {{ s.startYear }}.</h1>
     <p class="muted">Every Thursday, tracked down to the last coin.</p>
+    @if (viewport.isMobile()) {
+      <a routerLink="/register" class="m-btn-outline m-public-cta">Request access</a>
+    }
   </section>
 
   <section class="tiles">

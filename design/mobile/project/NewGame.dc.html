@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New game — mobile sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&amp;family=Work+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Work Sans',system-ui,sans-serif;background:#faf8f4;color:#201f1c;-webkit-font-smoothing:antialiased}
+a{color:#2f6f6a;text-decoration:none}a:hover{color:#24574f}
+input::placeholder{color:#8a8578}
+</style>
+</helmet>
+<div style="width: 390px; height: 860px; position: relative; overflow: hidden; background: #faf8f4;">
+
+  <!-- Dimmed list behind the sheet -->
+  <div aria-hidden="true" style="position: absolute; inset: 0; padding: 76px 16px 0; display: flex; flex-direction: column; gap: 12px;">
+    <div style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 28px;">Games</div>
+    <div style="height: 180px; border-radius: 12px; background: #ffffff; border: 1px solid #e7e3da;"></div>
+    <div style="height: 300px; border-radius: 12px; background: #ffffff; border: 1px solid #e7e3da;"></div>
+  </div>
+  <div style="position: absolute; inset: 0; background: rgba(32, 31, 28, 0.42);"></div>
+
+  <!-- Bottom sheet -->
+  <form role="dialog" aria-modal="true" aria-labelledby="new-game-title" style="position: absolute; left: 0; right: 0; bottom: 0; top: 48px; margin: 0; background: #faf8f4; border-radius: 18px 18px 0 0; display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: center; padding-top: 8px;"><span style="width: 40px; height: 5px; border-radius: 3px; background: #d9d4c9;"></span></div>
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 4px 20px;">
+      <h2 id="new-game-title" style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 22px;">New game</h2>
+      <a href="Main.dc.html" aria-label="Close" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #201f1c;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </a>
+    </div>
+
+    <div style="flex-grow: 1; box-sizing: border-box; padding: 8px 20px 0; display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 10px;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="played-on" style="font-size: 13px; font-weight: 500; color: #57534a;">Date</label>
+          <input id="played-on" type="date" value="2026-09-19" style="height: 48px; box-sizing: border-box; border-radius: 8px; border: 1px solid #cdc7ba; background: #ffffff; padding: 0 10px; font-family: inherit; font-size: 15px; color: #201f1c;">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="note" style="font-size: 13px; font-weight: 500; color: #57534a;">Note <span style="font-weight: 400; color: #6f6a5f;">(optional)</span></label>
+          <input id="note" type="text" placeholder="e.g. Rain delay" style="height: 48px; box-sizing: border-box; border-radius: 8px; border: 1px solid #cdc7ba; background: #ffffff; padding: 0 12px; font-family: inherit; font-size: 15px; color: #201f1c;">
+        </div>
+      </div>
+
+      <fieldset style="border: none; margin: 0; padding: 0;">
+        <legend style="padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 500; color: #57534a;">Players <span style="font-weight: 400; color: #6f6a5f;">· same as last game</span></legend>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+          <sc-for list="{{users}}" as="u" hint-placeholder-count="4">
+            <label style="height: 48px; box-sizing: border-box; padding: 0 12px; border-radius: 8px; border: 1px solid {{u.border}}; background: {{u.bg}}; color: {{u.color}}; font-size: 15px; font-weight: {{u.weight}}; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="checkbox" checked="{{u.on}}" style="width: 20px; height: 20px; margin: 0; accent-color: #2f6f6a;">
+              {{u.name}}
+            </label>
+          </sc-for>
+        </div>
+      </fieldset>
+
+      <section aria-labelledby="seating-title" style="display: flex; flex-direction: column; gap: 8px;">
+        <div>
+          <h3 id="seating-title" style="margin: 0; font-family: inherit; font-size: 13px; font-weight: 500; color: #57534a;">Seating</h3>
+          <div style="font-size: 12px; color: #6f6a5f; margin-top: 2px;">Seat 1 deals first, then counterclockwise. Drag to reorder.</div>
+        </div>
+        <ol style="list-style: none; margin: 0; padding: 0; background: #ffffff; border: 1px solid #e7e3da; border-radius: 12px; overflow: hidden;">
+          <sc-for list="{{seats}}" as="s" hint-placeholder-count="4">
+            <li style="height: 56px; box-sizing: border-box; padding: 0 4px 0 6px; display: flex; align-items: center; gap: 8px; border-top: {{s.divider}};">
+              <span aria-hidden="true" style="width: 32px; height: 44px; display: flex; align-items: center; justify-content: center; color: #a9a397;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle><circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle><circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle></svg>
+              </span>
+              <span style="width: 24px; height: 24px; border-radius: 12px; background: #efebe3; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums;">{{s.seat}}</span>
+              <span style="flex-grow: 1; font-size: 15px;">{{s.name}}</span>
+              <sc-if value="{{s.first}}" hint-placeholder-val="{{false}}">
+                <span style="font-size: 11px; font-weight: 600; color: #2f6f6a; background: #e4efed; border-radius: 4px; padding: 3px 7px;">Deals first</span>
+              </sc-if>
+              <button type="button" aria-label="Move {{s.name}} up" disabled="{{s.first}}" style="width: 44px; height: 44px; border: none; background: transparent; color: {{s.upColor}}; display: flex; align-items: center; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"></path></svg>
+              </button>
+            </li>
+          </sc-for>
+        </ol>
+      </section>
+    </div>
+
+    <div style="padding: 16px 20px 28px; display: flex; flex-direction: column; gap: 8px;">
+      <a href="GameLive.dc.html" style="height: 52px; border-radius: 10px; background: #2f6f6a; color: #faf8f4; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center;">Create game</a>
+      <div style="text-align: center; font-size: 12px; color: #6f6a5f;">Starts in progress with no rounds</div>
+    </div>
+  </form>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const picked = ['Player A', 'Player B', 'Player C', 'Player D'];
+    const users = ['Player A', 'Player B', 'Player C', 'Player D'].map((name) => {
+      const on = picked.includes(name);
+      return {
+        name, on,
+        bg: on ? '#e4efed' : '#ffffff', border: on ? '#2f6f6a' : '#e7e3da',
+        color: on ? '#24574f' : '#201f1c', weight: on ? '600' : '400'
+      };
+    });
+    const seats = picked.map((name, i) => ({
+      name, seat: String(i + 1), first: i === 0,
+      upColor: i === 0 ? '#d9d4c9' : '#57534a',
+      divider: i === 0 ? 'none' : '1px solid #efebe3'
+    }));
+    return { users, seats };
+  }
+}
+</script>
+</body>
+</html>

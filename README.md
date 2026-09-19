@@ -48,6 +48,14 @@ Layout:
 - `shared/` — brand mark, theme toggle, formatting pipes
 - `layout/` — signed-in shell (top nav, theme toggle)
 - `features/` — public landing, auth, dashboard, analysis, admin screens
+- `features/mobile/` — phone layouts of the signed-in pages (`design/mobile`)
+
+Phones (under 768px wide) get an app layout with a bottom tab bar instead of
+the desktop pages. `ViewportService` tracks the width, and each routed page
+renders its `features/mobile` counterpart when it is narrow; URLs are the same
+for both. Pages with a lot of state keep it in a page-scoped store
+(`GamesStore`, `GameDetailStore`, `UsersStore`) that both layouts share.
+Mobile-only styles live in `styles/_mobile.scss`, all prefixed `m-`.
 
 Round points are computed in `core/scoring.ts` and sent to the API, which stores
 them as given — the client owns the scoring rules.

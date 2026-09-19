@@ -1,3 +1,6 @@
+@if (viewport.isMobile()) {
+  <app-analysis-mobile [games]="games()" [users]="users()" />
+} @else {
 <div class="head">
   <div class="page-title">Analysis</div>
   <div class="page-subtitle">Pick a game to see how it played out</div>
@@ -44,3 +47,4 @@
     }
   </section>
 </div>
+}

@@ -1,3 +1,6 @@
+@if (viewport.isMobile()) {
+  <app-requests-mobile [requests]="requests()" (approve)="approve($event)" (reject)="reject($event)" />
+} @else {
 <div class="head">
   <span class="page-title">Pending approvals</span>
   <span class="count">{{ requests().length }}</span>
@@ -25,3 +28,4 @@
     <p class="muted">Nothing waiting for review.</p>
   }
 </div>
+}

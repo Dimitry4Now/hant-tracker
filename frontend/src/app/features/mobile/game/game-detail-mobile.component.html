@@ -1,0 +1,222 @@
+@if (store.game(); as g) {
+  <header class="m-detail-bar">
+    <button type="button" class="m-icon-btn" aria-label="Back" (click)="back()">
+      <app-icon name="back" />
+    </button>
+    <div class="grow">
+      <div class="m-detail-title">{{ formatDate(g.playedOn) }}</div>
+      <div class="m-detail-sub" [class.accent]="g.inProgress">{{ subtitle() }}</div>
+    </div>
+    <button type="button" class="m-icon-btn" aria-label="Game options: edit or delete" (click)="menuOpen.set(true)">
+      <app-icon name="more" />
+    </button>
+  </header>
+
+  <div class="content">
+    @if (!g.inProgress && standings().length) {
+      <section class="result" aria-label="Result">
+        <div class="result-head">
+          <div class="tags">
+            <span [class]="g.majstorska ? 'm-tag-accent' : 'm-tag'">{{ g.majstorska ? 'Majstorska' : 'No Majstorska' }}</span>
+            <span class="m-subtitle">{{ g.rounds.length }} rounds</span>
+          </div>
+          <h1>{{ standings()[0].name }} won</h1>
+        </div>
+        <ol>
+          @for (row of standings(); track row.playerId; let first = $first) {
+            <li [class.first]="first">
+              <span class="place">{{ row.place }}</span>
+              <span class="grow">{{ row.name }}</span>
+              <span class="num">{{ row.points }}</span>
+            </li>
+          }
+        </ol>
+      </section>
+    }
+
+    @if (g.note) {
+      <div class="note">{{ g.note }}</div>
+    }
+
+    <div class="m-segmented" role="tablist" aria-label="Game sections">
+      @for (t of tabs; track t.id) {
+        <button type="button" role="tab" [attr.aria-selected]="tab() === t.id" (click)="setTab(t.id)">{{ t.label }}</button>
+      }
+    </div>
+
+    @switch (tab()) {
+      @case ('sheet') {
+        @if (g.rounds.length) {
+          <section class="sheet" aria-label="Score sheet — running totals, low score wins"
+                   [style.--cols]="store.players().length">
+            <div class="sheet-row sheet-head">
+              <div class="rd">Rd</div>
+              @for (player of store.players(); track player.id; let i = $index) {
+                <div class="cell" [class.lead]="leader() === player.id">
+                  <span class="who">{{ i + 1 }} · {{ player.name }}</span>
+                  <span class="big">{{ total(player.id) }}</span>
+                  <span class="place">{{ place(player.id) }}</span>
+                </div>
+              }
+            </div>
+            @for (round of g.rounds; track round.id) {
+              <button type="button" class="round" [class.hant]="round.hant || round.majstorska"
+                      [attr.aria-label]="'Round ' + round.number + ', edit'" (click)="editRound(round)">
+                <span class="sheet-row">
+                  <span class="rd">
+                    <span class="no">{{ round.number }}</span>
+                    <span class="tag">{{ roundTag(round) }}</span>
+                  </span>
+                  @for (player of store.players(); track player.id) {
+                    <span class="cell" [class.winner]="isWinner(round, player.id)">
+                      <span class="total">
+                        @if (round.dealerId === player.id) {
+                          <span class="dealer" title="Dealer" aria-label="dealer">D</span>
+                        }
+                        {{ totalAfter(round, player.id) }}
+                      </span>
+                      <span class="delta">{{ points(round, player.id) | signed }}</span>
+                    </span>
+                  }
+                </span>
+                @if (round.comment) {
+                  <span class="comment">“{{ round.comment }}”</span>
+                }
+              </button>
+            }
+          </section>
+          <p class="m-hint">Tap a round to edit or delete it. Winner of each round in rust; small figures are the round's own points.</p>
+        } @else {
+          <div class="empty">
+            <p>No rounds yet.</p>
+            <p class="m-hint">{{ nextDealer() }} deals the first hand.</p>
+          </div>
+        }
+
+        @if (g.inProgress) {
+          <div class="m-action-bar">
+            <div class="next">
+              <span>Next up: round {{ g.rounds.length + 1 }}</span>
+              <span><strong>{{ nextDealer() }}</strong> deals</span>
+            </div>
+            <button type="button" class="m-btn block" (click)="addRound()">
+              <app-icon name="plus" [size]="20" />Add round {{ g.rounds.length + 1 }}
+            </button>
+          </div>
+        } @else {
+          <button type="button" class="m-btn-outline" (click)="addRound()">
+            <app-icon name="plus" [size]="18" />Add a round
+          </button>
+        }
+      }
+
+      @case ('money') {
+        <section class="money">
+          <div>
+            <h2>Money for this game</h2>
+            <p class="m-hint">Settled by hand, in whole denars. Euro is for reference.</p>
+          </div>
+          <form class="m-list" [formGroup]="store.moneyForm">
+            <ng-container formArrayName="amounts">
+              @for (player of store.players(); track player.id; let i = $index) {
+                <div class="money-row">
+                  <label [for]="'money-' + i" class="grow">
+                    <span class="name">{{ player.name }}</span>
+                    <span class="m-hint">≈ {{ store.amounts.at(i).value | denToEur }}</span>
+                  </label>
+                  <div class="amount" [class.neg]="store.amounts.at(i).value < 0">
+                    <input [id]="'money-' + i" type="number" step="1" [formControlName]="i" />
+                    <span>ден</span>
+                  </div>
+                </div>
+              }
+            </ng-container>
+          </form>
+          @if (moneyTotal() === 0) {
+            <div class="sum ok">✓ Amounts add up to 0 ден</div>
+          } @else {
+            <div class="sum off">Amounts are off by {{ moneyTotal() | signed: 'ден' }}</div>
+          }
+        </section>
+        <div class="m-action-bar">
+          @if (store.saved(); as message) {
+            <div class="next accent">{{ message }}</div>
+          }
+          <button type="button" class="m-btn block" (click)="store.saveMoney()">Save amounts</button>
+        </div>
+      }
+
+      @case ('details') {
+        <form class="details" [formGroup]="store.gameForm" (ngSubmit)="saveGame()" id="game-form">
+          <div class="m-field">
+            <label for="m-game-date">Date</label>
+            <input id="m-game-date" class="m-input" type="date" formControlName="playedOn" />
+            <span class="m-hint">Changing the date moves the game to the end of that day.</span>
+          </div>
+          <div class="m-field">
+            <label for="m-game-note">Session note <span class="m-optional">(optional)</span></label>
+            <input id="m-game-note" class="m-input" type="text" formControlName="note" />
+          </div>
+
+          <fieldset class="m-field">
+            <legend>Players
+              @if (g.rounds.length) {
+                <span class="m-optional">· fixed once rounds are logged</span>
+              }
+            </legend>
+            <div class="picks">
+              @for (user of store.users(); track user.id) {
+                <label class="m-pick" [class.on]="store.picked().includes(user.id)">
+                  <input type="checkbox" [checked]="store.picked().includes(user.id)"
+                         [disabled]="g.rounds.length > 0" (change)="store.togglePlayer(user.id)" />
+                  {{ user.displayName }}
+                </label>
+              }
+            </div>
+            @if (store.picked().length < 2) {
+              <span class="error">Pick at least two players.</span>
+            }
+          </fieldset>
+
+          @if (store.picked().length > 1) {
+            <section class="m-field">
+              <div>
+                <h3 class="m-label">Seating</h3>
+                <div class="m-hint">Seat 1 deals first, then counterclockwise.</div>
+              </div>
+              <app-seat-list [(seats)]="store.picked" [users]="store.users()" />
+            </section>
+          }
+
+          @if (store.gameError(); as message) {
+            <span class="error">{{ message }}</span>
+          }
+
+          <button type="button" class="m-btn-outline m-btn-danger" (click)="deleteGame()">Delete game</button>
+        </form>
+        <div class="m-action-bar">
+          <button type="submit" form="game-form" class="m-btn block">Save game</button>
+        </div>
+      }
+    }
+  </div>
+
+  @if (roundScreen() !== undefined) {
+    <app-round-form-mobile [roundId]="roundScreen() ?? null" (closed)="sheet.close()" />
+  }
+
+  @if (menuOpen()) {
+    <div class="m-sheet-backdrop" (click)="menuOpen.set(false)"></div>
+    <div class="m-menu" role="menu" aria-label="Game options">
+      <button type="button" role="menuitem" (click)="editGame()">Edit game</button>
+      <button type="button" role="menuitem" class="negative" (click)="deleteGame()">Delete game</button>
+      <button type="button" role="menuitem" class="cancel" (click)="menuOpen.set(false)">Cancel</button>
+    </div>
+  }
+} @else {
+  <header class="m-detail-bar">
+    <button type="button" class="m-icon-btn" aria-label="Back" (click)="back()">
+      <app-icon name="back" />
+    </button>
+  </header>
+}
