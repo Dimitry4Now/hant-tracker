@@ -703,3 +703,14 @@ input:focus-visible + .m-switch {
   text-transform: uppercase;
   color: var(--text-secondary);
 }
+
+.m-avatar.lg {
+  width: 40px;
+  height: 40px;
+  font-size: 13px;
+}
+
+.m-avatar.locked {
+  background: color-mix(in srgb, var(--negative) 15%, var(--surface));
+  color: var(--negative);
+}
