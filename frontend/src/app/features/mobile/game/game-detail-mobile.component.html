@@ -201,6 +201,10 @@
     }
   </div>
 
+  @if (roundScreen() !== undefined) {
+    <app-round-form-mobile [roundId]="roundScreen() ?? null" (closed)="sheet.close()" />
+  }
+
   @if (menuOpen()) {
     <div class="m-sheet-backdrop" (click)="menuOpen.set(false)"></div>
     <div class="m-menu" role="menu" aria-label="Game options">

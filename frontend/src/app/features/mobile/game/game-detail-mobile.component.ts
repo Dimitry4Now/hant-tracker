@@ -12,6 +12,7 @@ import { SeatListComponent } from '../../../shared/mobile/seat-list.component';
 import { SheetComponent } from '../../../shared/mobile/sheet.component';
 import { SignedPipe } from '../../../shared/signed.pipe';
 import { GameDetailStore } from '../../admin/game-detail.store';
+import { RoundFormMobileComponent } from './round-form-mobile.component';
 
 type Tab = 'sheet' | 'money' | 'details';
 
@@ -21,7 +22,7 @@ const LIVE_PLACES = ['Leading', '2nd', '3rd', '4th', '5th', '6th'];
 @Component({
   selector: 'app-game-detail-mobile',
   standalone: true,
-  imports: [ReactiveFormsModule, IconComponent, SheetComponent, SeatListComponent, SignedPipe, DenToEurPipe],
+  imports: [ReactiveFormsModule, IconComponent, SheetComponent, SeatListComponent, SignedPipe, DenToEurPipe, RoundFormMobileComponent],
   templateUrl: './game-detail-mobile.component.html',
   styleUrl: './game-detail-mobile.component.scss'
 })
@@ -45,6 +46,16 @@ export class GameDetailMobileComponent {
   });
 
   readonly formatDate = formatDate;
+
+  /** Undefined while no round screen is up; null for a new round, else the round's id. */
+  readonly roundScreen = computed(() => {
+    const value = this.sheet.value();
+    if (value === 'round') {
+      return null;
+    }
+    const match = /^round-(\d+)$/.exec(value ?? '');
+    return match ? Number(match[1]) : undefined;
+  });
 
   /** The ⋯ menu — small enough not to need its own history entry. */
   readonly menuOpen = signal(false);

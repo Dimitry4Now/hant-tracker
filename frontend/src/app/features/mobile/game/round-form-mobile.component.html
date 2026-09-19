@@ -1,0 +1,118 @@
+@if (store.game(); as g) {
+  <form class="screen" [formGroup]="store.roundForm" (ngSubmit)="save()">
+    <header class="m-detail-bar">
+      <button type="button" class="m-icon-btn" aria-label="Cancel and go back to the sheet" (click)="closed.emit()">
+        <app-icon name="close" />
+      </button>
+      <div class="grow">
+        <div class="m-detail-title">
+          {{ editing() ? 'Edit round ' + editing()!.number : 'Add round ' + store.roundForm.controls.number.value }}
+        </div>
+        <div class="m-detail-sub">{{ formatDate(g.playedOn) }}</div>
+      </div>
+    </header>
+
+    <div class="body">
+      <fieldset class="m-field">
+        <legend>Dealer
+          @if (!editing()) {
+            <span class="m-optional">· next in seat order</span>
+          }
+        </legend>
+        <div class="dealers" [style.grid-template-columns]="'repeat(' + store.players().length + ', minmax(0, 1fr))'">
+          @for (player of store.players(); track player.id; let i = $index) {
+            <label class="dealer" [class.on]="store.roundForm.controls.dealerId.value === player.id">
+              <input type="radio" formControlName="dealerId" [value]="player.id" />
+              <span class="seat">{{ i + 1 }}</span><span class="short">{{ player.name }}</span>
+            </label>
+          }
+        </div>
+      </fieldset>
+
+      <div class="m-list">
+        <label class="m-switch-row">
+          <span class="grow">
+            <span class="m-switch-title">Majstorska</span>
+            <span class="m-hint">Final round — penalties are doubled</span>
+          </span>
+          <input type="checkbox" role="switch" formControlName="majstorska" />
+          <span class="m-switch" aria-hidden="true"></span>
+        </label>
+        <label class="m-switch-row">
+          <span class="grow">
+            <span class="m-switch-title">Hant</span>
+            <span class="m-hint">Win–win — winner −150, not opened pays 200</span>
+          </span>
+          <input type="checkbox" role="switch" formControlName="hant" />
+          <span class="m-switch" aria-hidden="true"></span>
+        </label>
+      </div>
+
+      <div class="mode">
+        <div class="m-segmented" role="radiogroup" aria-label="How to enter this round">
+          <button type="button" role="radio" [attr.aria-checked]="cumulative" (click)="setCumulative(true)">Running totals</button>
+          <button type="button" role="radio" [attr.aria-checked]="!cumulative" (click)="setCumulative(false)">Outcomes</button>
+        </div>
+        <p class="m-hint">
+          @if (cumulative) {
+            Copy each total from the paper sheet. The round's points and outcome are worked out — change the outcome if the guess is wrong.
+          } @else {
+            Pick each player's outcome — the points follow the scoring rules.
+          }
+        </p>
+      </div>
+
+      <!-- Tracked by control: the form rebuilds its controls after each save. -->
+      <div class="players" formArrayName="entries">
+        @for (entry of store.entries.controls; let i = $index; track entry) {
+          <div class="player" [formGroupName]="i">
+            <div class="player-head">
+              <label [for]="'total-' + i" class="grow who">
+                <span class="name">{{ store.players()[i].name }}</span>
+                <span class="m-hint">was {{ store.previousTotal(store.players()[i].id) }}</span>
+              </label>
+              <span class="delta" [class.neg]="(store.previewPoints(i) ?? 0) < 0">{{ store.previewPoints(i) | signed }}</span>
+              @if (cumulative) {
+                <input [id]="'total-' + i" class="num-input" type="number" formControlName="total"
+                       [placeholder]="store.previousTotal(store.players()[i].id)"
+                       [attr.aria-label]="store.players()[i].name + ' total after the round'" />
+              } @else if (outcomeOf(i) === 'OPENED') {
+                <input [id]="'total-' + i" class="num-input" type="number" formControlName="cardValue"
+                       placeholder="Cards" [attr.aria-label]="store.players()[i].name + ' card value'" />
+              }
+            </div>
+            <div class="outcomes" role="radiogroup" [attr.aria-label]="store.players()[i].name + ' outcome'">
+              @for (outcome of outcomes; track outcome) {
+                <button type="button" role="radio" class="outcome" [attr.aria-checked]="outcomeOf(i) === outcome"
+                        (click)="setOutcome(i, outcome)">{{ outcomeLabels[outcome] }}</button>
+              }
+            </div>
+            @if (store.ruleMismatch(i); as expected) {
+              <div class="mismatch">The rules give {{ expected | signed }} for {{ outcomeLabels[outcomeOf(i)].toLowerCase() }}</div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="m-field">
+        <label for="m-round-comment">Round comment <span class="m-optional">(optional)</span></label>
+        <textarea id="m-round-comment" class="m-input" rows="2" formControlName="comment"
+                  placeholder="e.g. Player B stayed in too long on a weak hand"></textarea>
+      </div>
+
+      @if (store.roundError(); as message) {
+        <span class="error">{{ message }}</span>
+      }
+
+      @if (editing()) {
+        <button type="button" class="m-btn-outline m-btn-danger" (click)="delete()">Delete round</button>
+      }
+    </div>
+
+    <div class="m-action-bar">
+      <button type="submit" class="m-btn block">
+        {{ editing() ? 'Save changes' : 'Save round ' + store.roundForm.controls.number.value }}
+      </button>
+    </div>
+  </form>
+}
