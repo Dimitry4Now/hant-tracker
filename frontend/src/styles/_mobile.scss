@@ -83,7 +83,8 @@ $tabbar-height: 64px;
   padding: 0;
 }
 
-.m-tabbar {
+/* Qualified by .m-shell to outrank the shell's own `nav` rule (a flex row). */
+.m-shell .m-tabbar {
   position: fixed;
   left: 0;
   right: 0;
@@ -94,6 +95,8 @@ $tabbar-height: 64px;
   display: grid;
   grid-auto-columns: minmax(0, 1fr);
   grid-auto-flow: column;
+  gap: 0;
+  font-size: 11px;
   background: var(--surface);
   border-top: 1px solid var(--border);
 
@@ -713,4 +716,26 @@ input:focus-visible + .m-switch {
 .m-avatar.locked {
   background: color-mix(in srgb, var(--negative) 15%, var(--surface));
   color: var(--negative);
+}
+
+/* --- signed-out landing ------------------------------------------------- */
+
+.m-btn.m-btn-sm {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 14px;
+  margin: 0 4px 0 6px;
+}
+
+/* The landing page keeps a 16px gutter on phones; its app bar runs edge to edge. */
+.m-public-bar {
+  margin: 0 -16px 28px;
+}
+
+.m-public-cta {
+  width: 100%;
+  margin-top: 20px;
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
 }

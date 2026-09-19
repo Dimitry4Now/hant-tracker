@@ -2,7 +2,10 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HantDataService } from '../../core/hant-data.service';
 import { PublicStats } from '../../core/models';
+import { ThemeService } from '../../core/theme.service';
+import { ViewportService } from '../../core/viewport.service';
 import { BrandComponent } from '../../shared/brand.component';
+import { IconComponent } from '../../shared/mobile/icon.component';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 
 /** Height of the plot area in px; bar heights are derived from it. */
@@ -23,11 +26,14 @@ interface MonthBar {
 @Component({
   selector: 'app-public',
   standalone: true,
-  imports: [RouterLink, BrandComponent, ThemeToggleComponent],
+  imports: [RouterLink, BrandComponent, ThemeToggleComponent, IconComponent],
   templateUrl: './public.component.html',
-  styleUrl: './public.component.scss'
+  styleUrl: './public.component.scss',
+  host: { '[class.mobile]': 'viewport.isMobile()' }
 })
 export class PublicComponent {
+  readonly viewport = inject(ViewportService);
+  readonly theme = inject(ThemeService);
   private readonly data = inject(HantDataService);
 
   readonly stats = signal<PublicStats | null>(null);

@@ -3,17 +3,20 @@ import { Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { ViewportService } from '../../core/viewport.service';
 import { BrandComponent } from '../../shared/brand.component';
+import { BackBarComponent } from '../../shared/mobile/back-bar.component';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, BrandComponent, ThemeToggleComponent],
+  imports: [ReactiveFormsModule, RouterLink, BrandComponent, ThemeToggleComponent, BackBarComponent],
   templateUrl: './register.component.html',
   styleUrl: './auth-card.scss'
 })
 export class RegisterComponent {
+  readonly viewport = inject(ViewportService);
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
 
