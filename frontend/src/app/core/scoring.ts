@@ -12,8 +12,8 @@ export interface ScoreContext {
  * player scores the value of the cards left in hand; everyone else takes a
  * flat penalty, doubled in the Majstorska (final) round. A player who never
  * opened also pays double when the round ends in a Hant — but only once, so a
- * Majstorska Hant is still 200. A Hant costs a quitter 100 instead of 50,
- * and that 100 holds in a Majstorska Hant too.
+ * Majstorska Hant is still 200. A quitter pays 50, or 100 in a
+ * Majstorska, a Hant or both.
  */
 export function pointsFor(
   outcome: RoundOutcome,
@@ -28,18 +28,15 @@ export function pointsFor(
     case 'NOT_OPENED':
       return ctx.majstorska || ctx.hant ? 200 : 100;
     case 'QUIT':
-      if (ctx.hant) {
-        return 100;
-      }
-      return ctx.majstorska ? 200 : 50;
+      return ctx.majstorska || ctx.hant ? 100 : 50;
   }
 }
 
 /**
  * Best guess at how a player finished, from the points they took in a round.
  * Used when rounds are entered as running totals off the paper sheet. It can
- * be wrong — an opened hand worth exactly the penalty reads as not opened, and
- * in a plain Majstorska quitting and not opening cost the same — so the form lets
+ * be wrong — an opened hand worth exactly a penalty reads as not opened or
+ * quit — so the form lets
  * the outcome be changed.
  */
 export function guessOutcome(points: number, ctx: ScoreContext): RoundOutcome {
