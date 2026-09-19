@@ -1,3 +1,6 @@
+@if (viewport.isMobile()) {
+  <app-account-mobile />
+} @else {
 <div class="head">
   <div class="page-title">Account</div>
   <div class="page-subtitle">Your name, email and password</div>
@@ -79,3 +82,4 @@
     </div>
   </form>
 </div>
+}

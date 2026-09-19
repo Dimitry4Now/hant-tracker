@@ -1,0 +1,89 @@
+<div class="m-page">
+  @if (auth.user(); as user) {
+    <div class="me">
+      <span class="m-avatar xl">{{ initials(user.displayName) }}</span>
+      <div>
+        <div class="name">{{ user.displayName }}</div>
+        <div class="m-hint">{{ user.role === 'ADMIN' ? 'Admin' : 'Player' }} · joined {{ formatDate(user.joinedOn) }}</div>
+      </div>
+    </div>
+  }
+
+  <form class="panel" [formGroup]="page.profile" (ngSubmit)="page.saveProfile()">
+    <div>
+      <h2>Profile</h2>
+      <p class="m-hint">Your display name is what others see on the leaderboard</p>
+    </div>
+    <div class="m-field">
+      <label for="m-display-name">Display name</label>
+      <input id="m-display-name" class="m-input" type="text" formControlName="displayName" autocomplete="nickname" />
+    </div>
+    <div class="m-field">
+      <label for="m-email">Email</label>
+      <input id="m-email" class="m-input" type="email" formControlName="email" autocomplete="email" />
+    </div>
+    @if (page.emailChanged()) {
+      <div class="m-field">
+        <label for="m-profile-password">Current password</label>
+        <input id="m-profile-password" class="m-input" type="password" formControlName="currentPassword"
+               autocomplete="current-password" />
+      </div>
+    }
+    @if (page.profile.invalid && page.profile.touched) {
+      <span class="error">Fill in a display name and a valid email.</span>
+    }
+    @if (page.profileError(); as message) {
+      <span class="error">{{ message }}</span>
+    }
+    @if (page.profileSaved()) {
+      <span class="saved">Profile saved.</span>
+    }
+    <button type="submit" class="m-btn-outline accent-outline" [disabled]="page.savingProfile()">
+      {{ page.savingProfile() ? 'Saving…' : 'Save profile' }}
+    </button>
+  </form>
+
+  <form class="panel" [formGroup]="page.password" (ngSubmit)="page.savePassword()">
+    <div>
+      <h2>Password</h2>
+      <p class="m-hint">At least 8 characters</p>
+    </div>
+    <div class="m-field">
+      <label for="m-current-password">Current password</label>
+      <input id="m-current-password" class="m-input" type="password" formControlName="currentPassword"
+             autocomplete="current-password" />
+    </div>
+    <div class="m-field">
+      <label for="m-new-password">New password</label>
+      <input id="m-new-password" class="m-input" type="password" formControlName="newPassword" autocomplete="new-password" />
+    </div>
+    <div class="m-field">
+      <label for="m-confirm-password">Confirm new password</label>
+      <input id="m-confirm-password" class="m-input" type="password" formControlName="confirmPassword"
+             autocomplete="new-password" />
+    </div>
+    @if (page.password.hasError('passwordMismatch') && page.password.get('confirmPassword')?.touched) {
+      <span class="error">Passwords do not match.</span>
+    } @else if (page.password.invalid && page.password.touched) {
+      <span class="error">Fill in every field; the new password needs at least 8 characters.</span>
+    }
+    @if (page.passwordError(); as message) {
+      <span class="error">{{ message }}</span>
+    }
+    @if (page.passwordSaved()) {
+      <span class="saved">Password changed.</span>
+    }
+    <button type="submit" class="m-btn-outline accent-outline" [disabled]="page.savingPassword()">
+      {{ page.savingPassword() ? 'Saving…' : 'Change password' }}
+    </button>
+  </form>
+
+  <div class="m-list">
+    <label class="m-switch-row">
+      <span class="grow"><span class="m-switch-title">Dark theme</span></span>
+      <input type="checkbox" role="switch" [checked]="theme.theme() === 'dark'" (change)="theme.toggle()" />
+      <span class="m-switch" aria-hidden="true"></span>
+    </label>
+    <button type="button" class="logout" (click)="logout()">Log out</button>
+  </div>
+</div>
