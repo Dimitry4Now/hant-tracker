@@ -3,17 +3,20 @@ import { forkJoin } from 'rxjs';
 import { HantDataService } from '../../core/hant-data.service';
 import { gameLabel, standingsFor, statusLabel } from '../../core/game-stats';
 import { Game, User } from '../../core/models';
+import { ViewportService } from '../../core/viewport.service';
 import { SignedPipe } from '../../shared/signed.pipe';
+import { AnalysisMobileComponent } from '../mobile/analysis/analysis-mobile.component';
 
 @Component({
   selector: 'app-analysis',
   standalone: true,
-  imports: [SignedPipe],
+  imports: [SignedPipe, AnalysisMobileComponent],
   templateUrl: './analysis.component.html',
   styleUrl: './analysis.component.scss'
 })
 export class AnalysisComponent {
   private readonly data = inject(HantDataService);
+  readonly viewport = inject(ViewportService);
 
   readonly games = signal<Game[]>([]);
   readonly users = signal<User[]>([]);

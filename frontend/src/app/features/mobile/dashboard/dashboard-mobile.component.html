@@ -1,0 +1,92 @@
+<div class="m-page">
+  <div>
+    <h1 class="m-title">Hi, {{ firstName() }}</h1>
+    <div class="m-subtitle">Your {{ thisMonth }} so far</div>
+  </div>
+
+  @if (live() && liveLink(); as link) {
+    <a class="live" [routerLink]="link.path" [queryParams]="link.query">
+      <span class="dot"></span>
+      <span class="grow">
+        <span class="live-title">Game in progress</span>
+        <span class="m-hint">{{ liveLine() }}</span>
+      </span>
+      <app-icon name="chevron" [size]="18" class="chevron" />
+    </a>
+  }
+
+  @if (stats(); as s) {
+    <section class="group">
+      <h2 class="m-overline">This month</h2>
+      <div class="pair">
+        <div class="tile">
+          <div class="label">Games</div>
+          <div class="value">{{ s.gamesThisMonth }}</div>
+          <div class="m-hint">{{ s.gamesThisMonth - s.gamesLastMonth | signed }} vs {{ lastMonth }}</div>
+        </div>
+        <div class="tile">
+          <div class="label">Win rate</div>
+          <div class="value">{{ s.winRateThisMonth }}%</div>
+          <div class="m-hint" [class.negative]="s.winRateThisMonth < s.winRateLastMonth"
+               [class.accent]="s.winRateThisMonth > s.winRateLastMonth">
+            {{ s.winRateThisMonth - s.winRateLastMonth | signed }}% vs {{ lastMonth }}
+          </div>
+        </div>
+      </div>
+      <div class="tile money">
+        <div>
+          <div class="label">Net money</div>
+          <div class="value" [class.negative]="s.netDenThisMonth < 0" [class.accent]="s.netDenThisMonth > 0">
+            {{ s.netDenThisMonth | signed: 'ден' }}
+          </div>
+        </div>
+        <div class="m-hint right">
+          ≈ {{ s.netDenThisMonth | denToEur }}<br />{{ lastMonth }}: {{ s.netDenLastMonth | signed: 'ден' }}
+        </div>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2 class="m-overline">All time</h2>
+      <div class="tile split">
+        <div>
+          <div class="label">Win rate</div>
+          <div class="value small">{{ s.allTimeWinRate }}%</div>
+          <div class="m-hint">across {{ s.allTimeGames }} games</div>
+        </div>
+        <div>
+          <div class="label">Net money</div>
+          <div class="value small" [class.negative]="s.allTimeNetDen < 0" [class.accent]="s.allTimeNetDen > 0">
+            {{ s.allTimeNetDen | signed: 'ден' }}
+          </div>
+          <div class="m-hint">≈ {{ s.allTimeNetDen | denToEur }}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="board-head">
+        <h2>Leaderboard</h2>
+        <span class="m-hint">All time</span>
+      </div>
+      <ol class="m-list">
+        @for (row of s.leaderboard; track row.playerId; let i = $index) {
+          <li class="board-row" [class.me]="row.playerId === auth.user()?.id">
+            <span class="rank" [class.first]="i === 0">{{ i + 1 }}</span>
+            <span class="grow who">
+              <span class="name">{{ row.name }}
+                @if (row.playerId === auth.user()?.id) {
+                  <span class="m-tag-accent">You</span>
+                }
+              </span>
+              <span class="m-hint">{{ row.wins }}–{{ row.losses }} W–L · {{ row.points }} pts</span>
+            </span>
+            <span class="net" [class.negative]="row.netDen < 0" [class.accent]="row.netDen >= 0">
+              {{ row.netDen | signed: 'ден' }}
+            </span>
+          </li>
+        }
+      </ol>
+    </section>
+  }
+</div>

@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
 import { standingsFor, statusLabel } from '../../../core/game-stats';
 import { Game } from '../../../core/models';
+import { groupByMonth, monthLabel, shortDate, weekday } from '../../../shared/mobile/dates';
 import { IconComponent } from '../../../shared/mobile/icon.component';
 import { queryState } from '../../../shared/mobile/query-state';
 import { SeatListComponent } from '../../../shared/mobile/seat-list.component';
@@ -11,12 +12,6 @@ import { SheetComponent } from '../../../shared/mobile/sheet.component';
 import { GamesStore } from '../../admin/games.store';
 
 type Filter = 'all' | 'mine' | 'no-majstorska' | 'notes';
-
-interface MonthGroup {
-  key: string;
-  label: string;
-  games: Game[];
-}
 
 /** Months shown before "Show <month>" is needed. */
 const INITIAL_MONTHS = 2;
@@ -72,19 +67,7 @@ export class GamesMobileComponent {
     }
   });
 
-  private readonly months = computed(() => {
-    const groups: MonthGroup[] = [];
-    for (const game of this.filtered()) {
-      const key = game.playedOn.slice(0, 7);
-      let group = groups[groups.length - 1];
-      if (group?.key !== key) {
-        group = { key, label: monthLabel(game.playedOn, 'long'), games: [] };
-        groups.push(group);
-      }
-      group.games.push(game);
-    }
-    return groups;
-  });
+  private readonly months = computed(() => groupByMonth(this.filtered()));
 
   readonly visibleMonths = computed(() => this.months().slice(0, this.monthsShown()));
   readonly nextMonth = computed(() => this.months()[this.monthsShown()] ?? null);
@@ -137,22 +120,14 @@ export class GamesMobileComponent {
   }
 
   weekday(game: Game): string {
-    return new Date(`${game.playedOn}T00:00:00`).toLocaleDateString('en-GB', { weekday: 'short' });
+    return weekday(game.playedOn);
   }
 
   shortDate(game: Game): string {
-    return new Date(`${game.playedOn}T00:00:00`).toLocaleDateString('en-GB', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short'
-    });
+    return shortDate(game.playedOn);
   }
 
   create(): void {
     this.store.create(true);
   }
-}
-
-function monthLabel(iso: string, month: 'long' | 'short'): string {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { month, year: 'numeric' });
 }

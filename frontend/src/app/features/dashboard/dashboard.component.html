@@ -1,3 +1,8 @@
+@if (viewport.isMobile()) {
+  @if (stats(); as s) {
+    <app-dashboard-mobile [stats]="s" />
+  }
+} @else {
 @if (stats(); as s) {
   <div class="row-3">
     <div class="card">
@@ -59,4 +64,5 @@
   </div>
 } @else {
   <p class="muted">Loading…</p>
+}
 }
