@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { HantDataService } from '../../core/hant-data.service';
 import { Game, Round, RoundEntry, RoundOutcome, User } from '../../core/models';
-import { guessOutcome as guessOutcomeFor, pointsFor } from '../../core/scoring';
+import { ScoreContext, guessOutcome as guessOutcomeFor, pointsFor } from '../../core/scoring';
 
 /**
  * State behind a game's page — the sheet, the round form, money and the
@@ -81,10 +81,12 @@ export class GameDetailStore {
   });
 
   constructor() {
-    // Hant and Majstorska change what a not-opened or quit hand costs, so the
-    // guessed outcomes are redone when either is ticked.
+    // Hant and Majstorska change what a not-opened or quit hand costs, and the
+    // round number decides whether quitting is allowed, so the guessed outcomes
+    // are redone when any of them changes.
     this.roundForm.controls.hant.valueChanges.subscribe(() => this.guessAllOutcomes());
     this.roundForm.controls.majstorska.valueChanges.subscribe(() => this.guessAllOutcomes());
+    this.roundForm.controls.number.valueChanges.subscribe(() => this.guessAllOutcomes());
 
     const id = Number(this.route.snapshot.paramMap.get('id'));
     forkJoin({ game: this.data.getGame(id), users: this.data.getUsers() }).subscribe(
@@ -370,9 +372,9 @@ export class GameDetailStore {
     };
   }
 
-  private scoreContext() {
-    const { majstorska, hant } = this.roundForm.getRawValue();
-    return { majstorska, hant };
+  private scoreContext(): ScoreContext {
+    const { majstorska, hant, number } = this.roundForm.getRawValue();
+    return { majstorska, hant, number };
   }
 
   /** Pre-selects the outcome a running total points to; it can still be changed. */
