@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Games — mobile list</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&amp;family=Work+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Work Sans',system-ui,sans-serif;background:#faf8f4;color:#201f1c;-webkit-font-smoothing:antialiased}
+a{color:#2f6f6a;text-decoration:none}a:hover{color:#24574f}
+</style>
+</helmet>
+<div style="width: 390px; height: 1320px; position: relative; overflow: hidden; background: #faf8f4; display: flex; flex-direction: column;">
+
+  <!-- App bar -->
+  <header style="height: 56px; flex-shrink: 0; box-sizing: border-box; padding: 0 8px 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e7e3da; background: #faf8f4;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2f6f6a" stroke-width="1.6" aria-hidden="true"><path d="M12 3c-3 3.5-7 6.4-7 10.2 0 2.5 2 4.3 4.3 4.3 1.2 0 2.2-.5 2.7-1.3-.2 1.6-1 2.9-2.4 3.8h4.8c-1.4-.9-2.2-2.2-2.4-3.8.5.8 1.5 1.3 2.7 1.3 2.3 0 4.3-1.8 4.3-4.3C19 9.4 15 6.5 12 3z"></path></svg>
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 19px;">Hant Stats</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 2px;">
+      <button type="button" aria-label="Switch to dark theme" style="width: 44px; height: 44px; border: none; background: transparent; color: #201f1c; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+      </button>
+      <a href="Account.dc.html" aria-label="Account — Player A" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <span style="width: 32px; height: 32px; border-radius: 16px; background: #e4efed; color: #2f6f6a; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center;">PA</span>
+      </a>
+    </div>
+  </header>
+
+  <main style="flex-grow: 1; box-sizing: border-box; padding: 20px 16px 120px; display: flex; flex-direction: column; gap: 20px;">
+
+    <div>
+      <h1 style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 28px; line-height: 1.15;">Games</h1>
+      <div style="font-size: 13px; color: #6f6a5f; margin-top: 4px;">65 games since Sep 2025</div>
+    </div>
+
+    <!-- Now playing -->
+    <section aria-label="Game in progress" style="background: #ffffff; border: 1px solid #cfe0dd; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 8px; height: 8px; border-radius: 4px; background: #2f6f6a;"></span>
+          <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #2f6f6a;">In progress</span>
+        </div>
+        <span style="font-size: 13px; color: #6f6a5f;">Thu 17 Sept · 12 rounds</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;">
+        <sc-for list="{{standings}}" as="p" hint-placeholder-count="4">
+          <div style="border-radius: 8px; padding: 8px 8px 9px; background: {{p.bg}}; display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 12px; color: #6f6a5f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{p.name}}</span>
+            <span style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; color: {{p.color}};">{{p.total}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <a href="AddRound.dc.html" style="flex-grow: 1; height: 48px; border-radius: 8px; background: #2f6f6a; color: #faf8f4; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+          Add round 13
+        </a>
+        <a href="GameLive.dc.html" style="height: 48px; padding: 0 16px; border-radius: 8px; border: 1px solid #e7e3da; color: #201f1c; font-size: 15px; font-weight: 500; display: flex; align-items: center; justify-content: center;">Sheet</a>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <div role="group" aria-label="Filter games" style="display: flex; gap: 8px; margin: 0 -16px; padding: 0 16px; overflow: hidden;">
+      <button type="button" aria-pressed="true" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #2f6f6a; background: #2f6f6a; color: #faf8f4; font-family: inherit; font-size: 13px; font-weight: 500; white-space: nowrap;">All</button>
+      <button type="button" aria-pressed="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #e7e3da; background: #ffffff; color: #201f1c; font-family: inherit; font-size: 13px; white-space: nowrap;">I played</button>
+      <button type="button" aria-pressed="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #e7e3da; background: #ffffff; color: #201f1c; font-family: inherit; font-size: 13px; white-space: nowrap;">No Majstorska</button>
+      <button type="button" aria-pressed="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #e7e3da; background: #ffffff; color: #201f1c; font-family: inherit; font-size: 13px; white-space: nowrap;">With notes</button>
+    </div>
+
+    <!-- Month groups -->
+    <sc-for list="{{months}}" as="m" hint-placeholder-count="2">
+      <section style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 0 2px;">
+          <h2 style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 17px;">{{m.label}}</h2>
+          <span style="font-size: 12px; color: #6f6a5f;">{{m.count}}</span>
+        </div>
+        <div style="background: #ffffff; border: 1px solid #e7e3da; border-radius: 12px; overflow: hidden;">
+          <sc-for list="{{m.games}}" as="g" hint-placeholder-count="4">
+            <a href="{{g.href}}" style="min-height: 72px; box-sizing: border-box; padding: 12px 8px 12px 14px; display: flex; align-items: center; gap: 14px; color: #201f1c; border-top: {{g.divider}};">
+              <div style="width: 40px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;">
+                <span style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 22px; line-height: 1;">{{g.day}}</span>
+                <span style="font-size: 11px; color: #6f6a5f; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em;">{{g.weekday}}</span>
+              </div>
+              <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 500;">
+                  <span style="white-space: nowrap;">{{g.title}}</span>
+                  <sc-if value="{{g.gameOfDay}}" hint-placeholder-val="{{false}}">
+                    <span style="font-size: 11px; color: #6f6a5f; border: 1px solid #e7e3da; border-radius: 4px; padding: 1px 6px; background: #faf8f4; white-space: nowrap;">{{g.gameOfDay}}</span>
+                  </sc-if>
+                </div>
+                <div style="font-size: 13px; color: #6f6a5f; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+                  <span>{{g.rounds}}</span>
+                  <span aria-hidden="true">·</span>
+                  <span style="color: {{g.statusColor}};">{{g.status}}</span>
+                </div>
+                <sc-if value="{{g.note}}" hint-placeholder-val="{{false}}">
+                  <div style="font-size: 13px; color: #6f6a5f; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">“{{g.note}}”</div>
+                </sc-if>
+              </div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9a397" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0;"><path d="M9 6l6 6-6 6"></path></svg>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+    </sc-for>
+
+    <button type="button" style="height: 44px; border-radius: 8px; border: 1px solid #e7e3da; background: transparent; color: #201f1c; font-family: inherit; font-size: 14px;">Show July 2026</button>
+  </main>
+
+  <!-- New game FAB -->
+  <a href="NewGame.dc.html" style="position: absolute; right: 16px; bottom: 92px; height: 52px; padding: 0 20px 0 16px; border-radius: 26px; background: #2f6f6a; color: #faf8f4; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 6px 18px rgba(32, 31, 28, 0.18);">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+    New game
+  </a>
+
+  <!-- Bottom navigation -->
+  <nav aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 8px 18px; background: #ffffff; border-top: 1px solid #e7e3da; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));">
+    <a href="Dashboard.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #6f6a5f; font-size: 11px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"></rect><rect x="13" y="4" width="7" height="7" rx="1.5"></rect><rect x="4" y="13" width="7" height="7" rx="1.5"></rect><rect x="13" y="13" width="7" height="7" rx="1.5"></rect></svg>
+      Dashboard
+    </a>
+    <a href="Analysis.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #6f6a5f; font-size: 11px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg>
+      Analysis
+    </a>
+    <a href="Main.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #2f6f6a; font-size: 11px; font-weight: 600;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3.5" y="6" width="11" height="15" rx="2" transform="rotate(-8 9 13.5)"></rect><rect x="9.5" y="3" width="11" height="15" rx="2" transform="rotate(8 15 10.5)"></rect></svg>
+      Games
+    </a>
+    <a href="Requests.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #6f6a5f; font-size: 11px; position: relative;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21 20c0-2.6-1.6-4.6-4-5.3"></path></svg>
+      Admin
+      <span aria-label="2 pending requests" style="position: absolute; top: 4px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: #a15139; color: #ffffff; font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center;">2</span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1320}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const lead = '#e4efed';
+    const standings = [
+      { name: 'Player A', total: '290', bg: lead, color: '#2f6f6a' },
+      { name: 'Player C', total: '680', bg: '#faf8f4', color: '#201f1c' },
+      { name: 'Player B', total: '770', bg: '#faf8f4', color: '#201f1c' },
+      { name: 'Player D', total: '950', bg: '#faf8f4', color: '#201f1c' }
+    ];
+    const done = (day, winner, rounds, extra) => Object.assign({
+      day, weekday: 'Thu', title: winner + ' won', rounds: rounds + ' rounds',
+      status: 'Majstorska', statusColor: '#2f6f6a', gameOfDay: '', note: '', href: 'GameDone.dc.html'
+    }, extra || {});
+    const months = [
+      { label: 'September 2026', count: '4 games', games: [
+        { day: '17', weekday: 'Thu', title: 'Player A leading', rounds: '12 rounds', status: 'In progress', statusColor: '#6f6a5f', gameOfDay: '', note: '', href: 'GameLive.dc.html' },
+        done('10', 'Player C', 17, { gameOfDay: 'Game 1', note: 'Great Majstorska finish — Player C closed it out with a clean Hant.' }),
+        done('10', 'Player C', 11, { gameOfDay: 'Game 2' }),
+        done('3', 'Player C', 11)
+      ] },
+      { label: 'August 2026', count: '5 games', games: [
+        done('27', 'Player D', 12),
+        done('20', 'Player A', 13),
+        done('13', 'Player B', 14, { gameOfDay: 'Game 1' }),
+        done('13', 'Player C', 11, { gameOfDay: 'Game 2' }),
+        done('6', 'Player C', 15)
+      ] }
+    ];
+    months.forEach((m) => m.games.forEach((g, i) => { g.divider = i === 0 ? 'none' : '1px solid #efebe3'; }));
+    return { standings, months };
+  }
+}
+</script>
+</body>
+</html>

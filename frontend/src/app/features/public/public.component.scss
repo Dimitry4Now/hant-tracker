@@ -5,6 +5,10 @@
   padding: 28px 28px 60px;
 }
 
+:host(.mobile) {
+  padding: 0 16px 48px;
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;

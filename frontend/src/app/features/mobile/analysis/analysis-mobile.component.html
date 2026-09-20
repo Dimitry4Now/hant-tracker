@@ -1,0 +1,100 @@
+@if (selected(); as game) {
+  <header class="m-detail-bar">
+    <button type="button" class="m-icon-btn" aria-label="Back" (click)="back()">
+      <app-icon name="back" />
+    </button>
+    <div class="grow">
+      <div class="m-detail-title">{{ formatDate(game.playedOn) }}</div>
+      <div class="m-detail-sub">{{ subtitle(game) }}</div>
+    </div>
+  </header>
+
+  <div class="detail">
+    <section class="panel" aria-label="Result">
+      <div class="result-head">
+        <div class="tags">
+          <span [class]="!game.inProgress && game.majstorska ? 'm-tag-accent' : 'm-tag'">{{ status(game) }}</span>
+          <span class="m-hint">{{ game.rounds.length }} rounds played</span>
+        </div>
+        @if (outcome(game)) {
+          <h1>{{ outcome(game) }}</h1>
+        }
+      </div>
+      <div class="standing th">
+        <span></span><span>Player</span><span class="r">Points</span><span class="r">Result</span>
+      </div>
+      <ol>
+        @for (row of standings(); track row.playerId; let first = $first) {
+          <li class="standing" [class.first]="first">
+            <span class="rank">{{ row.place }}</span>
+            <span class="name">{{ row.name }}</span>
+            <span class="r num">{{ row.points }}</span>
+            <span class="r result">{{ row.result }}</span>
+          </li>
+        }
+      </ol>
+    </section>
+
+    @if (game.note) {
+      <div class="panel note">
+        <div class="m-overline">Session note</div>
+        <p>{{ game.note }}</p>
+      </div>
+    }
+
+    @if (auth.isAdmin()) {
+      <a class="panel link" [routerLink]="['/admin/games', game.id]">
+        <span class="grow">Open the score sheet</span>
+        <app-icon name="chevron" [size]="18" class="chevron" />
+      </a>
+    }
+  </div>
+
+  <nav class="m-action-bar pager" aria-label="Other games">
+    @if (newer(); as g) {
+      <button type="button" class="m-btn-outline" (click)="step(g)">
+        <app-icon name="back" [size]="18" />
+        <span class="stack"><span class="m-hint">Newer</span>{{ short(g) }}</span>
+      </button>
+    } @else {
+      <span></span>
+    }
+    @if (older(); as g) {
+      <button type="button" class="m-btn-outline end" (click)="step(g)">
+        <span class="stack"><span class="m-hint">Older</span>{{ short(g) }}</span>
+        <app-icon name="chevron" [size]="18" />
+      </button>
+    }
+  </nav>
+} @else {
+  <div class="m-page">
+    <div>
+      <h1 class="m-title">Analysis</h1>
+      <div class="m-subtitle">Pick a game to see how it played out</div>
+    </div>
+
+    @for (month of months(); track month.key) {
+      <section class="month">
+        <h2>{{ month.label }}</h2>
+        <div class="m-list">
+          @for (game of month.games; track game.id) {
+            <button type="button" class="row" (click)="open(game)">
+              <span class="grow">
+                <span class="date">{{ shortDate(game.playedOn) }}
+                  @if (game.gamesThatDay > 1) {
+                    <span class="m-tag">Game {{ game.gameOfDay }}</span>
+                  }
+                </span>
+                <span class="m-hint">{{ game.rounds.length }} rounds · {{ status(game) }}</span>
+              </span>
+              <span class="winner">{{ outcome(game) }}</span>
+              <app-icon name="chevron" [size]="18" class="chevron" />
+            </button>
+          }
+        </div>
+      </section>
+    } @empty {
+      <p class="m-subtitle">No games recorded yet.</p>
+    }
+  </div>
+}

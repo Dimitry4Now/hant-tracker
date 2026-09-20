@@ -2,17 +2,20 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
+import { ViewportService } from '../../core/viewport.service';
+import { AccountMobileComponent } from '../mobile/account/account-mobile.component';
 
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, AccountMobileComponent],
   templateUrl: './account.component.html',
   styleUrl: './account.component.scss'
 })
 export class AccountComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  readonly viewport = inject(ViewportService);
 
   readonly savingProfile = signal(false);
   readonly profileError = signal<string | null>(null);

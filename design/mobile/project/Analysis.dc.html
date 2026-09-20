@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Analysis — mobile list</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&amp;family=Work+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;font-family:'Work Sans',system-ui,sans-serif;background:#faf8f4;color:#201f1c;-webkit-font-smoothing:antialiased}
+a{color:#2f6f6a;text-decoration:none}a:hover{color:#24574f}
+input::placeholder{color:#8a8578}
+</style>
+</helmet>
+<div style="width: 390px; height: 1060px; position: relative; overflow: hidden; background: #faf8f4; display: flex; flex-direction: column;">
+  <header style="height: 56px; flex-shrink: 0; box-sizing: border-box; padding: 0 8px 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e7e3da; background: #faf8f4;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2f6f6a" stroke-width="1.6" aria-hidden="true"><path d="M12 3c-3 3.5-7 6.4-7 10.2 0 2.5 2 4.3 4.3 4.3 1.2 0 2.2-.5 2.7-1.3-.2 1.6-1 2.9-2.4 3.8h4.8c-1.4-.9-2.2-2.2-2.4-3.8.5.8 1.5 1.3 2.7 1.3 2.3 0 4.3-1.8 4.3-4.3C19 9.4 15 6.5 12 3z"></path></svg>
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 19px;">Hant Stats</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 2px;">
+      <button type="button" aria-label="Switch to dark theme" style="width: 44px; height: 44px; border: none; background: transparent; color: #201f1c; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+      </button>
+      <a href="Account.dc.html" aria-label="Account — Player A" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <span style="width: 32px; height: 32px; border-radius: 16px; background: #e4efed; color: #2f6f6a; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center;">PA</span>
+      </a>
+    </div>
+  </header>
+  <main style="box-sizing: border-box; padding: 20px 16px 110px; display: flex; flex-direction: column; gap: 20px;">
+    <div>
+      <h1 style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 28px; line-height: 1.15;">Analysis</h1>
+      <div style="font-size: 13px; color: #6f6a5f; margin-top: 4px;">Pick a game to see how it played out</div>
+    </div>
+    <sc-for list="{{months}}" as="m" hint-placeholder-count="2">
+      <section style="display: flex; flex-direction: column; gap: 8px;">
+        <h2 style="margin: 0 2px; font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 17px;">{{m.label}}</h2>
+        <div style="background: #ffffff; border: 1px solid #e7e3da; border-radius: 12px; overflow: hidden;">
+          <sc-for list="{{m.games}}" as="g" hint-placeholder-count="4">
+            <a href="AnalysisGame.dc.html" style="min-height: 64px; box-sizing: border-box; padding: 10px 8px 10px 14px; display: flex; align-items: center; gap: 12px; color: #201f1c; border-top: {{g.divider}};">
+              <span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;">
+                <span style="display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 500;">{{g.date}}
+                  <sc-if value="{{g.gameOfDay}}" hint-placeholder-val="{{false}}"><span style="font-size: 11px; color: #6f6a5f; border: 1px solid #e7e3da; border-radius: 4px; padding: 1px 6px; background: #faf8f4;">{{g.gameOfDay}}</span></sc-if>
+                </span>
+                <span style="font-size: 13px; color: #6f6a5f;">{{g.meta}}</span>
+              </span>
+              <span style="font-size: 13px; color: #57534a; white-space: nowrap;">{{g.winner}}</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9a397" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0;"><path d="M9 6l6 6-6 6"></path></svg>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+    </sc-for>
+  </main>
+  <nav aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; height: 76px; box-sizing: border-box; padding: 6px 8px 18px; background: #ffffff; border-top: 1px solid #e7e3da; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));">
+    <a href="Dashboard.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #6f6a5f; font-size: 11px; position: relative;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"></rect><rect x="13" y="4" width="7" height="7" rx="1.5"></rect><rect x="4" y="13" width="7" height="7" rx="1.5"></rect><rect x="13" y="13" width="7" height="7" rx="1.5"></rect></svg>
+      Dashboard
+    </a>
+    <a href="Analysis.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #2f6f6a; font-size: 11px; font-weight: 600; position: relative;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V5M19 20v-6"></path></svg>
+      Analysis
+    </a>
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #6f6a5f; font-size: 11px; position: relative;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="11" height="15" rx="2" transform="rotate(-8 9 13.5)"></rect><rect x="9.5" y="3" width="11" height="15" rx="2" transform="rotate(8 15 10.5)"></rect></svg>
+      Games
+    </a>
+    <a href="Requests.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #6f6a5f; font-size: 11px; position: relative;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21 20c0-2.6-1.6-4.6-4-5.3"></path></svg>
+      Admin
+      <span aria-label="2 pending requests" style="position: absolute; top: 4px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: #a15139; color: #ffffff; font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center;">2</span>
+    </a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1060}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const g = (date, rounds, winner, gameOfDay, status) => ({
+      date, gameOfDay: gameOfDay || '', winner,
+      meta: rounds + ' rounds · ' + (status || 'Majstorska')
+    });
+    const months = [
+      { label: 'September 2026', games: [
+        g('Thu 17 Sept', 12, 'Player A leads', '', 'In progress'),
+        g('Thu 10 Sept', 17, 'Player C won', 'Game 1'),
+        g('Thu 10 Sept', 11, 'Player C won', 'Game 2'),
+        g('Thu 3 Sept', 11, 'Player C won')
+      ] },
+      { label: 'August 2026', games: [
+        g('Thu 27 Aug', 12, 'Player D won'),
+        g('Thu 20 Aug', 13, 'Player A won'),
+        g('Thu 13 Aug', 14, 'Player B won', 'Game 1'),
+        g('Thu 13 Aug', 11, 'Player C won', 'Game 2'),
+        g('Thu 6 Aug', 15, 'Player C won')
+      ] }
+    ];
+    months.forEach((m) => m.games.forEach((x, i) => { x.divider = i === 0 ? 'none' : '1px solid #efebe3'; }));
+    return { months };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+.live {
+  min-height: 64px;
+  padding: 12px 10px 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--accent-soft);
+  border-radius: 12px;
+  color: var(--text);
+  text-decoration: none;
+
+  .grow {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.live-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.chevron {
+  color: var(--muted);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.value {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  font-size: 30px;
+  margin: 2px 0;
+
+  &.small {
+    font-size: 24px;
+  }
+}
+
+.money {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.right {
+  text-align: right;
+  line-height: 1.5;
+}
+
+.split {
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  > div {
+    padding: 14px;
+  }
+
+  > div + div {
+    border-left: 1px solid var(--divider);
+  }
+}
+
+.board-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 2px;
+
+  h2 {
+    font-size: 17px;
+  }
+}
+
+.board-row {
+  min-height: 64px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &.me {
+    background: color-mix(in srgb, var(--accent-soft) 40%, var(--surface));
+  }
+}
+
+.rank {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.first {
+    background: var(--accent);
+    color: var(--bg);
+  }
+}
+
+.who {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.net {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}

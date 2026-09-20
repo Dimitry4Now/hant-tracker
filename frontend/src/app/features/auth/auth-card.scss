@@ -64,3 +64,15 @@ form {
   color: var(--muted);
   margin-top: 18px;
 }
+
+/* Phones: the back bar sits on top, so the card starts under it. */
+.wrap.mobile {
+  min-height: auto;
+  justify-content: flex-start;
+  padding: 28px 16px 40px;
+}
+
+.wrap.mobile .card {
+  max-width: none;
+  padding: 22px 18px;
+}
