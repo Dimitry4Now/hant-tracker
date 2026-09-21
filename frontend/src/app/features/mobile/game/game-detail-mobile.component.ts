@@ -166,6 +166,15 @@ export class GameDetailMobileComponent {
     return this.store.amounts.getRawValue().reduce((sum, amount) => sum + Number(amount ?? 0), 0);
   }
 
+  /** Closes the game and drops back to the sheet, where the result now shows. */
+  finishGame(): void {
+    this.store.setInProgress(false, () => this.setTab('sheet'));
+  }
+
+  reopenGame(): void {
+    this.store.setInProgress(true);
+  }
+
   editGame(): void {
     this.menuOpen.set(false);
     this.setTab('details');

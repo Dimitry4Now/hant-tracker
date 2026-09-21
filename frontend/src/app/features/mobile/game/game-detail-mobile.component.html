@@ -99,14 +99,20 @@
               <span>Next up: round {{ g.rounds.length + 1 }}</span>
               <span><strong>{{ nextDealer() }}</strong> deals</span>
             </div>
-            <button type="button" class="m-btn block" (click)="addRound()">
-              <app-icon name="plus" [size]="20" />Add round {{ g.rounds.length + 1 }}
-            </button>
+            <div class="bar-actions">
+              <button type="button" class="m-btn-outline" (click)="finishGame()">Finish game</button>
+              <button type="button" class="m-btn block grow" (click)="addRound()">
+                <app-icon name="plus" [size]="20" />Add round {{ g.rounds.length + 1 }}
+              </button>
+            </div>
           </div>
         } @else {
-          <button type="button" class="m-btn-outline" (click)="addRound()">
-            <app-icon name="plus" [size]="18" />Add a round
-          </button>
+          <div class="bar-actions">
+            <button type="button" class="m-btn-outline grow" (click)="addRound()">
+              <app-icon name="plus" [size]="18" />Add a round
+            </button>
+            <button type="button" class="m-btn-outline" (click)="reopenGame()">Reopen game</button>
+          </div>
         }
       }
 

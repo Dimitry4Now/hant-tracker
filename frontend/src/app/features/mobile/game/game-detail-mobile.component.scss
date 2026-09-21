@@ -276,3 +276,21 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
+
+/* Finish sits next to Add round in the bottom bar, and is the narrower of the two. */
+.bar-actions {
+  display: flex;
+  gap: 8px;
+
+  .m-btn-outline {
+    height: 52px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  /* `.m-btn.block` is full width on its own; in the row it shares the space. */
+  .m-btn.block {
+    width: auto;
+    flex: 1;
+  }
+}

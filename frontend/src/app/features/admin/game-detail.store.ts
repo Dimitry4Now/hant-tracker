@@ -7,6 +7,9 @@ import { HantDataService } from '../../core/hant-data.service';
 import { Game, Round, RoundEntry, RoundOutcome, User } from '../../core/models';
 import { ScoreContext, guessOutcome as guessOutcomeFor, pointsFor } from '../../core/scoring';
 
+/** What the winner of a Hant takes; no other round pays it. */
+const HANT_WIN = pointsFor('WINNER', null, { majstorska: false, hant: true });
+
 /**
  * State behind a game's page — the sheet, the round form, money and the
  * edit-game form — shared by the desktop page and its mobile layout.
@@ -85,8 +88,15 @@ export class GameDetailStore {
     // round number decides whether quitting is allowed, so the guessed outcomes
     // are redone when any of them changes.
     this.roundForm.controls.hant.valueChanges.subscribe(() => this.guessAllOutcomes());
-    this.roundForm.controls.majstorska.valueChanges.subscribe(() => this.guessAllOutcomes());
     this.roundForm.controls.number.valueChanges.subscribe(() => this.guessAllOutcomes());
+    // The Majstorska is played until someone makes a Hant, so it is always one.
+    // Ticking it ticks Hant too; unticking leaves Hant where the round left it.
+    this.roundForm.controls.majstorska.valueChanges.subscribe((majstorska) => {
+      if (majstorska && !this.roundForm.controls.hant.value) {
+        this.roundForm.controls.hant.setValue(true, { emitEvent: false });
+      }
+      this.guessAllOutcomes();
+    });
 
     const id = Number(this.route.snapshot.paramMap.get('id'));
     forkJoin({ game: this.data.getGame(id), users: this.data.getUsers() }).subscribe(
@@ -310,6 +320,25 @@ export class GameDetailStore {
       });
   }
 
+  /**
+   * Closes the game, or puts a closed one back in progress. Finishing is what
+   * turns the live standings into a result, so it asks first; reopening does
+   * not, since it only undoes that.
+   */
+  setInProgress(inProgress: boolean, done?: () => void): void {
+    const game = this.game();
+    if (!game) {
+      return;
+    }
+    if (!inProgress && !confirm(`Finish this game after ${game.rounds.length} rounds?`)) {
+      return;
+    }
+    this.data.setGameStatus(game.id, inProgress).subscribe(() => {
+      this.reload(game.id);
+      done?.();
+    });
+  }
+
   /** `replaceUrl` keeps the deleted game out of history — mobile uses it. */
   deleteGame(replaceUrl = false): void {
     const game = this.game();
@@ -381,6 +410,14 @@ export class GameDetailStore {
   private guessOutcome(index: number): void {
     const points = this.previewPoints(index);
     if (index < 0 || !this.roundForm.controls.cumulative.value || points === null) {
+      return;
+    }
+    // Only a Hant pays the winner −150. A total saying so is the sheet telling
+    // us what kind of round this was, so tick Hant rather than warn that the
+    // rules give −50.
+    if (points === HANT_WIN && !this.roundForm.controls.hant.value) {
+      this.roundForm.controls.hant.setValue(true, { emitEvent: false });
+      this.guessAllOutcomes();
       return;
     }
     this.entries.at(index).patchValue({ outcome: guessOutcomeFor(points, this.scoreContext()) }, { emitEvent: false });

@@ -101,6 +101,11 @@ export class HantDataService {
     return this.http.delete<void>(`${API_BASE}/games/${id}`);
   }
 
+  /** Closes a game, or puts a closed one back in progress. */
+  setGameStatus(id: number, inProgress: boolean): Observable<void> {
+    return this.http.put<Game>(`${API_BASE}/games/${id}/status`, { inProgress }).pipe(toVoid());
+  }
+
   /** Points are computed client-side by `scoring.ts` and stored as sent. */
   addRound(gameId: number, round: Omit<Round, 'id'>): Observable<void> {
     return this.http.post<Game>(`${API_BASE}/games/${gameId}/rounds`, round).pipe(toVoid());

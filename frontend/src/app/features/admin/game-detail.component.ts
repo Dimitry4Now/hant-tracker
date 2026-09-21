@@ -112,4 +112,8 @@ export class GameDetailComponent {
   deleteGame(): void {
     this.store.deleteGame();
   }
+
+  setInProgress(inProgress: boolean): void {
+    this.store.setInProgress(inProgress);
+  }
 }

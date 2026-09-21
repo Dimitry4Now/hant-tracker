@@ -11,6 +11,11 @@
         <span class="muted small">Game {{ g.gameOfDay }} of {{ g.gamesThatDay }} played this day</span>
       }
       <div class="game-actions">
+        @if (g.inProgress) {
+          <button type="button" class="btn-ghost accent" (click)="setInProgress(false)">Finish game</button>
+        } @else {
+          <button type="button" class="btn-ghost" (click)="setInProgress(true)">Reopen game</button>
+        }
         <button type="button" class="btn-ghost" (click)="openGameForm()">Edit game</button>
         <button type="button" class="btn-ghost danger" (click)="deleteGame()">Delete game</button>
       </div>
