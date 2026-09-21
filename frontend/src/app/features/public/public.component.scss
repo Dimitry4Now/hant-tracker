@@ -48,8 +48,8 @@
   margin-bottom: 14px;
 }
 
-.tiles.three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.tiles.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 28px;
 }
 
@@ -220,7 +220,7 @@ h2 {
 
 @media (max-width: 720px) {
   .tiles,
-  .tiles.three,
+  .tiles.two,
   .styles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

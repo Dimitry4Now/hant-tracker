@@ -13,7 +13,6 @@ public record PublicStatsDto(
         int players,
         int roundsEndingInHant,
         int roundsClosedRegular,
-        int gamesWithQuitter,
         List<RankingDto> rankings,
         List<PlaystyleDto> playstyles) {
 
