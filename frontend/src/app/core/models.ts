@@ -62,7 +62,6 @@ export interface Game {
 export interface LeaderboardRow {
   playerId: number;
   name: string;
-  points: number;
   wins: number;
   losses: number;
   netDen: number;
@@ -98,7 +97,6 @@ export interface PublicStats {
   players: number;
   roundsEndingInHant: number;
   roundsClosedRegular: number;
-  gamesWithQuitter: number;
   rankings: { name: string; games: number; winRate: number }[];
   playstyles: { name: string; style: string }[];
 }

@@ -32,6 +32,33 @@
   grid-template-columns: 1.8fr 0.8fr 0.9fr 1.3fr;
 }
 
+/* Column headers sort the table, so they are buttons dressed as headers. */
+.th.sortable {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-width: 0 0 1px;
+  border-style: solid;
+  border-color: var(--border);
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text);
+  }
+
+  .arrow {
+    opacity: 0;
+  }
+
+  .arrow.on {
+    opacity: 1;
+    color: var(--accent);
+  }
+}
+
 @media (max-width: 720px) {
   .row-3,
   .row-2 {

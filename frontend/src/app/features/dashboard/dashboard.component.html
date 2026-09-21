@@ -47,15 +47,18 @@
       <span class="muted">All-time</span>
     </div>
     <div class="grid-table leaderboard">
-      <div class="th">Player</div>
-      <div class="th">Pts</div>
-      <div class="th">W-L</div>
-      <div class="th">Net</div>
+      @for (column of columns; track column.key) {
+        <button type="button" class="th sortable" (click)="sortBy(column.key)"
+                [attr.aria-sort]="sortDir(column.key) === 'asc' ? 'ascending' : sortDir(column.key) === 'desc' ? 'descending' : 'none'">
+          {{ column.label }}
+          <span class="arrow" [class.on]="sortDir(column.key)">{{ sortDir(column.key) === 'asc' ? '↑' : '↓' }}</span>
+        </button>
+      }
 
-      @for (row of s.leaderboard; track row.playerId; let last = $last) {
+      @for (row of leaderboard(); track row.playerId; let last = $last) {
         <div class="td" [class.last-row]="last">{{ row.name }}</div>
-        <div class="td" [class.last-row]="last">{{ row.points }}</div>
-        <div class="td muted" [class.last-row]="last">{{ row.wins }}-{{ row.losses }}</div>
+        <div class="td muted" [class.last-row]="last">{{ row.wins }}</div>
+        <div class="td muted" [class.last-row]="last">{{ row.losses }}</div>
         <div class="td" [class.last-row]="last" [class.accent]="row.netDen >= 0" [class.negative]="row.netDen < 0">
           {{ row.netDen | signed: 'ден' }}
         </div>

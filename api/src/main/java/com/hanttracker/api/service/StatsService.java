@@ -82,7 +82,6 @@ public class StatsService {
                     new LeaderboardRowDto(
                             player.getId(),
                             player.getDisplayName(),
-                            played.stream().mapToInt(g -> totalPoints(g, player.getId())).sum(),
                             wins,
                             finished.size() - wins,
                             netDen(played, player.getId())));
@@ -107,12 +106,6 @@ public class StatsService {
                         rounds.stream()
                                 .filter(r -> !r.isHant() && hasOutcome(r, RoundOutcome.WINNER))
                                 .count();
-        int quitterGames =
-                (int)
-                        all.stream()
-                                .filter(g -> g.getRounds().stream().anyMatch(r -> hasOutcome(r, RoundOutcome.QUIT)))
-                                .count();
-
         YearMonth end = YearMonth.now();
         YearMonth start = end.minusMonths(MONTHS_SHOWN - 1L);
 
@@ -126,7 +119,6 @@ public class StatsService {
                 players.size(),
                 percent(hantRounds, rounds.size()),
                 percent(regularRounds, rounds.size()),
-                percent(quitterGames, all.size()),
                 rankings(all, players),
                 playstyles(all, players));
     }

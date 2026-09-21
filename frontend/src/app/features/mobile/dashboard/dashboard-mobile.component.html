@@ -79,7 +79,7 @@
                   <span class="m-tag-accent">You</span>
                 }
               </span>
-              <span class="m-hint">{{ row.wins }}–{{ row.losses }} W–L · {{ row.points }} pts</span>
+              <span class="m-hint">{{ row.wins }} won · {{ row.losses }} lost</span>
             </span>
             <span class="net" [class.negative]="row.netDen < 0" [class.accent]="row.netDen >= 0">
               {{ row.netDen | signed: 'ден' }}
