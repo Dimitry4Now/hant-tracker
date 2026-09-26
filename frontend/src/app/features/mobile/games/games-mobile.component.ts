@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
@@ -20,6 +20,7 @@ const INITIAL_MONTHS = 2;
     selector: 'app-games-mobile',
     imports: [ReactiveFormsModule, RouterLink, IconComponent, SheetComponent, SeatListComponent],
     templateUrl: './games-mobile.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './games-mobile.component.scss'
 })
 export class GamesMobileComponent {

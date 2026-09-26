@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { formatDate, gameLabel } from '../../core/game-stats';
@@ -17,6 +17,7 @@ import { GameDetailStore } from './game-detail.store';
     imports: [ReactiveFormsModule, RouterLink, DenToEurPipe, SignedPipe, SeatOrderComponent, GameDetailMobileComponent],
     providers: [GameDetailStore],
     templateUrl: './game-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './game-detail.component.scss'
 })
 export class GameDetailComponent {

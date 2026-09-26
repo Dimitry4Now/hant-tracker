@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-brand',
@@ -12,6 +12,7 @@ import { Component, Input } from '@angular/core';
       <span class="name" [style.font-size.px]="size + 2">Hant Stats</span>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       .brand {

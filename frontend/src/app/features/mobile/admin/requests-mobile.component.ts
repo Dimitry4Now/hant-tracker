@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { AccountRequest } from '../../../core/models';
 import { dayMonth } from '../../../shared/mobile/dates';
 import { initials } from '../../../shared/mobile/initials';
@@ -38,6 +38,7 @@ import { AdminTabsComponent } from './admin-tabs.component';
       }
     </div>
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
       .request {

@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { formatDate, standingsFor } from '../../../core/game-stats';
@@ -22,6 +22,7 @@ const LIVE_PLACES = ['Leading', '2nd', '3rd', '4th', '5th', '6th'];
     selector: 'app-game-detail-mobile',
     imports: [ReactiveFormsModule, IconComponent, SeatListComponent, SignedPipe, DenToEurPipe, RoundFormMobileComponent],
     templateUrl: './game-detail-mobile.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './game-detail-mobile.component.scss'
 })
 export class GameDetailMobileComponent {

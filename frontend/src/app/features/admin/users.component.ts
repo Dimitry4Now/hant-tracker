@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { formatDate } from '../../core/game-stats';
@@ -12,6 +12,7 @@ import { UsersStore } from './users.store';
     imports: [ReactiveFormsModule, RouterLink, UsersMobileComponent],
     providers: [UsersStore],
     templateUrl: './users.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './users.component.scss'
 })
 export class UsersComponent {

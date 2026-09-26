@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ThemeService } from '../../core/theme.service';
 import { IconComponent } from './icon.component';
@@ -7,6 +7,7 @@ import { IconComponent } from './icon.component';
 @Component({
     selector: 'app-back-bar',
     imports: [RouterLink, IconComponent],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
     <header class="m-detail-bar">
       <a class="m-icon-btn" [routerLink]="back()" aria-label="Back">

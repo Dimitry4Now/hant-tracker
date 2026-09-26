@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { IconComponent } from './icon.component';
 
 /**
@@ -8,6 +8,7 @@ import { IconComponent } from './icon.component';
 @Component({
     selector: 'app-sheet',
     imports: [IconComponent],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
     <div class="m-sheet-backdrop" (click)="closed.emit()"></div>
     <section class="m-sheet" role="dialog" aria-modal="true" [attr.aria-label]="title()">

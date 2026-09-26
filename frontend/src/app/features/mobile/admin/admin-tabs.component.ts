@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HantDataService } from '../../../core/hant-data.service';
 
@@ -20,6 +20,7 @@ import { HantDataService } from '../../../core/hant-data.service';
          [attr.aria-selected]="users.isActive" [replaceUrl]="true">Users</a>
     </div>
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
       :host {

@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { ViewportService } from '../../core/viewport.service';
@@ -9,6 +9,7 @@ import { AccountMobileComponent } from '../mobile/account/account-mobile.compone
     selector: 'app-account',
     imports: [ReactiveFormsModule, AccountMobileComponent],
     templateUrl: './account.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './account.component.scss'
 })
 export class AccountComponent {

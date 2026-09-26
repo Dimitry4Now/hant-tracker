@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, effect, inject, input } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
 import { formatDate, standingsFor, statusLabel } from '../../../core/game-stats';
@@ -14,6 +14,7 @@ import { SignedPipe } from '../../../shared/signed.pipe';
     selector: 'app-analysis-mobile',
     imports: [RouterLink, IconComponent, SignedPipe],
     templateUrl: './analysis-mobile.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './analysis-mobile.component.scss'
 })
 export class AnalysisMobileComponent {

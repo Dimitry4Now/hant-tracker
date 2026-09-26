@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HantDataService } from '../../core/hant-data.service';
 import { DashboardStats, LeaderboardRow } from '../../core/models';
 import { ViewportService } from '../../core/viewport.service';
@@ -13,6 +13,7 @@ type SortDir = 'asc' | 'desc';
     selector: 'app-dashboard',
     imports: [DenToEurPipe, SignedPipe, DashboardMobileComponent],
     templateUrl: './dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {

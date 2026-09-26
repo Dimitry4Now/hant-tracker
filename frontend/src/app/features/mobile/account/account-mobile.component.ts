@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
@@ -15,6 +15,7 @@ import { AccountComponent } from '../../account/account.component';
     selector: 'app-account-mobile',
     imports: [ReactiveFormsModule],
     templateUrl: './account-mobile.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './account-mobile.component.scss'
 })
 export class AccountMobileComponent {

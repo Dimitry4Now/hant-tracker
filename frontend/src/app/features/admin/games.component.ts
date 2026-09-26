@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { formatDate, statusLabel } from '../../core/game-stats';
@@ -13,6 +13,7 @@ import { GamesStore } from './games.store';
     imports: [ReactiveFormsModule, RouterLink, SeatOrderComponent, GamesMobileComponent],
     providers: [GamesStore],
     templateUrl: './games.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './games.component.scss'
 })
 export class GamesComponent {

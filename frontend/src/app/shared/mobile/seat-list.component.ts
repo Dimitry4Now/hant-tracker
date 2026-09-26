@@ -1,4 +1,4 @@
-import { Component, input, model } from '@angular/core';
+import { Component, input, model, ChangeDetectionStrategy } from '@angular/core';
 import { User } from '../../core/models';
 import { IconComponent } from './icon.component';
 
@@ -27,6 +27,7 @@ import { IconComponent } from './icon.component';
       }
     </ol>
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
       .seat {

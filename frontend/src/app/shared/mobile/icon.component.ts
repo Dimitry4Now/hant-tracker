@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 
 export type IconName =
   | 'dashboard'
@@ -19,6 +19,7 @@ export type IconName =
   selector: 'app-icon',
   standalone: true,
   host: { 'aria-hidden': 'true', style: 'display: inline-flex; flex-shrink: 0' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none"
          stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
