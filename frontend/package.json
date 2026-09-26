@@ -38,5 +38,11 @@
   },
   "engines": {
     "node": "^22.22.3 || >=24.15.0"
+  },
+  "allowScripts": {
+    "@parcel/watcher": true,
+    "esbuild": true,
+    "lmdb": true,
+    "msgpackr-extract": true
   }
 }
