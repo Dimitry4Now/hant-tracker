@@ -156,8 +156,13 @@ public class StatsService {
                         player -> {
                             List<Game> played =
                                     all.stream().filter(g -> g.getPlayerIds().contains(player.getId())).toList();
+                            List<RoundEntryValue> entries = entriesOf(played, player.getId());
                             return new RankingDto(
-                                    player.getDisplayName(), played.size(), winRate(played, player.getId()));
+                                    player.getDisplayName(),
+                                    played.size(),
+                                    winRate(played, player.getId()),
+                                    entries.size(),
+                                    percent(countOutcome(entries, RoundOutcome.WINNER), entries.size()));
                         })
                 .sorted(
                         Comparator.<RankingDto>comparingInt(RankingDto::games)

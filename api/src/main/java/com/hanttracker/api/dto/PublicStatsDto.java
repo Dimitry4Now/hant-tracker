@@ -16,7 +16,7 @@ public record PublicStatsDto(
         List<RankingDto> rankings,
         List<PlaystyleDto> playstyles) {
 
-    public record RankingDto(String name, int games, int winRate) {}
+    public record RankingDto(String name, int games, int winRate, int rounds, int roundWinRate) {}
 
     public record PlaystyleDto(String name, String style) {}
 }

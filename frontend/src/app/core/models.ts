@@ -101,6 +101,6 @@ export interface PublicStats {
   players: number;
   roundsEndingInHant: number;
   roundsClosedRegular: number;
-  rankings: { name: string; games: number; winRate: number }[];
+  rankings: { name: string; games: number; winRate: number; rounds: number; roundWinRate: number }[];
   playstyles: { name: string; style: string }[];
 }

@@ -120,10 +120,14 @@
       <div class="th">Player</div>
       <div class="th">Games</div>
       <div class="th">Win rate</div>
+      <div class="th">Rounds</div>
+      <div class="th">Round win %</div>
       @for (row of s.rankings; track row.name; let last = $last) {
         <div class="td" [class.last-row]="last">{{ row.name }}</div>
         <div class="td muted" [class.last-row]="last">{{ row.games }}</div>
         <div class="td" [class.last-row]="last">{{ row.winRate }}%</div>
+        <div class="td muted" [class.last-row]="last">{{ row.rounds }}</div>
+        <div class="td" [class.last-row]="last">{{ row.roundWinRate }}%</div>
       }
     </div>
   </section>
