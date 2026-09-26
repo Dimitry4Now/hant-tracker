@@ -19,12 +19,12 @@
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 12px;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .card-title {
   font-family: var(--heading-font);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 700;
 }
 
@@ -41,6 +41,7 @@
   border-style: solid;
   border-color: var(--border);
   background: none;
+  padding: 0 0 8px;
   font-family: inherit;
   text-align: left;
   cursor: pointer;

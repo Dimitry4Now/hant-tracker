@@ -1,34 +1,37 @@
 :host {
   display: block;
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 28px 28px 60px;
+  padding: 0 var(--gutter) 60px;
 }
 
 :host(.mobile) {
   padding: 0 16px 48px;
 }
 
+/* Matches the signed-in shell's bar: full bleed past the page gutter. */
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-height: var(--topbar-height);
+  margin: 0 calc(-1 * var(--gutter)) 48px;
+  padding: 12px var(--gutter);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 48px;
   gap: 16px;
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-size: 13px;
+  gap: 10px;
 }
 
-.btn-link {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 7px 12px;
-  text-decoration: none;
+.actions .btn {
+  height: 38px;
+  font-size: 0.875rem;
 }
 
 .hero {
@@ -36,7 +39,7 @@
 }
 
 .hero h1 {
-  font-size: 34px;
+  font-size: 2.125rem;
   line-height: 1.15;
   margin-bottom: 8px;
 }
@@ -55,12 +58,12 @@
 
 h2 {
   font-family: var(--heading-font);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 700;
 }
 
 .hint {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--muted);
   margin: 2px 0 16px;
 }
@@ -77,7 +80,7 @@ h2 {
 }
 
 .range {
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .chart {
@@ -95,7 +98,7 @@ h2 {
   position: absolute;
   right: 0;
   transform: translateY(50%);
-  font-size: 10px;
+  font-size: 0.625rem;
   line-height: 1;
 }
 
@@ -148,7 +151,7 @@ h2 {
   flex: 1;
   min-width: 0;
   text-align: center;
-  font-size: 11px;
+  font-size: 0.6875rem;
 }
 
 .chart-legend {
@@ -176,7 +179,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .swatch {
@@ -200,7 +203,7 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: 0.8125rem;
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
 }

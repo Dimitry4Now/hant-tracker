@@ -3,10 +3,16 @@
   background: var(--bg);
 }
 
+/* Full-bleed bar pinned to the top; the content below scrolls under it. */
 .topbar {
-  max-width: var(--page-max);
-  margin: 0 auto;
-  padding: 28px 28px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-height: var(--topbar-height);
+  padding: 12px var(--gutter);
+  margin-bottom: 28px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -22,22 +28,31 @@
 .right {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 28px;
   flex-wrap: wrap;
 }
 
-nav {
+.topbar nav {
   display: flex;
-  gap: 18px;
-  font-size: 13px;
+  gap: 4px;
+  font-size: 0.9375rem;
 }
 
-nav a {
+.topbar nav a {
+  padding: 8px 14px;
+  border-radius: var(--radius);
   color: var(--muted);
   text-decoration: none;
 }
 
-nav a.active {
+.topbar nav a:hover {
+  background: var(--bg);
+  color: var(--text);
+  opacity: 1;
+}
+
+.topbar nav a.active {
+  background: var(--accent-soft);
   color: var(--accent);
   font-weight: 600;
 }
@@ -45,8 +60,8 @@ nav a.active {
 .user {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 8px;
+  font-size: 0.875rem;
   color: var(--muted);
 }
 
@@ -65,13 +80,15 @@ nav a.active {
   background: transparent;
   color: var(--muted);
   font-family: var(--body-font);
-  font-size: 12px;
+  font-size: 0.875rem;
   cursor: pointer;
   padding: 0;
 }
 
+.logout:hover {
+  color: var(--negative);
+}
+
 main {
-  max-width: var(--page-max);
-  margin: 0 auto;
-  padding: 0 28px 40px;
+  padding: 0 var(--gutter) 40px;
 }

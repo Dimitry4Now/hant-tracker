@@ -1,5 +1,5 @@
 .crumbs {
-  font-size: 12px;
+  font-size: 0.75rem;
   margin-bottom: 6px;
 }
 
@@ -18,18 +18,18 @@
 }
 
 h1 {
-  font-size: 22px;
+  font-size: 1.375rem;
 }
 
 h2 {
   font-family: var(--heading-font);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 700;
   margin-bottom: 2px;
 }
 
 .small {
-  font-size: 11px;
+  font-size: 0.6875rem;
 }
 
 .players {
@@ -40,7 +40,7 @@ h2 {
 }
 
 .players .badge {
-  font-size: 11px;
+  font-size: 0.6875rem;
   padding: 3px 8px;
   color: var(--text);
 }
@@ -48,7 +48,7 @@ h2 {
 .note-card {
   margin-bottom: 18px;
   padding: 14px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .section {
@@ -56,13 +56,13 @@ h2 {
 }
 
 .hint {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--muted);
   margin: 0 0 16px;
 }
 
 .rounds .td {
-  font-size: 12px;
+  font-size: 0.75rem;
   padding: 8px 0;
 }
 
@@ -83,7 +83,7 @@ h2 {
 .amount {
   height: 32px;
   width: 100px;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .save {
@@ -93,7 +93,7 @@ h2 {
 
 .saved {
   margin-left: 12px;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .round-meta {
@@ -112,7 +112,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   height: 40px;
 }
 
@@ -125,7 +125,7 @@ h2 {
 .entries input {
   height: 32px;
   width: 100%;
-  font-size: 12px;
+  font-size: 0.75rem;
   padding: 0 8px;
 }
 
@@ -179,7 +179,7 @@ h2 {
   margin-top: 14px;
   height: 38px;
   padding: 0 14px;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .check.cumulative {
@@ -192,7 +192,7 @@ h2 {
 
 /* A running total that does not match what the rules give for the outcome. */
 .mismatch {
-  font-size: 10px;
+  font-size: 0.625rem;
   color: var(--negative);
   border: 1px solid var(--negative);
   border-radius: 3px;
@@ -207,7 +207,7 @@ h2 {
 
 /* Marks who dealt the round, next to their points. */
 .dealer {
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-weight: 600;
   color: var(--muted);
   border: 1px solid var(--border);

@@ -47,7 +47,7 @@ import { User } from '../core/models';
         padding: 0 8px 0 10px;
         border: 1px solid var(--border);
         border-radius: var(--radius);
-        font-size: 13px;
+        font-size: 0.8125rem;
       }
 
       .number {
