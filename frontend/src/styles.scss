@@ -46,6 +46,7 @@
   /* Web pages run the full window width; only the side gutter scales. */
   --gutter: clamp(24px, 4vw, 64px);
   --topbar-height: 72px;
+  --footer-height: 40px;
 }
 
 [data-theme='dark'] {
@@ -96,6 +97,14 @@ html {
 @media (min-width: 768px) {
   html {
     font-size: 18px;
+  }
+}
+
+/* Phones have no version footer (the tab bar sits there), so pages sized to
+   "the window minus the footer" get the whole window. */
+@media (max-width: 767px) {
+  :root {
+    --footer-height: 0px;
   }
 }
 

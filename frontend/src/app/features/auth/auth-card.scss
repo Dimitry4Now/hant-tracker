@@ -1,11 +1,11 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: calc(100vh - var(--footer-height));
   background: var(--bg);
 }
 
 .wrap {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--footer-height));
   display: flex;
   flex-direction: column;
   align-items: center;

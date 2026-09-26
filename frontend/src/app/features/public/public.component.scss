@@ -1,5 +1,6 @@
 :host {
   display: block;
+  min-height: calc(100vh - var(--footer-height));
   padding: 0 var(--gutter) 60px;
 }
 
