@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
 import { HantDataService } from '../../../core/hant-data.service';
@@ -13,9 +13,9 @@ const PLACES = ['leading', '2nd', '3rd', '4th', '5th', '6th'];
 
 @Component({
   selector: 'app-dashboard-mobile',
-  standalone: true,
   imports: [RouterLink, DenToEurPipe, SignedPipe, IconComponent],
   templateUrl: './dashboard-mobile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dashboard-mobile.component.scss'
 })
 export class DashboardMobileComponent {

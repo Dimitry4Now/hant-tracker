@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, effect, inject, input, output, untracked } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, input, output, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { formatDate } from '../../../core/game-stats';
 import { RoundOutcome } from '../../../core/models';
@@ -10,9 +10,9 @@ import { GameDetailStore } from '../../admin/game-detail.store';
 /** Full-screen round form on phones — adds a round, or edits one when given its id. */
 @Component({
   selector: 'app-round-form-mobile',
-  standalone: true,
   imports: [ReactiveFormsModule, IconComponent, SignedPipe],
   templateUrl: './round-form-mobile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './round-form-mobile.component.scss'
 })
 export class RoundFormMobileComponent {

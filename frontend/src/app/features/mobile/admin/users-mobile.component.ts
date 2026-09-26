@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, untracked } from '@angular/core';
+import { Component, computed, effect, inject, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -13,9 +13,9 @@ import { AdminTabsComponent } from './admin-tabs.component';
 
 @Component({
   selector: 'app-users-mobile',
-  standalone: true,
   imports: [NgTemplateOutlet, ReactiveFormsModule, RouterLink, IconComponent, SheetComponent, AdminTabsComponent],
   templateUrl: './users-mobile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './users-mobile.component.scss'
 })
 export class UsersMobileComponent {

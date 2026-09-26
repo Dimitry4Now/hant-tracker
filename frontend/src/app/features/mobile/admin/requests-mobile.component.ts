@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { AccountRequest } from '../../../core/models';
 import { dayMonth } from '../../../shared/mobile/dates';
 import { initials } from '../../../shared/mobile/initials';
@@ -6,8 +6,8 @@ import { AdminTabsComponent } from './admin-tabs.component';
 
 @Component({
   selector: 'app-requests-mobile',
-  standalone: true,
   imports: [AdminTabsComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="m-page">
       <app-admin-tabs />

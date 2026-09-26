@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { HantDataService } from '../../core/hant-data.service';
 import { formatDate } from '../../core/game-stats';
 import { AccountRequest } from '../../core/models';
@@ -7,9 +7,9 @@ import { RequestsMobileComponent } from '../mobile/admin/requests-mobile.compone
 
 @Component({
   selector: 'app-requests',
-  standalone: true,
   imports: [RequestsMobileComponent],
   templateUrl: './requests.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './requests.component.scss'
 })
 export class RequestsComponent {

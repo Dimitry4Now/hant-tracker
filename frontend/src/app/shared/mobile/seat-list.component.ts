@@ -1,4 +1,4 @@
-import { Component, input, model } from '@angular/core';
+import { Component, input, model, ChangeDetectionStrategy } from '@angular/core';
 import { User } from '../../core/models';
 import { IconComponent } from './icon.component';
 
@@ -8,8 +8,8 @@ import { IconComponent } from './icon.component';
  */
 @Component({
   selector: 'app-seat-list',
-  standalone: true,
   imports: [IconComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <ol class="m-list">
       @for (id of seats(); track id; let i = $index; let first = $first) {

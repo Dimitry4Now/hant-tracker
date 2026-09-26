@@ -1,12 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HantDataService } from '../../../core/hant-data.service';
 
 /** "Admin" heading with the Requests / Users switch — one tab bar entry for both pages. */
 @Component({
   selector: 'app-admin-tabs',
-  standalone: true,
   imports: [RouterLink, RouterLinkActive],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <h1 class="m-title">Admin</h1>
     <div class="m-segmented" role="tablist" aria-label="Admin sections">

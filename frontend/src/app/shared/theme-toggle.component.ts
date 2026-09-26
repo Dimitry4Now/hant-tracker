@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeService } from '../core/theme.service';
 
 @Component({
@@ -19,6 +19,7 @@ import { ThemeService } from '../core/theme.service';
       }
     </button>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       .toggle {

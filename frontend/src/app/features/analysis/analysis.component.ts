@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { HantDataService } from '../../core/hant-data.service';
 import { gameLabel, standingsFor, statusLabel } from '../../core/game-stats';
@@ -9,9 +9,9 @@ import { AnalysisMobileComponent } from '../mobile/analysis/analysis-mobile.comp
 
 @Component({
   selector: 'app-analysis',
-  standalone: true,
   imports: [SignedPipe, AnalysisMobileComponent],
   templateUrl: './analysis.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './analysis.component.scss'
 })
 export class AnalysisComponent {

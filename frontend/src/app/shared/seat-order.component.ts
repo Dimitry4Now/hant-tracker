@@ -1,4 +1,4 @@
-import { Component, input, model } from '@angular/core';
+import { Component, input, model, ChangeDetectionStrategy } from '@angular/core';
 import { User } from '../core/models';
 
 /**
@@ -27,6 +27,7 @@ import { User } from '../core/models';
       }
     </ol>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       .seats {

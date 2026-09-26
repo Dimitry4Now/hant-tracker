@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -13,16 +13,16 @@ import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 
 @Component({
   selector: 'app-shell',
-  standalone: true,
   imports: [
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    BrandComponent,
-    ThemeToggleComponent,
-    IconComponent
+      RouterOutlet,
+      RouterLink,
+      RouterLinkActive,
+      BrandComponent,
+      ThemeToggleComponent,
+      IconComponent
   ],
   templateUrl: './shell.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './shell.component.scss'
 })
 export class ShellComponent {

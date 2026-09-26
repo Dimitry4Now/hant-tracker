@@ -6,8 +6,9 @@ history readable.
 
 ## Getting set up
 
-You need Node 20+ and a JDK 21. Nothing else is installed globally: the Angular
-CLI is a local dev dependency and Gradle comes from the wrapper.
+You need Node 24 (or 22.22+; `nvm use` picks it up from `.nvmrc`) and a JDK 21.
+Nothing else is installed globally: the Angular CLI is a local dev dependency
+and Gradle comes from the wrapper.
 
 ```
 cd api && ./gradlew bootRun     # http://localhost:8080, dev profile
