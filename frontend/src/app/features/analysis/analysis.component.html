@@ -36,10 +36,15 @@
         <div class="th">Player</div>
         <div class="th">Points</div>
         <div class="th">Result</div>
+        <div class="th">Money</div>
         @for (row of standings(); track row.playerId; let last = $last) {
           <div class="td" [class.last-row]="last">{{ row.name }}</div>
           <div class="td" [class.last-row]="last" [class.accent]="row.points < 0">{{ row.points | signed }}</div>
           <div class="td muted" [class.last-row]="last">{{ row.result }}</div>
+          <div class="td" [class.last-row]="last" [class.muted]="row.money === null"
+               [class.accent]="row.money !== null && row.money > 0" [class.negative]="row.money !== null && row.money < 0">
+            {{ row.money | signed: 'ден' }}
+          </div>
         }
       </div>
     } @else {

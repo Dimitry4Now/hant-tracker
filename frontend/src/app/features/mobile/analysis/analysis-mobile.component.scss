@@ -86,7 +86,7 @@ ol {
 
 .standing {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) 72px 64px;
+  grid-template-columns: 32px minmax(0, 1fr) 56px 56px 80px;
   align-items: center;
   height: 52px;
   padding: 0 16px;

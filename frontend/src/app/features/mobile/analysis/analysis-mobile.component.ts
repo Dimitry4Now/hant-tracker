@@ -7,12 +7,13 @@ import { ViewportService } from '../../../core/viewport.service';
 import { dayMonth, groupByMonth, shortDate } from '../../../shared/mobile/dates';
 import { IconComponent } from '../../../shared/mobile/icon.component';
 import { queryState } from '../../../shared/mobile/query-state';
+import { SignedPipe } from '../../../shared/signed.pipe';
 
 /** Analysis on phones: games by month, and one game's result at `?game=<id>`. */
 @Component({
   selector: 'app-analysis-mobile',
   standalone: true,
-  imports: [RouterLink, IconComponent],
+  imports: [RouterLink, IconComponent, SignedPipe],
   templateUrl: './analysis-mobile.component.html',
   styleUrl: './analysis-mobile.component.scss'
 })

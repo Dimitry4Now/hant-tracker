@@ -7,6 +7,8 @@ export interface PlayerStanding {
   /** 1-based position; lowest total points wins. */
   place: number;
   result: string;
+  /** Denars won (+) or paid (-); null until the money is entered. */
+  money: number | null;
 }
 
 const PLACE_LABELS = ['Winner', '2nd', '3rd', '4th', '5th', '6th'];
@@ -18,6 +20,7 @@ export function standingsFor(game: Game, users: User[]): PlayerStanding[] {
   const totals = game.playerIds.map((playerId) => ({
     playerId,
     name: nameOf(playerId),
+    money: game.money.find((m) => m.playerId === playerId)?.amountDen ?? null,
     points: game.rounds.reduce(
       (sum, round) => sum + (round.entries.find((e) => e.playerId === playerId)?.points ?? 0),
       0

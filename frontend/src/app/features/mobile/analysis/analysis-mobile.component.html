@@ -21,7 +21,7 @@
         }
       </div>
       <div class="standing th">
-        <span></span><span>Player</span><span class="r">Points</span><span class="r">Result</span>
+        <span></span><span>Player</span><span class="r">Points</span><span class="r">Result</span><span class="r">Money</span>
       </div>
       <ol>
         @for (row of standings(); track row.playerId; let first = $first) {
@@ -30,6 +30,8 @@
             <span class="name">{{ row.name }}</span>
             <span class="r num">{{ row.points }}</span>
             <span class="r result">{{ row.result }}</span>
+            <span class="r num money" [class.accent]="row.money !== null && row.money > 0"
+                  [class.negative]="row.money !== null && row.money < 0">{{ row.money | signed: 'ден' }}</span>
           </li>
         }
       </ol>
