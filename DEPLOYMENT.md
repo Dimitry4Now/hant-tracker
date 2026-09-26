@@ -56,8 +56,9 @@ CREATE DATABASE hant_tracker OWNER hant_tracker;
 SQL
 ```
 
-The app creates and updates its own tables on start (`ddl-auto=update`), so
-there is no migration step for the first deploy.
+The app creates its own tables on start: Flyway runs the scripts in
+`api/src/main/resources/db/migration`, so there is no migration step for the
+first deploy.
 
 ## 4. Write the environment file
 
@@ -240,12 +241,27 @@ sudo rsync -av --delete --chown=www-data:www-data /tmp/hant-client/ /opt/hant-tr
 ```
 
 The client is static files, so replacing them needs no nginx reload. Schema
-changes are applied on start by `ddl-auto=update`; it adds tables and columns
-but never drops them, so a release that removes a field leaves the old column
-behind for a later manual cleanup.
+changes ship as Flyway scripts (`db/migration/V<n>__<what>.sql`) and run on
+start; applied versions are recorded in the `flyway_schema_history` table.
+Hibernate only validates the entities against the schema, so a missing
+migration stops the app at start rather than altering tables on its own.
 
-To roll back, put `hant-tracker.jar.prev` back and restart — but check whether
-the newer version changed the schema first.
+A database created before Flyway (by the old `ddl-auto=update`) is baselined
+at V1 on the first start: its tables and data are kept as they are and only
+V2 and later run.
+
+`scripts/deploy.sh` dumps the database to
+`/var/backups/hant-tracker-<timestamp>-predeploy.sql.gz` before every backend
+deploy and keeps the newest 10. To roll back, put `hant-tracker.jar.prev` back
+and restart. If the release you are rolling back added a migration, the older
+jar may not understand the new schema; restore that dump first:
+
+```
+sudo systemctl stop hant-tracker
+gunzip -c /var/backups/hant-tracker-<timestamp>-predeploy.sql.gz \
+  | sudo -u postgres psql -v ON_ERROR_STOP=1 --single-transaction \
+      -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public AUTHORIZATION hant_tracker;' -f - hant_tracker
+```
 
 ## 11. Backups
 
