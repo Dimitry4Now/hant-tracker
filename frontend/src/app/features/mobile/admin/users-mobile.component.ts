@@ -12,11 +12,10 @@ import { UsersStore } from '../../admin/users.store';
 import { AdminTabsComponent } from './admin-tabs.component';
 
 @Component({
-  selector: 'app-users-mobile',
-  standalone: true,
-  imports: [NgTemplateOutlet, ReactiveFormsModule, RouterLink, IconComponent, SheetComponent, AdminTabsComponent],
-  templateUrl: './users-mobile.component.html',
-  styleUrl: './users-mobile.component.scss'
+    selector: 'app-users-mobile',
+    imports: [NgTemplateOutlet, ReactiveFormsModule, RouterLink, IconComponent, SheetComponent, AdminTabsComponent],
+    templateUrl: './users-mobile.component.html',
+    styleUrl: './users-mobile.component.scss'
 })
 export class UsersMobileComponent {
   readonly store = inject(UsersStore);

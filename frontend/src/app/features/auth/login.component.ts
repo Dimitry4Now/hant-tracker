@@ -8,11 +8,10 @@ import { BackBarComponent } from '../../shared/mobile/back-bar.component';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, BrandComponent, ThemeToggleComponent, BackBarComponent],
-  templateUrl: './login.component.html',
-  styleUrl: './auth-card.scss'
+    selector: 'app-login',
+    imports: [ReactiveFormsModule, RouterLink, BrandComponent, ThemeToggleComponent, BackBarComponent],
+    templateUrl: './login.component.html',
+    styleUrl: './auth-card.scss'
 })
 export class LoginComponent {
   readonly viewport = inject(ViewportService);

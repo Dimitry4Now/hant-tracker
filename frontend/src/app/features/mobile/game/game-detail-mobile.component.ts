@@ -9,7 +9,6 @@ import { DenToEurPipe } from '../../../shared/den-to-eur.pipe';
 import { IconComponent } from '../../../shared/mobile/icon.component';
 import { queryState } from '../../../shared/mobile/query-state';
 import { SeatListComponent } from '../../../shared/mobile/seat-list.component';
-import { SheetComponent } from '../../../shared/mobile/sheet.component';
 import { SignedPipe } from '../../../shared/signed.pipe';
 import { GameDetailStore } from '../../admin/game-detail.store';
 import { RoundFormMobileComponent } from './round-form-mobile.component';
@@ -20,11 +19,10 @@ const LIVE_PLACES = ['Leading', '2nd', '3rd', '4th', '5th', '6th'];
 
 /** A game on a phone: result, running-totals sheet, money and details as tabs. */
 @Component({
-  selector: 'app-game-detail-mobile',
-  standalone: true,
-  imports: [ReactiveFormsModule, IconComponent, SheetComponent, SeatListComponent, SignedPipe, DenToEurPipe, RoundFormMobileComponent],
-  templateUrl: './game-detail-mobile.component.html',
-  styleUrl: './game-detail-mobile.component.scss'
+    selector: 'app-game-detail-mobile',
+    imports: [ReactiveFormsModule, IconComponent, SeatListComponent, SignedPipe, DenToEurPipe, RoundFormMobileComponent],
+    templateUrl: './game-detail-mobile.component.html',
+    styleUrl: './game-detail-mobile.component.scss'
 })
 export class GameDetailMobileComponent {
   readonly store = inject(GameDetailStore);

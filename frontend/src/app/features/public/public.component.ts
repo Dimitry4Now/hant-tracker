@@ -24,12 +24,11 @@ interface MonthBar {
 }
 
 @Component({
-  selector: 'app-public',
-  standalone: true,
-  imports: [RouterLink, BrandComponent, ThemeToggleComponent, IconComponent],
-  templateUrl: './public.component.html',
-  styleUrl: './public.component.scss',
-  host: { '[class.mobile]': 'viewport.isMobile()' }
+    selector: 'app-public',
+    imports: [RouterLink, BrandComponent, ThemeToggleComponent, IconComponent],
+    templateUrl: './public.component.html',
+    styleUrl: './public.component.scss',
+    host: { '[class.mobile]': 'viewport.isMobile()' }
 })
 export class PublicComponent {
   readonly viewport = inject(ViewportService);

@@ -6,11 +6,10 @@ import { ViewportService } from '../../core/viewport.service';
 import { RequestsMobileComponent } from '../mobile/admin/requests-mobile.component';
 
 @Component({
-  selector: 'app-requests',
-  standalone: true,
-  imports: [RequestsMobileComponent],
-  templateUrl: './requests.component.html',
-  styleUrl: './requests.component.scss'
+    selector: 'app-requests',
+    imports: [RequestsMobileComponent],
+    templateUrl: './requests.component.html',
+    styleUrl: './requests.component.scss'
 })
 export class RequestsComponent {
   private readonly data = inject(HantDataService);

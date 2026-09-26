@@ -9,11 +9,10 @@ import { BackBarComponent } from '../../shared/mobile/back-bar.component';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, BrandComponent, ThemeToggleComponent, BackBarComponent],
-  templateUrl: './register.component.html',
-  styleUrl: './auth-card.scss'
+    selector: 'app-register',
+    imports: [ReactiveFormsModule, RouterLink, BrandComponent, ThemeToggleComponent, BackBarComponent],
+    templateUrl: './register.component.html',
+    styleUrl: './auth-card.scss'
 })
 export class RegisterComponent {
   readonly viewport = inject(ViewportService);

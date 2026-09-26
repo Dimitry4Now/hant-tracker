@@ -8,11 +8,10 @@ import { SignedPipe } from '../../shared/signed.pipe';
 import { AnalysisMobileComponent } from '../mobile/analysis/analysis-mobile.component';
 
 @Component({
-  selector: 'app-analysis',
-  standalone: true,
-  imports: [SignedPipe, AnalysisMobileComponent],
-  templateUrl: './analysis.component.html',
-  styleUrl: './analysis.component.scss'
+    selector: 'app-analysis',
+    imports: [SignedPipe, AnalysisMobileComponent],
+    templateUrl: './analysis.component.html',
+    styleUrl: './analysis.component.scss'
 })
 export class AnalysisComponent {
   private readonly data = inject(HantDataService);

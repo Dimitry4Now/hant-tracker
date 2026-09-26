@@ -12,11 +12,10 @@ import { AccountComponent } from '../../account/account.component';
  * that renders this, so it is injected rather than duplicated.
  */
 @Component({
-  selector: 'app-account-mobile',
-  standalone: true,
-  imports: [ReactiveFormsModule],
-  templateUrl: './account-mobile.component.html',
-  styleUrl: './account-mobile.component.scss'
+    selector: 'app-account-mobile',
+    imports: [ReactiveFormsModule],
+    templateUrl: './account-mobile.component.html',
+    styleUrl: './account-mobile.component.scss'
 })
 export class AccountMobileComponent {
   readonly page = inject(AccountComponent);

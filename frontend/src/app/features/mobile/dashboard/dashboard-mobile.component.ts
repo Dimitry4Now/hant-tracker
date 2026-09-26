@@ -12,11 +12,10 @@ import { SignedPipe } from '../../../shared/signed.pipe';
 const PLACES = ['leading', '2nd', '3rd', '4th', '5th', '6th'];
 
 @Component({
-  selector: 'app-dashboard-mobile',
-  standalone: true,
-  imports: [RouterLink, DenToEurPipe, SignedPipe, IconComponent],
-  templateUrl: './dashboard-mobile.component.html',
-  styleUrl: './dashboard-mobile.component.scss'
+    selector: 'app-dashboard-mobile',
+    imports: [RouterLink, DenToEurPipe, SignedPipe, IconComponent],
+    templateUrl: './dashboard-mobile.component.html',
+    styleUrl: './dashboard-mobile.component.scss'
 })
 export class DashboardMobileComponent {
   private readonly data = inject(HantDataService);

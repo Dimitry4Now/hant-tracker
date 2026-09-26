@@ -13,12 +13,11 @@ import { GameDetailStore } from './game-detail.store';
 
 /** Desktop layout of a game's page; the state lives in GameDetailStore. */
 @Component({
-  selector: 'app-game-detail',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, DenToEurPipe, SignedPipe, SeatOrderComponent, GameDetailMobileComponent],
-  providers: [GameDetailStore],
-  templateUrl: './game-detail.component.html',
-  styleUrl: './game-detail.component.scss'
+    selector: 'app-game-detail',
+    imports: [ReactiveFormsModule, RouterLink, DenToEurPipe, SignedPipe, SeatOrderComponent, GameDetailMobileComponent],
+    providers: [GameDetailStore],
+    templateUrl: './game-detail.component.html',
+    styleUrl: './game-detail.component.scss'
 })
 export class GameDetailComponent {
   private readonly store = inject(GameDetailStore);

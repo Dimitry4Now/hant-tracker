@@ -9,12 +9,11 @@ import { GamesMobileComponent } from '../mobile/games/games-mobile.component';
 import { GamesStore } from './games.store';
 
 @Component({
-  selector: 'app-games',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, SeatOrderComponent, GamesMobileComponent],
-  providers: [GamesStore],
-  templateUrl: './games.component.html',
-  styleUrl: './games.component.scss'
+    selector: 'app-games',
+    imports: [ReactiveFormsModule, RouterLink, SeatOrderComponent, GamesMobileComponent],
+    providers: [GamesStore],
+    templateUrl: './games.component.html',
+    styleUrl: './games.component.scss'
 })
 export class GamesComponent {
   private readonly store = inject(GamesStore);

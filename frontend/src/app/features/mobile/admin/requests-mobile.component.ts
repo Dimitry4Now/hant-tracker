@@ -5,10 +5,9 @@ import { initials } from '../../../shared/mobile/initials';
 import { AdminTabsComponent } from './admin-tabs.component';
 
 @Component({
-  selector: 'app-requests-mobile',
-  standalone: true,
-  imports: [AdminTabsComponent],
-  template: `
+    selector: 'app-requests-mobile',
+    imports: [AdminTabsComponent],
+    template: `
     <div class="m-page">
       <app-admin-tabs />
       <p class="m-hint">People who signed up and are waiting for access</p>
@@ -39,8 +38,8 @@ import { AdminTabsComponent } from './admin-tabs.component';
       }
     </div>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .request {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -72,7 +71,7 @@ import { AdminTabsComponent } from './admin-tabs.component';
         gap: 8px;
       }
     `
-  ]
+    ]
 })
 export class RequestsMobileComponent {
   readonly requests = input.required<AccountRequest[]>();
