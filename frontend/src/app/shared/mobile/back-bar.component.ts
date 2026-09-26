@@ -5,10 +5,10 @@ import { IconComponent } from './icon.component';
 
 /** Mobile header for the signed-out pages: back arrow, title, theme switch. */
 @Component({
-    selector: 'app-back-bar',
-    imports: [RouterLink, IconComponent],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    template: `
+  selector: 'app-back-bar',
+  imports: [RouterLink, IconComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `
     <header class="m-detail-bar">
       <a class="m-icon-btn" [routerLink]="back()" aria-label="Back">
         <app-icon name="back" />

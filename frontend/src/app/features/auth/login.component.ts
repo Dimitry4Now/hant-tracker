@@ -8,11 +8,11 @@ import { BackBarComponent } from '../../shared/mobile/back-bar.component';
 import { ThemeToggleComponent } from '../../shared/theme-toggle.component';
 
 @Component({
-    selector: 'app-login',
-    imports: [ReactiveFormsModule, RouterLink, BrandComponent, ThemeToggleComponent, BackBarComponent],
-    templateUrl: './login.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './auth-card.scss'
+  selector: 'app-login',
+  imports: [ReactiveFormsModule, RouterLink, BrandComponent, ThemeToggleComponent, BackBarComponent],
+  templateUrl: './login.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './auth-card.scss'
 })
 export class LoginComponent {
   readonly viewport = inject(ViewportService);

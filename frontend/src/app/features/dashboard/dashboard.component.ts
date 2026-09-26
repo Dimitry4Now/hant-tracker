@@ -10,11 +10,11 @@ type SortKey = keyof Pick<LeaderboardRow, 'name' | 'wins' | 'losses' | 'rounds' 
 type SortDir = 'asc' | 'desc';
 
 @Component({
-    selector: 'app-dashboard',
-    imports: [DenToEurPipe, SignedPipe, DashboardMobileComponent],
-    templateUrl: './dashboard.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './dashboard.component.scss'
+  selector: 'app-dashboard',
+  imports: [DenToEurPipe, SignedPipe, DashboardMobileComponent],
+  templateUrl: './dashboard.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
   private readonly data = inject(HantDataService);

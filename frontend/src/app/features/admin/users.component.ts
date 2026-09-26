@@ -8,12 +8,12 @@ import { UsersMobileComponent } from '../mobile/admin/users-mobile.component';
 import { UsersStore } from './users.store';
 
 @Component({
-    selector: 'app-users',
-    imports: [ReactiveFormsModule, RouterLink, UsersMobileComponent],
-    providers: [UsersStore],
-    templateUrl: './users.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './users.component.scss'
+  selector: 'app-users',
+  imports: [ReactiveFormsModule, RouterLink, UsersMobileComponent],
+  providers: [UsersStore],
+  templateUrl: './users.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './users.component.scss'
 })
 export class UsersComponent {
   private readonly store = inject(UsersStore);

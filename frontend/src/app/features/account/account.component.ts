@@ -6,11 +6,11 @@ import { ViewportService } from '../../core/viewport.service';
 import { AccountMobileComponent } from '../mobile/account/account-mobile.component';
 
 @Component({
-    selector: 'app-account',
-    imports: [ReactiveFormsModule, AccountMobileComponent],
-    templateUrl: './account.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './account.component.scss'
+  selector: 'app-account',
+  imports: [ReactiveFormsModule, AccountMobileComponent],
+  templateUrl: './account.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './account.component.scss'
 })
 export class AccountComponent {
   private readonly fb = inject(FormBuilder);

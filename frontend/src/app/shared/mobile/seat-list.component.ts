@@ -7,9 +7,10 @@ import { IconComponent } from './icon.component';
  * counterclockwise. One thumb-sized "move up" per row instead of up/down pairs.
  */
 @Component({
-    selector: 'app-seat-list',
-    imports: [IconComponent],
-    template: `
+  selector: 'app-seat-list',
+  imports: [IconComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `
     <ol class="m-list">
       @for (id of seats(); track id; let i = $index; let first = $first) {
         <li class="seat">
@@ -27,9 +28,8 @@ import { IconComponent } from './icon.component';
       }
     </ol>
   `,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styles: [
-        `
+  styles: [
+    `
       .seat {
         height: 56px;
         padding: 0 4px 0 12px;
@@ -47,7 +47,7 @@ import { IconComponent } from './icon.component';
         transform: rotate(90deg);
       }
     `
-    ]
+  ]
 })
 export class SeatListComponent {
   readonly seats = model.required<number[]>();

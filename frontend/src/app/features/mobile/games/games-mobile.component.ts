@@ -17,11 +17,11 @@ type Filter = 'all' | 'mine' | 'no-majstorska' | 'notes';
 const INITIAL_MONTHS = 2;
 
 @Component({
-    selector: 'app-games-mobile',
-    imports: [ReactiveFormsModule, RouterLink, IconComponent, SheetComponent, SeatListComponent],
-    templateUrl: './games-mobile.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './games-mobile.component.scss'
+  selector: 'app-games-mobile',
+  imports: [ReactiveFormsModule, RouterLink, IconComponent, SheetComponent, SeatListComponent],
+  templateUrl: './games-mobile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './games-mobile.component.scss'
 })
 export class GamesMobileComponent {
   readonly store = inject(GamesStore);

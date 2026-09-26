@@ -6,10 +6,10 @@ import { IconComponent } from './icon.component';
  * body and a footer slot (`[sheet-footer]`) that stays in view.
  */
 @Component({
-    selector: 'app-sheet',
-    imports: [IconComponent],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    template: `
+  selector: 'app-sheet',
+  imports: [IconComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `
     <div class="m-sheet-backdrop" (click)="closed.emit()"></div>
     <section class="m-sheet" role="dialog" aria-modal="true" [attr.aria-label]="title()">
       <div class="m-sheet-handle"><span></span></div>

@@ -19,11 +19,11 @@ const LIVE_PLACES = ['Leading', '2nd', '3rd', '4th', '5th', '6th'];
 
 /** A game on a phone: result, running-totals sheet, money and details as tabs. */
 @Component({
-    selector: 'app-game-detail-mobile',
-    imports: [ReactiveFormsModule, IconComponent, SeatListComponent, SignedPipe, DenToEurPipe, RoundFormMobileComponent],
-    templateUrl: './game-detail-mobile.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './game-detail-mobile.component.scss'
+  selector: 'app-game-detail-mobile',
+  imports: [ReactiveFormsModule, IconComponent, SeatListComponent, SignedPipe, DenToEurPipe, RoundFormMobileComponent],
+  templateUrl: './game-detail-mobile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './game-detail-mobile.component.scss'
 })
 export class GameDetailMobileComponent {
   readonly store = inject(GameDetailStore);

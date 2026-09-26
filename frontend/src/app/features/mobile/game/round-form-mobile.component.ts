@@ -9,11 +9,11 @@ import { GameDetailStore } from '../../admin/game-detail.store';
 
 /** Full-screen round form on phones — adds a round, or edits one when given its id. */
 @Component({
-    selector: 'app-round-form-mobile',
-    imports: [ReactiveFormsModule, IconComponent, SignedPipe],
-    templateUrl: './round-form-mobile.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './round-form-mobile.component.scss'
+  selector: 'app-round-form-mobile',
+  imports: [ReactiveFormsModule, IconComponent, SignedPipe],
+  templateUrl: './round-form-mobile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './round-form-mobile.component.scss'
 })
 export class RoundFormMobileComponent {
   readonly store = inject(GameDetailStore);

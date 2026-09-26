@@ -11,11 +11,11 @@ import { SignedPipe } from '../../../shared/signed.pipe';
 
 /** Analysis on phones: games by month, and one game's result at `?game=<id>`. */
 @Component({
-    selector: 'app-analysis-mobile',
-    imports: [RouterLink, IconComponent, SignedPipe],
-    templateUrl: './analysis-mobile.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './analysis-mobile.component.scss'
+  selector: 'app-analysis-mobile',
+  imports: [RouterLink, IconComponent, SignedPipe],
+  templateUrl: './analysis-mobile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './analysis-mobile.component.scss'
 })
 export class AnalysisMobileComponent {
   readonly auth = inject(AuthService);

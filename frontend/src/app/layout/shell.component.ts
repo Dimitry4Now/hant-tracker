@@ -12,18 +12,18 @@ import { initials } from '../shared/mobile/initials';
 import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 
 @Component({
-    selector: 'app-shell',
-    imports: [
-        RouterOutlet,
-        RouterLink,
-        RouterLinkActive,
-        BrandComponent,
-        ThemeToggleComponent,
-        IconComponent
-    ],
-    templateUrl: './shell.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './shell.component.scss'
+  selector: 'app-shell',
+  imports: [
+      RouterOutlet,
+      RouterLink,
+      RouterLinkActive,
+      BrandComponent,
+      ThemeToggleComponent,
+      IconComponent
+  ],
+  templateUrl: './shell.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './shell.component.scss'
 })
 export class ShellComponent {
   private readonly router = inject(Router);

@@ -4,9 +4,10 @@ import { HantDataService } from '../../../core/hant-data.service';
 
 /** "Admin" heading with the Requests / Users switch — one tab bar entry for both pages. */
 @Component({
-    selector: 'app-admin-tabs',
-    imports: [RouterLink, RouterLinkActive],
-    template: `
+  selector: 'app-admin-tabs',
+  imports: [RouterLink, RouterLinkActive],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: `
     <h1 class="m-title">Admin</h1>
     <div class="m-segmented" role="tablist" aria-label="Admin sections">
       <a role="tab" routerLink="/admin/requests" routerLinkActive #req="routerLinkActive"
@@ -20,9 +21,8 @@ import { HantDataService } from '../../../core/hant-data.service';
          [attr.aria-selected]="users.isActive" [replaceUrl]="true">Users</a>
     </div>
   `,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styles: [
-        `
+  styles: [
+    `
       :host {
         display: flex;
         flex-direction: column;
@@ -62,7 +62,7 @@ import { HantDataService } from '../../../core/hant-data.service';
         justify-content: center;
       }
     `
-    ]
+  ]
 })
 export class AdminTabsComponent {
   readonly pending = signal(0);
