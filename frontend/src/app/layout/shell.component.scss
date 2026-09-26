@@ -60,7 +60,7 @@
 .user {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 14px;
   font-size: 0.875rem;
   color: var(--muted);
 }
@@ -75,17 +75,14 @@
   color: var(--accent);
 }
 
+/* Same size as the public page's Log in, so the bar keeps one rhythm. */
 .logout {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-family: var(--body-font);
+  height: 38px;
   font-size: 0.875rem;
-  cursor: pointer;
-  padding: 0;
 }
 
-.logout:hover {
+.logout:hover:not(:disabled) {
+  border-color: var(--negative);
   color: var(--negative);
 }
 

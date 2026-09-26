@@ -68,8 +68,7 @@
       @if (auth.user(); as user) {
         <div class="user">
           <a routerLink="/account" routerLinkActive="active" class="account-link">{{ user.displayName }}</a>
-          <span class="dot">·</span>
-          <button type="button" class="logout" (click)="logout()">Log out</button>
+          <button type="button" class="btn btn-secondary logout" (click)="logout()">Log out</button>
         </div>
       }
       <app-theme-toggle />
