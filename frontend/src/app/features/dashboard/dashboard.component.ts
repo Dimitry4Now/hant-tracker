@@ -6,7 +6,7 @@ import { DenToEurPipe } from '../../shared/den-to-eur.pipe';
 import { SignedPipe } from '../../shared/signed.pipe';
 import { DashboardMobileComponent } from '../mobile/dashboard/dashboard-mobile.component';
 
-type SortKey = keyof Pick<LeaderboardRow, 'name' | 'wins' | 'losses' | 'netDen'>;
+type SortKey = keyof Pick<LeaderboardRow, 'name' | 'wins' | 'losses' | 'rounds' | 'roundWinRate' | 'netDen'>;
 type SortDir = 'asc' | 'desc';
 
 @Component({
@@ -26,6 +26,8 @@ export class DashboardComponent {
     { key: 'name', label: 'Player' },
     { key: 'wins', label: 'Wins' },
     { key: 'losses', label: 'Losses' },
+    { key: 'rounds', label: 'Rounds' },
+    { key: 'roundWinRate', label: 'Round win %' },
     { key: 'netDen', label: 'Net' }
   ];
 

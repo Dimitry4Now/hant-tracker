@@ -80,6 +80,7 @@
                 }
               </span>
               <span class="m-hint">{{ row.wins }} won · {{ row.losses }} lost</span>
+              <span class="m-hint">{{ row.rounds }} rounds · {{ row.roundWinRate }}% won</span>
             </span>
             <span class="net" [class.negative]="row.netDen < 0" [class.accent]="row.netDen >= 0">
               {{ row.netDen | signed: 'ден' }}

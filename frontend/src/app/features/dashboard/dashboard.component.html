@@ -59,6 +59,8 @@
         <div class="td" [class.last-row]="last">{{ row.name }}</div>
         <div class="td muted" [class.last-row]="last">{{ row.wins }}</div>
         <div class="td muted" [class.last-row]="last">{{ row.losses }}</div>
+        <div class="td muted" [class.last-row]="last">{{ row.rounds }}</div>
+        <div class="td muted" [class.last-row]="last">{{ row.roundWinRate }}%</div>
         <div class="td" [class.last-row]="last" [class.accent]="row.netDen >= 0" [class.negative]="row.netDen < 0">
           {{ row.netDen | signed: 'ден' }}
         </div>

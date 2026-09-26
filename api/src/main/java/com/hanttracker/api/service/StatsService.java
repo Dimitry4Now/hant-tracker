@@ -78,12 +78,16 @@ public class StatsService {
                     all.stream().filter(g -> g.getPlayerIds().contains(player.getId())).toList();
             List<Game> finished = played.stream().filter(g -> !g.isInProgress()).toList();
             int wins = (int) finished.stream().filter(g -> won(g, player.getId())).count();
+            List<RoundEntryValue> entries = entriesOf(played, player.getId());
+            int roundWins = countOutcome(entries, RoundOutcome.WINNER);
             rows.add(
                     new LeaderboardRowDto(
                             player.getId(),
                             player.getDisplayName(),
                             wins,
                             finished.size() - wins,
+                            entries.size(),
+                            percent(roundWins, entries.size()),
                             netDen(played, player.getId())));
         }
         rows.sort(
@@ -168,12 +172,7 @@ public class StatsService {
         for (UserAccount player : players) {
             List<Game> played =
                     all.stream().filter(g -> g.getPlayerIds().contains(player.getId())).toList();
-            List<RoundEntryValue> entries =
-                    played.stream()
-                            .flatMap(g -> g.getRounds().stream())
-                            .flatMap(r -> r.getEntries().stream())
-                            .filter(e -> e.getPlayerId().equals(player.getId()))
-                            .toList();
+            List<RoundEntryValue> entries = entriesOf(played, player.getId());
 
             styles.add(new PlaystyleDto(player.getDisplayName(), styleFor(played, entries, player.getId())));
         }
@@ -208,6 +207,15 @@ public class StatsService {
 
     private static List<Game> inMonth(List<Game> games, YearMonth month) {
         return games.stream().filter(g -> YearMonth.from(g.getPlayedOn()).equals(month)).toList();
+    }
+
+    /** Every round result that player has, one per round they sat in. */
+    private static List<RoundEntryValue> entriesOf(List<Game> games, Long playerId) {
+        return games.stream()
+                .flatMap(g -> g.getRounds().stream())
+                .flatMap(r -> r.getEntries().stream())
+                .filter(e -> e.getPlayerId().equals(playerId))
+                .toList();
     }
 
     private static int netDen(List<Game> games, Long playerId) {

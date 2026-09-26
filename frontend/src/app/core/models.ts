@@ -64,6 +64,10 @@ export interface LeaderboardRow {
   name: string;
   wins: number;
   losses: number;
+  /** Rounds sat in, across every game, in progress included. */
+  rounds: number;
+  /** Share of those rounds won, as a whole percent. */
+  roundWinRate: number;
   netDen: number;
 }
 
