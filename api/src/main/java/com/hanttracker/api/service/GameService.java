@@ -1,5 +1,7 @@
 package com.hanttracker.api.service;
 
+import static com.hanttracker.api.repo.spec.PlayedOnSpecs.playedOn;
+
 import com.hanttracker.api.domain.Game;
 import com.hanttracker.api.domain.Round;
 import com.hanttracker.api.dto.GameDto;
@@ -44,21 +46,21 @@ public class GameService {
     @Transactional(readOnly = true)
     public GameDto get(Long id) {
         Game game = find(id);
-        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+        return GameDto.of(game, (int) games.count(playedOn(game.getPlayedOn())));
     }
 
     public GameDto create(CreateGameRequest request) {
-        List<Game> sameDay = games.findByPlayedOn(request.playedOn());
+        int gameOfDay = (int) games.count(playedOn(request.playedOn())) + 1;
 
         Game game = new Game();
         game.setPlayedOn(request.playedOn());
-        game.setGameOfDay(sameDay.size() + 1);
+        game.setGameOfDay(gameOfDay);
         game.setInProgress(true);
         game.setNote(request.note());
         game.setPlayerIds(new ArrayList<>(request.playerIds()));
 
         games.save(game);
-        return GameDto.of(game, sameDay.size() + 1);
+        return GameDto.of(game, gameOfDay);
     }
 
     /**
@@ -85,7 +87,7 @@ public class GameService {
             game.setInProgress(false);
         }
 
-        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+        return GameDto.of(game, (int) games.count(playedOn(game.getPlayedOn())));
     }
 
     /**
@@ -109,14 +111,14 @@ public class GameService {
 
         LocalDate previousDate = game.getPlayedOn();
         if (!previousDate.equals(request.playedOn())) {
-            game.setGameOfDay(games.findByPlayedOn(request.playedOn()).size() + 1);
+            game.setGameOfDay((int) games.count(playedOn(request.playedOn())) + 1);
             game.setPlayedOn(request.playedOn());
             games.flush();
             renumberDay(previousDate);
         }
 
         game.setNote(request.note());
-        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+        return GameDto.of(game, (int) games.count(playedOn(game.getPlayedOn())));
     }
 
     public void delete(Long gameId) {
@@ -140,7 +142,7 @@ public class GameService {
         request.entries().stream().map(RoundEntryDto::toEntity).forEach(round.getEntries()::add);
 
         syncMajstorska(game);
-        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+        return GameDto.of(game, (int) games.count(playedOn(game.getPlayedOn())));
     }
 
     /** Later rounds move up one, so the numbers stay 1..n. */
@@ -154,19 +156,19 @@ public class GameService {
             remaining.get(i).setNumber(i + 1);
         }
         syncMajstorska(game);
-        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+        return GameDto.of(game, (int) games.count(playedOn(game.getPlayedOn())));
     }
 
     public GameDto saveMoney(Long gameId, List<GameMoneyDto> money) {
         Game game = find(gameId);
         game.setMoney(money.stream().map(GameMoneyDto::toEntity).collect(Collectors.toCollection(ArrayList::new)));
-        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+        return GameDto.of(game, (int) games.count(playedOn(game.getPlayedOn())));
     }
 
     public GameDto setInProgress(Long gameId, boolean inProgress) {
         Game game = find(gameId);
         game.setInProgress(inProgress);
-        return GameDto.of(game, (int) games.countByPlayedOn(game.getPlayedOn()));
+        return GameDto.of(game, (int) games.count(playedOn(game.getPlayedOn())));
     }
 
     /**
@@ -184,7 +186,7 @@ public class GameService {
     }
 
     private void renumberDay(LocalDate day) {
-        List<Game> sameDay = new ArrayList<>(games.findByPlayedOn(day));
+        List<Game> sameDay = new ArrayList<>(games.findAll(playedOn(day)));
         sameDay.sort(Comparator.comparingInt(Game::getGameOfDay));
         for (int i = 0; i < sameDay.size(); i++) {
             sameDay.get(i).setGameOfDay(i + 1);
