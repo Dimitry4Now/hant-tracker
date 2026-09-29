@@ -35,32 +35,38 @@ in production, in-memory H2 with seed data in development).
 
 ## Screenshots
 
+Every screen comes in a light and a dark theme; each image below shows the
+same screen in both, light on the left and dark on the right.
+
 The public page — what anyone gets without an account.
 
-![Public page](docs/screenshots/public.png)
+![Public page, light and dark](docs/screenshots/split/public-desktop.png)
 
 A player's dashboard: this month, all time, and where everyone stands.
 
-![Dashboard](docs/screenshots/dashboard.png)
+![Dashboard, light and dark](docs/screenshots/split/dashboard-desktop.png)
 
-A game, round by round, as it was copied off the paper sheet — with the money
-for the night underneath.
+A game, round by round, as it was copied off the paper sheet.
 
-![Game detail](docs/screenshots/game-detail.png)
+![Game detail, light and dark](docs/screenshots/split/game-detail-desktop.png)
 
-The analysis screen replays any past game and how it finished.
+The analysis screen picks any past game and shows how it finished — points,
+places and the money for the night.
 
-![Analysis](docs/screenshots/analysis.png)
+![Analysis, light and dark](docs/screenshots/split/analysis-desktop.png)
 
 On a phone, at the table — its own layout, not a shrunk desktop.
 
 <p>
-  <img src="docs/screenshots/dashboard-mobile.png" alt="Dashboard on a phone" width="300">
-  <img src="docs/screenshots/games-mobile.png" alt="Games list on a phone" width="300">
+  <img src="docs/screenshots/split/public-mobile.png" alt="Public page on a phone, light and dark" width="24%">
+  <img src="docs/screenshots/split/dashboard-mobile.png" alt="Dashboard on a phone, light and dark" width="24%">
+  <img src="docs/screenshots/split/game-detail-mobile.png" alt="Game detail on a phone, light and dark" width="24%">
+  <img src="docs/screenshots/split/analysis-mobile.png" alt="Analysis on a phone, light and dark" width="24%">
 </p>
 
-Screenshots come from the dev profile's seed data, so the players and numbers
-are made up.
+The separate light and dark screenshots are in
+[`docs/screenshots/`](docs/screenshots). They come from the dev profile's seed
+data, so the players and numbers are made up.
 
 ## Structure
 
