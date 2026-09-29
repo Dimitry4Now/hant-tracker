@@ -57,11 +57,11 @@ places and the money for the night.
 
 On a phone, at the table — its own layout, not a shrunk desktop.
 
-<p>
-  <img src="docs/screenshots/split/public-mobile.png" alt="Public page on a phone, light and dark" width="24%">
-  <img src="docs/screenshots/split/dashboard-mobile.png" alt="Dashboard on a phone, light and dark" width="24%">
-  <img src="docs/screenshots/split/game-detail-mobile.png" alt="Game detail on a phone, light and dark" width="24%">
-  <img src="docs/screenshots/split/analysis-mobile.png" alt="Analysis on a phone, light and dark" width="24%">
+<p align="center">
+  <img src="docs/screenshots/split/public-mobile.png" alt="Public page on a phone, light and dark" width="22%">&nbsp;&nbsp;
+  <img src="docs/screenshots/split/dashboard-mobile.png" alt="Dashboard on a phone, light and dark" width="22%">&nbsp;&nbsp;
+  <img src="docs/screenshots/split/game-detail-mobile.png" alt="Game detail on a phone, light and dark" width="22%">&nbsp;&nbsp;
+  <img src="docs/screenshots/split/analysis-mobile.png" alt="Analysis on a phone, light and dark" width="22%">
 </p>
 
 The separate light and dark screenshots are in
