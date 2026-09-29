@@ -1,0 +1,13 @@
+{
+  "name": "hant-tracker-screenshots",
+  "private": true,
+  "type": "module",
+  "description": "Captures the README screenshots; see capture.mjs",
+  "scripts": {
+    "capture": "node capture.mjs",
+    "split": "python3 split.py"
+  },
+  "dependencies": {
+    "playwright-core": "1.45.3"
+  }
+}

@@ -21,3 +21,6 @@ api/out/
 .env
 *.env
 !.env.example
+
+# screenshot tooling
+scripts/screenshots/node_modules/
