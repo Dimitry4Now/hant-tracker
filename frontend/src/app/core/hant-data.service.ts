@@ -9,6 +9,7 @@ import {
   GameMoney,
   PublicStats,
   Round,
+  SheetReading,
   User
 } from './models';
 
@@ -118,6 +119,18 @@ export class HantDataService {
   /** Later rounds are renumbered by the API so the numbers stay 1..n. */
   deleteRound(gameId: number, roundId: number): Observable<void> {
     return this.http.delete<Game>(`${API_BASE}/games/${gameId}/rounds/${roundId}`).pipe(toVoid());
+  }
+
+  /** Reads a photo of the game's paper sheet. Nothing is stored; the rounds go in with `replaceRounds`. */
+  readSheet(gameId: number, image: Blob): Observable<SheetReading> {
+    const form = new FormData();
+    form.append('image', image, 'sheet.jpg');
+    return this.http.post<SheetReading>(`${API_BASE}/games/${gameId}/sheet`, form);
+  }
+
+  /** Stores a whole sheet's rounds at once; the API answers 409 if the game already has rounds. */
+  replaceRounds(gameId: number, rounds: Omit<Round, 'id'>[], finished: boolean): Observable<void> {
+    return this.http.put<Game>(`${API_BASE}/games/${gameId}/rounds`, { rounds, finished }).pipe(toVoid());
   }
 
   saveMoney(gameId: number, money: GameMoney[]): Observable<void> {

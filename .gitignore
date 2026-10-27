@@ -24,3 +24,6 @@ api/out/
 
 # screenshot tooling
 scripts/screenshots/node_modules/
+
+# real score sheets, used to tune sheet reading
+docs/ocr-samples/

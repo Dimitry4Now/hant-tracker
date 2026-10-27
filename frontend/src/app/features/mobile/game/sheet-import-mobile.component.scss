@@ -1,0 +1,185 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.body {
+  padding: 16px 16px 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+label.m-btn,
+label.m-btn-outline {
+  position: relative;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+}
+
+.reading {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.photo-box summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 34px repeat(var(--cols), minmax(0, 1fr)) 28px;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 6px;
+  border-top: 1px solid var(--divider);
+
+  &.head {
+    border-top: none;
+    background: var(--surface-sunken);
+    padding-block: 6px;
+  }
+
+  &.hant {
+    background: var(--hant-row);
+  }
+}
+
+.rd {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+
+  .tag {
+    font-size: 9px;
+    color: var(--hant);
+    text-transform: uppercase;
+  }
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  select {
+    width: 100%;
+    min-width: 0;
+    font-size: 12px;
+    padding: 4px 2px;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .label {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+  }
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  input {
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    padding: 0 4px;
+    font-size: 15px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    // The spinner buttons eat half a narrow cell.
+    appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+
+    &.unsure {
+      border-style: dashed;
+      border-color: var(--hant);
+      border-width: 2px;
+    }
+
+    &.problem {
+      border-color: var(--negative);
+      color: var(--negative);
+    }
+  }
+
+  .delta {
+    font-size: 10px;
+    text-align: right;
+    color: var(--muted);
+
+    &.neg {
+      color: var(--negative);
+    }
+  }
+}
+
+.remove {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 18px;
+  height: 34px;
+  cursor: pointer;
+}
+
+.problem-note {
+  padding: 2px 8px 6px 44px;
+  font-size: 11px;
+  color: var(--negative);
+  background: var(--surface);
+}
+
+.warning {
+  font-size: 13px;
+  color: var(--hant);
+}
+
+.error {
+  color: var(--negative);
+  font-size: 13px;
+}

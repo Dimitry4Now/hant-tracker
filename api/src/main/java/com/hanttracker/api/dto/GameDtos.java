@@ -29,6 +29,12 @@ public final class GameDtos {
     public record UpdateGameRequest(
             @NotNull LocalDate playedOn, @NotEmpty List<Long> playerIds, String note) {}
 
+    /**
+     * Every round of a game at once, as read off its paper sheet. {@code finished}
+     * closes the game even without a Majstorska — a sheet is imported when done.
+     */
+    public record ReplaceRoundsRequest(@NotEmpty @Valid List<CreateRoundRequest> rounds, boolean finished) {}
+
     public record SaveMoneyRequest(@NotNull @Valid List<GameMoneyDto> money) {}
 
     public record FinishGameRequest(boolean inProgress) {}

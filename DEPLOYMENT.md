@@ -89,6 +89,9 @@ DEFAULT_PASSWORD=change-me-on-first-login
 ADMIN_EMAIL=you@example.com
 ADMIN_PASSWORD=a-strong-password
 ADMIN_NAME=Your Name
+
+# Optional: reading photos of paper sheets. Without it the import is off.
+GEMINI_API_KEY=your-key-from-aistudio.google.com
 ```
 
 It holds credentials, so lock it down:
@@ -101,6 +104,12 @@ sudo chmod 600 /opt/hant-tracker/server/hant-tracker.env
 `CORS_ORIGINS` is not needed while nginx serves the client and the API under one
 domain — the browser only ever makes same-origin requests. Set it only if the
 frontend is hosted somewhere else.
+
+`GEMINI_API_KEY` turns on importing a game from a photo of its paper sheet. A
+key from Google AI Studio's free tier is enough for a group's sheets; on that
+tier Google may use the photos to improve its models. `GEMINI_MODEL` picks the
+model (default `gemini-flash-latest`). Without a key the import answers 503 and
+everything else works as before.
 
 ## 5. Upload the artifacts
 
@@ -181,6 +190,8 @@ server {
     }
 
     location /api/ {
+        # Sheet photos are uploaded here; nginx's default 1 MB would refuse them.
+        client_max_body_size 10m;
         proxy_pass http://127.0.0.1:8080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

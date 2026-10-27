@@ -1,0 +1,152 @@
+@if (game.game(); as g) {
+  <div class="screen">
+    <header class="m-detail-bar">
+      <button type="button" class="m-icon-btn" aria-label="Cancel and go back to the sheet" (click)="closed.emit()">
+        <app-icon name="close" />
+      </button>
+      <div class="grow">
+        <div class="m-detail-title">Import from a photo</div>
+        <div class="m-detail-sub">{{ formatDate(g.playedOn) }}</div>
+      </div>
+    </header>
+
+    <div class="body">
+      @switch (store.phase()) {
+        @case ('pick') {
+          <p class="m-hint">
+            Photograph the finished paper sheet, straight on and in good light. The running totals are read
+            off it; the money worked out underneath is left out. You check every round before saving.
+          </p>
+          <label class="m-btn block">
+            Take a photo
+            <input type="file" accept="image/*" capture="environment" (change)="pick(camera)" #camera />
+          </label>
+          <label class="m-btn-outline block">
+            Choose from gallery
+            <input type="file" accept="image/*" (change)="pick(gallery)" #gallery />
+          </label>
+        }
+
+        @case ('reading') {
+          <p class="reading">Reading the sheet… this takes a few seconds.</p>
+          @if (store.photoUrl(); as url) {
+            <img class="photo" [src]="url" alt="The score sheet being read" />
+          }
+        }
+
+        @default {
+          @if (store.photoUrl(); as url) {
+            <details class="photo-box">
+              <summary>Show the photo</summary>
+              <a [href]="url" target="_blank" rel="noopener"><img class="photo" [src]="url" alt="The uploaded score sheet" /></a>
+            </details>
+          }
+          <p class="m-hint">
+            Dashed cells were hard to read; red ones break the rules — tap one to see why. Small figures are the
+            round's points.
+          </p>
+
+          <section class="grid" [style.--cols]="store.columns().length">
+            <div class="row head">
+              <span class="rd">Rd</span>
+              @for (column of store.columns(); track $index; let c = $index) {
+                <span class="col">
+                  <select [value]="column" (change)="store.setColumn(c, +$any($event.target).value)"
+                          [attr.aria-label]="'Player in column ' + (c + 1)">
+                    @for (player of game.players(); track player.id) {
+                      <option [value]="player.id" [selected]="player.id === column">{{ player.name }}</option>
+                    }
+                  </select>
+                  @if (store.headers()[c]; as label) {
+                    <span class="label">{{ label }}</span>
+                  }
+                </span>
+              }
+              <span></span>
+            </div>
+            @for (round of store.rounds(); track $index; let r = $index) {
+              <div class="row" [class.hant]="round.hant">
+                <span class="rd">
+                  <span class="no">{{ round.number }}</span>
+                  <span class="tag">{{ round.majstorska ? 'Majst.' : round.hant ? 'Hant' : '' }}</span>
+                </span>
+                @for (delta of round.deltas; track $index; let c = $index) {
+                  <span class="cell">
+                    <input type="number" inputmode="numeric"
+                           [value]="store.totals()[r][c]"
+                           [class.unsure]="store.uncertain()[r][c]"
+                           [class.problem]="round.problems[c]"
+                           [attr.aria-label]="'Round ' + round.number + ', column ' + (c + 1)"
+                           (change)="store.setTotal(r, c, $any($event.target).value)" />
+                    <span class="delta" [class.neg]="(delta ?? 0) < 0">{{ delta === null ? '–' : (delta | signed) }}</span>
+                  </span>
+                }
+                <button type="button" class="remove" [attr.aria-label]="'Remove round ' + round.number"
+                        (click)="store.removeRow(r)">×</button>
+              </div>
+              @if (round.problems.find((p) => p !== null); as problem) {
+                <div class="problem-note">Round {{ round.number }}: {{ problem }}</div>
+              }
+            }
+          </section>
+
+          <button type="button" class="m-btn-outline" (click)="store.addRow()">
+            <app-icon name="plus" [size]="18" />Add row
+          </button>
+
+          <div class="m-list">
+            <label class="m-switch-row">
+              <span class="grow">
+                <span class="m-switch-title">Last row is the Majstorska</span>
+              </span>
+              <input type="checkbox" role="switch" [checked]="store.lastIsMajstorska()"
+                     (change)="store.lastIsMajstorska.set($any($event.target).checked)" />
+              <span class="m-switch" aria-hidden="true"></span>
+            </label>
+            <label class="m-switch-row">
+              <span class="grow">
+                <span class="m-switch-title">Finish the game</span>
+              </span>
+              <input type="checkbox" role="switch" [checked]="store.finished()"
+                     (change)="store.finished.set($any($event.target).checked)" />
+              <span class="m-switch" aria-hidden="true"></span>
+            </label>
+            @if (store.otherDate(); as date) {
+              <label class="m-switch-row">
+                <span class="grow">
+                  <span class="m-switch-title">Use the sheet's date</span>
+                  <span class="m-hint">{{ formatDate(date) }}</span>
+                </span>
+                <input type="checkbox" role="switch" [checked]="store.useSheetDate()"
+                       (change)="store.useSheetDate.set($any($event.target).checked)" />
+                <span class="m-switch" aria-hidden="true"></span>
+              </label>
+            }
+          </div>
+
+          @for (warning of store.warnings(); track warning) {
+            <p class="warning">{{ warning }}</p>
+          }
+
+          <button type="button" class="m-btn-outline" (click)="store.restart()">Start over</button>
+        }
+      }
+
+      @if (store.error(); as message) {
+        <span class="error">{{ message }}</span>
+      }
+    </div>
+
+    @if (store.phase() === 'review' || store.phase() === 'saving') {
+      <div class="m-action-bar">
+        @if (store.blocker(); as blocker) {
+          <div class="next error">{{ blocker }}</div>
+        }
+        <button type="button" class="m-btn block" [disabled]="!!store.blocker() || store.phase() === 'saving'"
+                (click)="save()">
+          {{ store.phase() === 'saving' ? 'Saving…' : 'Save ' + store.totals().length + ' rounds' }}
+        </button>
+      </div>
+    }
+  </div>
+}

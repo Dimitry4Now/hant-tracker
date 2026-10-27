@@ -1,0 +1,118 @@
+<div class="card import" [class.reviewing]="store.phase() === 'review' || store.phase() === 'saving'">
+  <h2>Import from a photo</h2>
+
+  @switch (store.phase()) {
+    @case ('pick') {
+      <p class="hint">
+        Upload a photo of the finished paper sheet — the running totals are read off it, the money
+        worked out underneath is left out. You check every round before anything is saved.
+      </p>
+      <label class="btn pick">
+        Choose photo
+        <input type="file" accept="image/*" (change)="pick(file)" #file />
+      </label>
+    }
+
+    @case ('reading') {
+      <p class="hint reading">Reading the sheet… this takes a few seconds.</p>
+    }
+
+    @default {
+      <p class="hint">
+        Check each total against the photo. Cells the reader was unsure of are outlined; cells that break
+        the rules are marked in red, with the reason on hover. Small figures are the round's points.
+      </p>
+
+      <div class="review">
+        @if (store.photoUrl(); as url) {
+          <a class="photo" [href]="url" target="_blank" rel="noopener" title="Open the photo full size">
+            <img [src]="url" alt="The uploaded score sheet" />
+          </a>
+        }
+
+        <div class="grid-wrap">
+          <div class="grid" [style.grid-template-columns]="columns()">
+            <div class="th">Rd</div>
+            @for (column of store.columns(); track $index; let c = $index) {
+              <div class="th">
+                <select [value]="column" (change)="store.setColumn(c, +$any($event.target).value)"
+                        [attr.aria-label]="'Player in column ' + (c + 1)">
+                  @for (player of game.players(); track player.id) {
+                    <option [value]="player.id" [selected]="player.id === column">{{ player.name }}</option>
+                  }
+                </select>
+                @if (store.headers()[c]; as label) {
+                  <span class="label muted">sheet: {{ label }}</span>
+                }
+              </div>
+            }
+            <div class="th"></div>
+
+            @for (round of store.rounds(); track $index; let r = $index) {
+              <div class="rd" [class.hant]="round.hant">
+                {{ round.number }}
+                @if (round.majstorska) { <span class="tag">Majst.</span> } @else if (round.hant) { <span class="tag">Hant</span> }
+              </div>
+              @for (delta of round.deltas; track $index; let c = $index) {
+                <div class="cell" [class.hant]="round.hant">
+                  <input type="number" step="10"
+                         [value]="store.totals()[r][c]"
+                         [class.unsure]="store.uncertain()[r][c]"
+                         [class.problem]="round.problems[c]"
+                         [title]="round.problems[c] ?? ''"
+                         [attr.aria-label]="'Round ' + round.number + ', column ' + (c + 1)"
+                         (change)="store.setTotal(r, c, $any($event.target).value)" />
+                  <span class="delta" [class.negative]="(delta ?? 0) < 0">{{ delta === null ? '–' : (delta | signed) }}</span>
+                </div>
+              }
+              <div class="cell remove" [class.hant]="round.hant">
+                <button type="button" class="btn-ghost" title="Remove this row" (click)="store.removeRow(r)">×</button>
+              </div>
+            }
+          </div>
+
+          <button type="button" class="btn-ghost add-row" (click)="store.addRow()">+ Add row</button>
+
+          <div class="options">
+            <label class="check">
+              <input type="checkbox" [checked]="store.lastIsMajstorska()"
+                     (change)="store.lastIsMajstorska.set($any($event.target).checked)" />
+              The last row is the Majstorska
+            </label>
+            <label class="check">
+              <input type="checkbox" [checked]="store.finished()"
+                     (change)="store.finished.set($any($event.target).checked)" />
+              Finish the game after importing
+            </label>
+            @if (store.otherDate(); as date) {
+              <label class="check">
+                <input type="checkbox" [checked]="store.useSheetDate()"
+                       (change)="store.useSheetDate.set($any($event.target).checked)" />
+                Use the sheet's date, {{ store.formatDate(date) }}
+              </label>
+            }
+          </div>
+
+          @for (warning of store.warnings(); track warning) {
+            <p class="warning">{{ warning }}</p>
+          }
+          @if (store.blocker(); as blocker) {
+            <p class="error">{{ blocker }}</p>
+          }
+
+          <div class="actions">
+            <button type="button" class="btn" [disabled]="!!store.blocker() || store.phase() === 'saving'"
+                    (click)="store.save()">
+              {{ store.phase() === 'saving' ? 'Saving…' : 'Save ' + store.totals().length + ' rounds' }}
+            </button>
+            <button type="button" class="btn-ghost" (click)="store.restart()">Start over</button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  @if (store.error(); as message) {
+    <p class="error">{{ message }}</p>
+  }
+</div>

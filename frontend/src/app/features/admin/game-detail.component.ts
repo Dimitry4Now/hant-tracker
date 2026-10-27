@@ -10,11 +10,12 @@ import { SeatOrderComponent } from '../../shared/seat-order.component';
 import { SignedPipe } from '../../shared/signed.pipe';
 import { GameDetailMobileComponent } from '../mobile/game/game-detail-mobile.component';
 import { GameDetailStore } from './game-detail.store';
+import { SheetImportComponent } from './sheet-import/sheet-import.component';
 
 /** Desktop layout of a game's page; the state lives in GameDetailStore. */
 @Component({
   selector: 'app-game-detail',
-  imports: [ReactiveFormsModule, RouterLink, DenToEurPipe, SignedPipe, SeatOrderComponent, GameDetailMobileComponent],
+  imports: [ReactiveFormsModule, RouterLink, DenToEurPipe, SignedPipe, SeatOrderComponent, GameDetailMobileComponent, SheetImportComponent],
   providers: [GameDetailStore],
   templateUrl: './game-detail.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
