@@ -107,8 +107,10 @@ frontend is hosted somewhere else.
 
 `GEMINI_API_KEY` turns on importing a game from a photo of its paper sheet. A
 key from Google AI Studio's free tier is enough for a group's sheets; on that
-tier Google may use the photos to improve its models. `GEMINI_MODEL` picks the
-model (default `gemini-flash-latest`). Without a key the import answers 503 and
+tier Google may use the photos to improve its models. `GEMINI_MODEL` lists the
+models to use, comma-separated (default
+`gemini-flash-latest,gemini-flash-lite-latest`): a busy model is tried once
+more, then the next one; one out of quota is skipped, since each has its own. Without a key the import answers 503 and
 everything else works as before.
 
 ## 5. Upload the artifacts

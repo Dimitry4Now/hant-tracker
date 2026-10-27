@@ -210,6 +210,8 @@ function readError(error: unknown): string {
       return 'Reading sheets is not set up on the server yet (GEMINI_API_KEY).';
     case 429:
       return 'The free daily limit for reading sheets is used up. Try again tomorrow.';
+    case 504:
+      return 'Gemini is busy right now. Try again in a minute.';
     case 413:
       return 'The photo is too large to upload.';
     default:

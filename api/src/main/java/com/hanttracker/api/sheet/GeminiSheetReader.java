@@ -3,17 +3,20 @@ package com.hanttracker.api.sheet;
 import com.hanttracker.api.dto.SheetReadingDto;
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
@@ -32,6 +35,8 @@ import tools.jackson.databind.json.JsonMapper;
 public class GeminiSheetReader implements SheetReader {
 
     private static final Logger log = LoggerFactory.getLogger(GeminiSheetReader.class);
+
+    static final String BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 
     private static final String PROMPT = """
             This is a photo of a handwritten score sheet from a card game, %d players.
@@ -78,40 +83,49 @@ public class GeminiSheetReader implements SheetReader {
             "required", List.of("headers", "rows"),
             "propertyOrdering", List.of("headers", "date", "rows"));
 
+    /** Requests still start within this, so the answer is back before nginx gives up at 60s. */
+    private static final Duration RETRY_BUDGET = Duration.ofSeconds(30);
+
     private final RestClient client;
     private final JsonMapper json;
     private final String apiKey;
-    private final String model;
+    /** Tried in order: each has its own free quota, and one may be busy while another is not. */
+    private final List<String> models;
+    private final Duration retryDelay;
 
+    @Autowired
     public GeminiSheetReader(
             JsonMapper json,
             @Value("${app.ocr.gemini.api-key:}") String apiKey,
-            @Value("${app.ocr.gemini.model}") String model) {
-        // A sheet takes the model a while to read; the default timeouts are too short.
-        JdkClientHttpRequestFactory requests = new JdkClientHttpRequestFactory(
-                HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build());
-        requests.setReadTimeout(Duration.ofSeconds(90));
-        this.client = RestClient.builder()
-                .baseUrl("https://generativelanguage.googleapis.com/v1beta")
-                .requestFactory(requests)
-                .build();
+            @Value("${app.ocr.gemini.model}") String models) {
+        this(client(), json, apiKey, models, Duration.ofSeconds(2));
+    }
+
+    GeminiSheetReader(RestClient client, JsonMapper json, String apiKey, String models, Duration retryDelay) {
+        this.client = client;
         this.json = json;
         this.apiKey = apiKey;
-        this.model = model;
+        this.models = Arrays.stream(models.split(",")).map(String::trim).filter(m -> !m.isEmpty()).toList();
+        this.retryDelay = retryDelay;
         // Says at start whether the key reached the app — it is easy to put in the wrong file.
         if (apiKey.isBlank()) {
             log.warn("Sheet reading is off: GEMINI_API_KEY is not set");
         } else {
-            log.info("Sheet reading uses Gemini model {}", model);
+            log.info("Sheet reading uses Gemini models {}", this.models);
         }
     }
 
+    /**
+     * Gemini's free tier is often busy for a moment, so a busy model is tried
+     * once more and then the next one; a model out of quota goes straight to
+     * the next. Only when every model fails does the admin hear about it.
+     */
     @Override
     public SheetReadingDto read(byte[] image, String mimeType, int players) {
         if (apiKey.isBlank()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Sheet reading is not configured");
         }
-        Map<String, Object> body = Map.of(
+        String body = json.writeValueAsString(Map.of(
                 "contents", List.of(Map.of("parts", List.of(
                         Map.of("text", PROMPT.formatted(players, players, players)),
                         Map.of("inlineData", Map.of(
@@ -120,25 +134,72 @@ public class GeminiSheetReader implements SheetReader {
                 "generationConfig", Map.of(
                         "temperature", 0,
                         "responseMimeType", "application/json",
-                        "responseSchema", SCHEMA));
-        try {
-            String response = client.post()
-                    .uri("/models/{model}:generateContent", model)
-                    .header("x-goog-api-key", apiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(json.writeValueAsString(body))
-                    .retrieve()
-                    .body(String.class);
-            return json.readValue(answerText(response), SheetReadingDto.class);
-        } catch (RestClientResponseException e) {
-            log.warn("Gemini answered {}: {}", e.getStatusCode().value(), e.getResponseBodyAsString());
-            // The free tier has a daily quota; running out of it is worth telling apart.
-            HttpStatus status = e.getStatusCode().value() == 429 ? HttpStatus.TOO_MANY_REQUESTS : HttpStatus.BAD_GATEWAY;
-            throw new ResponseStatusException(status, "Gemini could not read the sheet", e);
-        } catch (RestClientException | JacksonException e) {
-            log.warn("Could not read a sheet with Gemini", e);
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Gemini could not read the sheet", e);
+                        "responseSchema", SCHEMA)));
+
+        long started = System.nanoTime();
+        boolean busy = false;
+        models:
+        for (String model : models) {
+            for (int attempt = 1; attempt <= 2; attempt++) {
+                if (Duration.ofNanos(System.nanoTime() - started).compareTo(RETRY_BUDGET) > 0) {
+                    break models;
+                }
+                try {
+                    return json.readValue(answerText(generate(model, body)), SheetReadingDto.class);
+                } catch (RestClientResponseException e) {
+                    int code = e.getStatusCode().value();
+                    log.warn("Gemini {} answered {}: {}", model, code, e.getResponseBodyAsString());
+                    if (code == 429) {
+                        continue models;
+                    }
+                    if (!e.getStatusCode().is5xxServerError()) {
+                        throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Gemini could not read the sheet", e);
+                    }
+                    busy = true;
+                    if (attempt == 1) {
+                        pause();
+                    }
+                } catch (ResourceAccessException e) {
+                    log.warn("Gemini {} did not answer in time", model, e);
+                    busy = true;
+                    continue models;
+                } catch (RestClientException | JacksonException e) {
+                    log.warn("Could not read a sheet with Gemini {}", model, e);
+                    throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Gemini could not read the sheet", e);
+                }
+            }
         }
+        // Busy and out of quota call for different advice: a minute's wait, or tomorrow.
+        throw busy
+                ? new ResponseStatusException(HttpStatus.GATEWAY_TIMEOUT, "Gemini is busy")
+                : new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Gemini's free quota is used up");
+    }
+
+    private String generate(String model, String body) {
+        return client.post()
+                .uri("/models/{model}:generateContent", model)
+                .header("x-goog-api-key", apiKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .body(String.class);
+    }
+
+    private void pause() {
+        try {
+            Thread.sleep(retryDelay);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private static RestClient client() {
+        // A sheet takes the model a while to read; the default timeouts are too short,
+        // but nginx stops waiting at 60s, so there is no point waiting longer here.
+        JdkClientHttpRequestFactory requests = new JdkClientHttpRequestFactory(
+                HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build());
+        requests.setReadTimeout(Duration.ofSeconds(50));
+        return RestClient.builder().baseUrl(BASE_URL).requestFactory(requests).build();
     }
 
     /** The JSON the model wrote, out of Gemini's response envelope. */
