@@ -6,6 +6,8 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,8 @@ import tools.jackson.databind.json.JsonMapper;
 @Component
 @ConditionalOnProperty(name = "app.ocr.provider", havingValue = "gemini", matchIfMissing = true)
 public class GeminiSheetReader implements SheetReader {
+
+    private static final Logger log = LoggerFactory.getLogger(GeminiSheetReader.class);
 
     private static final String PROMPT = """
             This is a photo of a handwritten score sheet from a card game, %d players.
@@ -94,6 +98,12 @@ public class GeminiSheetReader implements SheetReader {
         this.json = json;
         this.apiKey = apiKey;
         this.model = model;
+        // Says at start whether the key reached the app — it is easy to put in the wrong file.
+        if (apiKey.isBlank()) {
+            log.warn("Sheet reading is off: GEMINI_API_KEY is not set");
+        } else {
+            log.info("Sheet reading uses Gemini model {}", model);
+        }
     }
 
     @Override
@@ -121,10 +131,12 @@ public class GeminiSheetReader implements SheetReader {
                     .body(String.class);
             return json.readValue(answerText(response), SheetReadingDto.class);
         } catch (RestClientResponseException e) {
+            log.warn("Gemini answered {}: {}", e.getStatusCode().value(), e.getResponseBodyAsString());
             // The free tier has a daily quota; running out of it is worth telling apart.
             HttpStatus status = e.getStatusCode().value() == 429 ? HttpStatus.TOO_MANY_REQUESTS : HttpStatus.BAD_GATEWAY;
             throw new ResponseStatusException(status, "Gemini could not read the sheet", e);
         } catch (RestClientException | JacksonException e) {
+            log.warn("Could not read a sheet with Gemini", e);
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Gemini could not read the sheet", e);
         }
     }
