@@ -349,7 +349,7 @@ export class GameDetailStore {
     this.data.deleteGame(game.id).subscribe(() => void this.router.navigate(['/admin/games'], { replaceUrl }));
   }
 
-  private reload(id: number): void {
+  reload(id: number): void {
     this.data.getGame(id).subscribe((game) => {
       this.game.set(game ?? null);
       if (game) {

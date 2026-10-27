@@ -90,6 +90,7 @@
           <div class="empty">
             <p>No rounds yet.</p>
             <p class="m-hint">{{ nextDealer() }} deals the first hand.</p>
+            <button type="button" class="m-btn-outline import" (click)="importSheet()">Import from a photo of the sheet</button>
           </div>
         }
 
@@ -206,6 +207,10 @@
       }
     }
   </div>
+
+  @if (sheet.value() === 'import') {
+    <app-sheet-import-mobile (closed)="sheet.close()" />
+  }
 
   @if (roundScreen() !== undefined) {
     <app-round-form-mobile [roundId]="roundScreen() ?? null" (closed)="sheet.close()" />

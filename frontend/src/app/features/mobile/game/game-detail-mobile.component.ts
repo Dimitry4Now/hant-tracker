@@ -12,6 +12,7 @@ import { SeatListComponent } from '../../../shared/mobile/seat-list.component';
 import { SignedPipe } from '../../../shared/signed.pipe';
 import { GameDetailStore } from '../../admin/game-detail.store';
 import { RoundFormMobileComponent } from './round-form-mobile.component';
+import { SheetImportMobileComponent } from './sheet-import-mobile.component';
 
 type Tab = 'sheet' | 'money' | 'details';
 
@@ -20,7 +21,7 @@ const LIVE_PLACES = ['Leading', '2nd', '3rd', '4th', '5th', '6th'];
 /** A game on a phone: result, running-totals sheet, money and details as tabs. */
 @Component({
   selector: 'app-game-detail-mobile',
-  imports: [ReactiveFormsModule, IconComponent, SeatListComponent, SignedPipe, DenToEurPipe, RoundFormMobileComponent],
+  imports: [ReactiveFormsModule, IconComponent, SeatListComponent, SignedPipe, DenToEurPipe, RoundFormMobileComponent, SheetImportMobileComponent],
   templateUrl: './game-detail-mobile.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './game-detail-mobile.component.scss'
@@ -31,7 +32,7 @@ export class GameDetailMobileComponent {
   private readonly location = inject(Location);
 
   readonly tabParam = queryState('tab');
-  /** 'round' for a new round, or 'round-<id>' to edit one. */
+  /** 'round' for a new round, 'round-<id>' to edit one, or 'import' to read the paper sheet. */
   readonly sheet = queryState('sheet');
 
   readonly tabs: { id: Tab; label: string }[] = [
@@ -155,6 +156,10 @@ export class GameDetailMobileComponent {
 
   addRound(): void {
     this.sheet.open('round');
+  }
+
+  importSheet(): void {
+    this.sheet.open('import');
   }
 
   editRound(round: Round): void {

@@ -89,6 +89,10 @@
     </div>
   }
 
+  @if (!g.rounds.length) {
+    <app-sheet-import />
+  }
+
   <!-- Rounds -->
   <div class="card">
     <div class="grid-table rounds" [style.grid-template-columns]="roundsColumns()">

@@ -104,3 +104,20 @@ export interface PublicStats {
   rankings: { name: string; games: number; winRate: number; rounds: number; roundWinRate: number }[];
   playstyles: { name: string; style: string }[];
 }
+
+/** A row read off a photo of a paper sheet: a round's running totals, or the money under them. */
+export interface SheetRow {
+  kind: 'ROUND' | 'MONEY';
+  /** One cell per sheet column; null where it could not be read. */
+  totals: (number | null)[];
+  uncertain: boolean[];
+}
+
+/** What the API read off a photo of a game's paper sheet. Nothing is saved yet. */
+export interface SheetReading {
+  /** Column labels as written, usually the players' initials. */
+  headers: string[];
+  /** The date written on the sheet, as yyyy-MM-dd. */
+  date: string | null;
+  rows: SheetRow[];
+}
