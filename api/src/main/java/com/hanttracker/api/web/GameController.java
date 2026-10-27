@@ -4,6 +4,7 @@ import com.hanttracker.api.dto.GameDto;
 import com.hanttracker.api.dto.GameDtos.CreateGameRequest;
 import com.hanttracker.api.dto.GameDtos.CreateRoundRequest;
 import com.hanttracker.api.dto.GameDtos.FinishGameRequest;
+import com.hanttracker.api.dto.GameDtos.ReplaceRoundsRequest;
 import com.hanttracker.api.dto.GameDtos.SaveMoneyRequest;
 import com.hanttracker.api.dto.GameDtos.UpdateGameRequest;
 import com.hanttracker.api.service.GameService;
@@ -72,6 +73,11 @@ public class GameController {
     @ResponseStatus(HttpStatus.CREATED)
     public GameDto addRound(@PathVariable Long id, @Valid @RequestBody CreateRoundRequest request) {
         return games.addRound(id, request);
+    }
+
+    @PutMapping("/{id}/rounds")
+    public GameDto replaceRounds(@PathVariable Long id, @Valid @RequestBody ReplaceRoundsRequest request) {
+        return games.replaceRounds(id, request);
     }
 
     @PutMapping("/{id}/money")

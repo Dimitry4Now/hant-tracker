@@ -7,6 +7,7 @@ import com.hanttracker.api.domain.Round;
 import com.hanttracker.api.dto.GameDto;
 import com.hanttracker.api.dto.GameDtos.CreateGameRequest;
 import com.hanttracker.api.dto.GameDtos.CreateRoundRequest;
+import com.hanttracker.api.dto.GameDtos.ReplaceRoundsRequest;
 import com.hanttracker.api.dto.GameDtos.UpdateGameRequest;
 import com.hanttracker.api.dto.GameMoneyDto;
 import com.hanttracker.api.dto.RoundEntryDto;
@@ -69,24 +70,32 @@ public class GameService {
      */
     public GameDto addRound(Long gameId, CreateRoundRequest request) {
         Game game = find(gameId);
-
-        Round round = new Round();
-        round.setNumber(request.number() > 0 ? request.number() : game.getRounds().size() + 1);
-        round.setDealerId(request.dealerId());
-        round.setMajstorska(request.majstorska());
-        round.setHant(request.hant());
-        round.setComment(request.comment());
-        round.setEntries(
-                request.entries().stream()
-                        .map(RoundEntryDto::toEntity)
-                        .collect(Collectors.toCollection(ArrayList::new)));
-        game.addRound(round);
+        game.addRound(newRound(request, game.getRounds().size() + 1));
 
         if (request.majstorska()) {
             game.setMajstorska(true);
             game.setInProgress(false);
         }
 
+        return GameDto.of(game, (int) games.count(playedOn(game.getPlayedOn())));
+    }
+
+    /**
+     * Stores a whole sheet's rounds in one go. Only for a game with no rounds yet,
+     * so an import never mixes with rounds typed in by hand.
+     */
+    public GameDto replaceRounds(Long gameId, ReplaceRoundsRequest request) {
+        Game game = find(gameId);
+        if (!game.getRounds().isEmpty()) {
+            throw new ConflictException("This game already has rounds");
+        }
+        for (CreateRoundRequest roundRequest : request.rounds()) {
+            game.addRound(newRound(roundRequest, game.getRounds().size() + 1));
+        }
+        syncMajstorska(game);
+        if (request.finished()) {
+            game.setInProgress(false);
+        }
         return GameDto.of(game, (int) games.count(playedOn(game.getPlayedOn())));
     }
 
@@ -183,6 +192,20 @@ public class GameService {
             game.setInProgress(true);
         }
         game.setMajstorska(hasMajstorska);
+    }
+
+    private static Round newRound(CreateRoundRequest request, int nextNumber) {
+        Round round = new Round();
+        round.setNumber(request.number() > 0 ? request.number() : nextNumber);
+        round.setDealerId(request.dealerId());
+        round.setMajstorska(request.majstorska());
+        round.setHant(request.hant());
+        round.setComment(request.comment());
+        round.setEntries(
+                request.entries().stream()
+                        .map(RoundEntryDto::toEntity)
+                        .collect(Collectors.toCollection(ArrayList::new)));
+        return round;
     }
 
     private void renumberDay(LocalDate day) {
