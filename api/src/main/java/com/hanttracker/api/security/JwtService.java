@@ -23,8 +23,7 @@ public class JwtService {
     private final SecretKey key;
     private final Duration ttl;
 
-    public JwtService(
-            @Value("${app.jwt.secret}") String secret, @Value("${app.jwt.ttl-hours}") long ttlHours) {
+    public JwtService(@Value("${app.jwt.secret}") String secret, @Value("${app.jwt.ttl-hours}") long ttlHours) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.ttl = Duration.ofHours(ttlHours);
     }
@@ -48,7 +47,11 @@ public class JwtService {
     /** The token's subject, or empty when it is missing, expired or forged. */
     public Optional<Subject> read(String token) {
         try {
-            Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
             // Tokens from before versions existed count as version 0.
             Integer version = claims.get(VERSION, Integer.class);
             return Optional.of(new Subject(Long.parseLong(claims.getSubject()), version == null ? 0 : version));

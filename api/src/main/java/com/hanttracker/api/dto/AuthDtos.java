@@ -9,7 +9,8 @@ public final class AuthDtos {
 
     private AuthDtos() {}
 
-    public record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {}
+    public record LoginRequest(
+            @NotBlank @Email String email, @NotBlank String password) {}
 
     public record LoginResponse(String token, UserDto user) {}
 
@@ -18,7 +19,8 @@ public final class AuthDtos {
 
     public record ForgotPasswordRequest(@NotBlank @Email String email) {}
 
-    public record ResetPasswordRequest(@NotBlank String token, @NotBlank @Size(min = 8) String newPassword) {}
+    public record ResetPasswordRequest(
+            @NotBlank String token, @NotBlank @Size(min = 8) String newPassword) {}
 
     public record RegisterRequest(
             @NotBlank String fullName,

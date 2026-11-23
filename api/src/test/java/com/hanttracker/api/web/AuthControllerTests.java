@@ -61,17 +61,22 @@ class AuthControllerTests {
     void unknownEmailsAndWrongPasswordsGetTheSameAnswer() throws Exception {
         String wrong = mvc.perform(login(Tokens.PLAYER, "not-it"))
                 .andExpect(status().isUnauthorized())
-                .andReturn().getResponse().getErrorMessage();
+                .andReturn()
+                .getResponse()
+                .getErrorMessage();
         String unknown = mvc.perform(login("nobody@example.com", "not-it"))
                 .andExpect(status().isUnauthorized())
-                .andReturn().getResponse().getErrorMessage();
+                .andReturn()
+                .getResponse()
+                .getErrorMessage();
         assertThat(unknown).isEqualTo(wrong);
     }
 
     @Test
     void wrongPasswordsForOneEmailAreLimitedFromAnyAddress() throws Exception {
         for (int i = 0; i < 5; i++) {
-            mvc.perform(login(Tokens.PLAYER, "guess" + i).with(from("10.0.0." + i))).andExpect(status().isUnauthorized());
+            mvc.perform(login(Tokens.PLAYER, "guess" + i).with(from("10.0.0." + i)))
+                    .andExpect(status().isUnauthorized());
         }
         // Even the right password waits now, so guessing on doesn't pay.
         mvc.perform(login(Tokens.PLAYER, "password").with(from("10.0.1.1"))).andExpect(status().isTooManyRequests());
@@ -108,7 +113,8 @@ class AuthControllerTests {
     @Test
     void signUpsFromOneAddressAreLimited() throws Exception {
         for (int i = 0; i < 5; i++) {
-            mvc.perform(register("flood" + i + "@example.com").with(from("10.0.4.1"))).andExpect(status().isAccepted());
+            mvc.perform(register("flood" + i + "@example.com").with(from("10.0.4.1")))
+                    .andExpect(status().isAccepted());
         }
         mvc.perform(register("flood5@example.com").with(from("10.0.4.1"))).andExpect(status().isTooManyRequests());
     }

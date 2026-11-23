@@ -72,7 +72,9 @@ class PasswordChangeTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(user.getEmail(), password)))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         return "Bearer " + JsonPath.read(body, "$.token");
     }
 
@@ -92,15 +94,21 @@ class PasswordChangeTests {
                 .andExpect(status().isPreconditionRequired())
                 .andExpect(jsonPath("$.requiredStep").value("CHANGE_PASSWORD"));
 
-        mvc.perform(put("/api/account/password").header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType(MediaType.APPLICATION_JSON).content(change("changeme", "changeme")))
+        mvc.perform(put("/api/account/password")
+                        .header(HttpHeaders.AUTHORIZATION, token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(change("changeme", "changeme")))
                 .andExpect(status().isBadRequest());
 
-        String body = mvc.perform(put("/api/account/password").header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType(MediaType.APPLICATION_JSON).content(change("changeme", "a-better-one")))
+        String body = mvc.perform(put("/api/account/password")
+                        .header(HttpHeaders.AUTHORIZATION, token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(change("changeme", "a-better-one")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.user.requiredStep").isEmpty())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         String fresh = "Bearer " + JsonPath.read(body, "$.token");
 
         // The change signs out the old token and the new one works everywhere.
@@ -112,8 +120,10 @@ class PasswordChangeTests {
     void aNewPasswordMustDifferFromTheCurrentOne() throws Exception {
         UserAccount user = player("first-password");
         String token = login(user, "first-password");
-        mvc.perform(put("/api/account/password").header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType(MediaType.APPLICATION_JSON).content(change("first-password", "first-password")))
+        mvc.perform(put("/api/account/password")
+                        .header(HttpHeaders.AUTHORIZATION, token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(change("first-password", "first-password")))
                 .andExpect(status().isBadRequest());
     }
 
@@ -125,7 +135,9 @@ class PasswordChangeTests {
         String body = mvc.perform(post("/api/users/{id}/reset-password", user.getId())
                         .header(HttpHeaders.AUTHORIZATION, tokens.bearer(Tokens.ADMIN)))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         String temporary = JsonPath.read(body, "$.temporaryPassword");
         assertThat(temporary).hasSize(12);
 
@@ -157,7 +169,9 @@ class PasswordChangeTests {
                                 .formatted(email)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.user.mustChangePassword").value(true))
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         String temporary = JsonPath.read(body, "$.temporaryPassword");
 
         UserAccount added = users.findByEmailIgnoreCase(email).orElseThrow();
@@ -172,7 +186,9 @@ class PasswordChangeTests {
 
         audit.run();
 
-        assertThat(users.findById(stillDefault.getId()).orElseThrow().isMustChangePassword()).isTrue();
-        assertThat(users.findById(changed.getId()).orElseThrow().isMustChangePassword()).isFalse();
+        assertThat(users.findById(stillDefault.getId()).orElseThrow().isMustChangePassword())
+                .isTrue();
+        assertThat(users.findById(changed.getId()).orElseThrow().isMustChangePassword())
+                .isFalse();
     }
 }

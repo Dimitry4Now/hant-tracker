@@ -40,8 +40,10 @@ public class Mailer {
         // A sender with no address (e.g. an unquoted "Name <a@b>" cut short by
         // the environment file) would fail every email, so say so at start.
         if (available != null && !isAddress(this.from)) {
-            log.error("Email is off: MAIL_FROM \"{}\" is not an email address. Use you@example.com, "
-                    + "or \"Name <you@example.com>\" in quotes", this.from);
+            log.error(
+                    "Email is off: MAIL_FROM \"{}\" is not an email address. Use you@example.com, "
+                            + "or \"Name <you@example.com>\" in quotes",
+                    this.from);
             available = null;
         }
         this.sender = available;

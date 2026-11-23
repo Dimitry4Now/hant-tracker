@@ -201,10 +201,9 @@ public class GameService {
         round.setMajstorska(request.majstorska());
         round.setHant(request.hant());
         round.setComment(request.comment());
-        round.setEntries(
-                request.entries().stream()
-                        .map(RoundEntryDto::toEntity)
-                        .collect(Collectors.toCollection(ArrayList::new)));
+        round.setEntries(request.entries().stream()
+                .map(RoundEntryDto::toEntity)
+                .collect(Collectors.toCollection(ArrayList::new)));
         return round;
     }
 
@@ -224,8 +223,6 @@ public class GameService {
     }
 
     private Game find(Long id) {
-        return games.findById(id)
-                .orElseThrow(() -> new NotFoundException("No game with id " + id));
+        return games.findById(id).orElseThrow(() -> new NotFoundException("No game with id " + id));
     }
-
 }

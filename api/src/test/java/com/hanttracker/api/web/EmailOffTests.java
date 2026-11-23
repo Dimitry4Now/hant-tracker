@@ -23,8 +23,10 @@ class EmailOffTests {
 
     @Test
     void theLoginPageOffersNoEmailReset() throws Exception {
-        mvc.perform(get("/api/auth/options")).andExpect(jsonPath("$.passwordResetByEmail").value(false));
-        mvc.perform(post("/api/auth/forgot-password").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(get("/api/auth/options"))
+                .andExpect(jsonPath("$.passwordResetByEmail").value(false));
+        mvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"%s\"}".formatted(Tokens.PLAYER)))
                 .andExpect(status().isServiceUnavailable());
     }

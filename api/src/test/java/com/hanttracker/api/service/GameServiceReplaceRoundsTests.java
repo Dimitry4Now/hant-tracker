@@ -52,8 +52,8 @@ class GameServiceReplaceRoundsTests {
         GameDto game = newGame();
         games.addRound(game.id(), round(1, false));
 
-        assertThatThrownBy(() -> games.replaceRounds(
-                        game.id(), new ReplaceRoundsRequest(List.of(round(2, false)), true)))
+        assertThatThrownBy(() ->
+                        games.replaceRounds(game.id(), new ReplaceRoundsRequest(List.of(round(2, false)), true)))
                 .isInstanceOf(ConflictException.class);
     }
 

@@ -191,7 +191,9 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<AccountRequestDto> listRequests() {
-        return requests.findAllByOrderByRequestedOnDesc().stream().map(AccountRequestDto::of).toList();
+        return requests.findAllByOrderByRequestedOnDesc().stream()
+                .map(AccountRequestDto::of)
+                .toList();
     }
 
     /**

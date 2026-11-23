@@ -31,10 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -54,7 +51,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private void authenticate(UserAccount user) {
-        var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        var authorities =
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
         var authentication = UsernamePasswordAuthenticationToken.authenticated(user, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

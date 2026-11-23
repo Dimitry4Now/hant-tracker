@@ -72,10 +72,13 @@ class EmailAccountTests {
     }
 
     private String login(String email, String password) throws Exception {
-        String body = mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+        String body = mvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(email, password)))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         return "Bearer " + JsonPath.read(body, "$.token");
     }
 
@@ -105,17 +108,23 @@ class EmailAccountTests {
                 .andExpect(jsonPath("$.requiredStep").value("CONFIRM_EMAIL"));
 
         String real = user.getDisplayName() + "@real.test";
-        mvc.perform(post("/api/account/email").header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType(MediaType.APPLICATION_JSON).content(json("email", real)))
+        mvc.perform(post("/api/account/email")
+                        .header(HttpHeaders.AUTHORIZATION, token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("email", real)))
                 .andExpect(status().isAccepted());
         String code = find("code is (\\d{6})", lastEmailTo(real));
 
         String wrong = code.equals("000000") ? "111111" : "000000";
-        mvc.perform(post("/api/account/email/confirm").header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType(MediaType.APPLICATION_JSON).content(json("code", wrong)))
+        mvc.perform(post("/api/account/email/confirm")
+                        .header(HttpHeaders.AUTHORIZATION, token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("code", wrong)))
                 .andExpect(status().isBadRequest());
-        mvc.perform(post("/api/account/email/confirm").header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType(MediaType.APPLICATION_JSON).content(json("code", code)))
+        mvc.perform(post("/api/account/email/confirm")
+                        .header(HttpHeaders.AUTHORIZATION, token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("code", code)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(real))
                 .andExpect(jsonPath("$.emailVerified").value(true))
@@ -129,18 +138,24 @@ class EmailAccountTests {
         UserAccount user = player(false);
         String token = login(user.getEmail(), "own-password");
         String real = user.getDisplayName() + "@real.test";
-        mvc.perform(post("/api/account/email").header(HttpHeaders.AUTHORIZATION, token)
-                .contentType(MediaType.APPLICATION_JSON).content(json("email", real)));
+        mvc.perform(post("/api/account/email")
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json("email", real)));
         String code = find("code is (\\d{6})", lastEmailTo(real));
         String wrong = code.equals("000000") ? "111111" : "000000";
 
         for (int i = 0; i < 5; i++) {
-            mvc.perform(post("/api/account/email/confirm").header(HttpHeaders.AUTHORIZATION, token)
-                            .contentType(MediaType.APPLICATION_JSON).content(json("code", wrong)))
+            mvc.perform(post("/api/account/email/confirm")
+                            .header(HttpHeaders.AUTHORIZATION, token)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json("code", wrong)))
                     .andExpect(status().isBadRequest());
         }
-        mvc.perform(post("/api/account/email/confirm").header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType(MediaType.APPLICATION_JSON).content(json("code", code)))
+        mvc.perform(post("/api/account/email/confirm")
+                        .header(HttpHeaders.AUTHORIZATION, token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("code", code)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -149,8 +164,10 @@ class EmailAccountTests {
         UserAccount user = player(false);
         UserAccount other = player(true);
         String token = login(user.getEmail(), "own-password");
-        mvc.perform(post("/api/account/email").header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType(MediaType.APPLICATION_JSON).content(json("email", other.getEmail())))
+        mvc.perform(post("/api/account/email")
+                        .header(HttpHeaders.AUTHORIZATION, token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("email", other.getEmail())))
                 .andExpect(status().isConflict());
     }
 
@@ -159,7 +176,8 @@ class EmailAccountTests {
         UserAccount user = player(true);
         String old = login(user.getEmail(), "own-password");
 
-        mvc.perform(post("/api/auth/forgot-password").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(json("email", user.getEmail().toUpperCase())))
                 .andExpect(status().isAccepted());
         String link = lastEmailTo(user.getEmail());
@@ -167,10 +185,14 @@ class EmailAccountTests {
         String resetToken = find("token=([\\w-]+)", link);
 
         String reset = "{\"token\":\"%s\",\"newPassword\":\"brand-new-one\"}".formatted(resetToken);
-        mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON).content(reset))
+        mvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reset))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").isNotEmpty());
-        mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON).content(reset))
+        mvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reset))
                 .andExpect(status().isBadRequest());
 
         login(user.getEmail(), "brand-new-one");
@@ -182,7 +204,8 @@ class EmailAccountTests {
     void resetLinksGoOnlyToConfirmedEmailsAndTheAnswerIsTheSame() throws Exception {
         UserAccount unconfirmed = player(false);
         for (String email : new String[] {unconfirmed.getEmail(), "nobody@real.test"}) {
-            mvc.perform(post("/api/auth/forgot-password").contentType(MediaType.APPLICATION_JSON)
+            mvc.perform(post("/api/auth/forgot-password")
+                            .contentType(MediaType.APPLICATION_JSON)
                             .content(json("email", email)))
                     .andExpect(status().isAccepted());
         }
@@ -193,9 +216,12 @@ class EmailAccountTests {
     void theProfileCantChangeTheEmailWithoutACode() throws Exception {
         UserAccount user = player(true);
         String token = login(user.getEmail(), "own-password");
-        mvc.perform(put("/api/account/profile").header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"displayName\":\"x\",\"email\":\"elsewhere@real.test\",\"currentPassword\":\"own-password\"}"))
+        mvc.perform(
+                        put("/api/account/profile")
+                                .header(HttpHeaders.AUTHORIZATION, token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"displayName\":\"x\",\"email\":\"elsewhere@real.test\",\"currentPassword\":\"own-password\"}"))
                 .andExpect(status().isBadRequest());
     }
 
