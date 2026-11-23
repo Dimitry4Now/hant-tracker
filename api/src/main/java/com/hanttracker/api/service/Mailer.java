@@ -1,5 +1,7 @@
 package com.hanttracker.api.service;
 
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -32,9 +34,17 @@ public class Mailer {
             @Value("${app.mail.from:}") String from,
             @Value("${spring.mail.username:}") String username,
             @Value("${app.mail.log-only:false}") boolean logOnly) {
-        this.sender = sender.getIfAvailable();
+        JavaMailSender available = sender.getIfAvailable();
         this.from = StringUtils.hasText(from) ? from : username;
         this.logOnly = logOnly;
+        // A sender with no address (e.g. an unquoted "Name <a@b>" cut short by
+        // the environment file) would fail every email, so say so at start.
+        if (available != null && !isAddress(this.from)) {
+            log.error("Email is off: MAIL_FROM \"{}\" is not an email address. Use you@example.com, "
+                    + "or \"Name <you@example.com>\" in quotes", this.from);
+            available = null;
+        }
+        this.sender = available;
         // Says at start whether email reached the app, like the sheet reader does.
         if (this.sender != null) {
             log.info("Email is on, sent as {}", this.from);
@@ -42,6 +52,15 @@ public class Mailer {
             log.info("Email goes to the log (app.mail.log-only)");
         } else {
             log.warn("Email is off: SPRING_MAIL_HOST is not set, so emails aren't confirmed or sent");
+        }
+    }
+
+    static boolean isAddress(String value) {
+        try {
+            new InternetAddress(value, true).validate();
+            return value.contains("@");
+        } catch (AddressException e) {
+            return false;
         }
     }
 
