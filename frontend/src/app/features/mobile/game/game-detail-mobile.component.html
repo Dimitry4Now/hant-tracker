@@ -229,7 +229,7 @@
   }
 
   @if (menuOpen()) {
-    <div class="m-sheet-backdrop" (click)="menuOpen.set(false)"></div>
+    <div class="m-sheet-backdrop" tabindex="-1" (click)="menuOpen.set(false)" (keydown.escape)="menuOpen.set(false)"></div>
     <div class="m-menu" role="menu" aria-label="Game options">
       <button type="button" role="menuitem" (click)="editGame()">Edit game</button>
       <button type="button" role="menuitem" class="negative" (click)="deleteGame()">Delete game</button>

@@ -10,7 +10,7 @@ import { IconComponent } from './icon.component';
   imports: [IconComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="m-sheet-backdrop" (click)="closed.emit()"></div>
+    <div class="m-sheet-backdrop" tabindex="-1" (click)="closed.emit()" (keydown.escape)="closed.emit()"></div>
     <section class="m-sheet" role="dialog" aria-modal="true" [attr.aria-label]="title()">
       <div class="m-sheet-handle"><span></span></div>
       <header class="m-sheet-head">

@@ -53,8 +53,8 @@
       </div>
 
       <div class="field">
-        <label>Players</label>
-        <div class="player-picks">
+        <span class="field-label" id="players-label">Players</span>
+        <div class="player-picks" role="group" aria-labelledby="players-label">
           @for (user of users(); track user.id) {
             <label class="pick" [class.picked]="picked().includes(user.id)" [class.locked]="g.rounds.length > 0">
               <input type="checkbox"
@@ -72,7 +72,7 @@
 
       @if (picked().length > 1) {
         <div class="field seats-field">
-          <label>Seating <span class="muted">— seat 1 deals first, then counterclockwise</span></label>
+          <span class="field-label">Seating <span class="muted">— seat 1 deals first, then counterclockwise</span></span>
           <app-seat-order [(seats)]="picked" [users]="users()" />
         </div>
       }
