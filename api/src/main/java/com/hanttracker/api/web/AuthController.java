@@ -2,16 +2,27 @@ package com.hanttracker.api.web;
 
 import com.hanttracker.api.domain.UserAccount;
 import com.hanttracker.api.domain.UserStatus;
-import com.hanttracker.api.dto.AccountRequestDto;
+import com.hanttracker.api.dto.AuthDtos.AuthOptions;
+import com.hanttracker.api.dto.AuthDtos.ForgotPasswordRequest;
 import com.hanttracker.api.dto.AuthDtos.LoginRequest;
 import com.hanttracker.api.dto.AuthDtos.LoginResponse;
 import com.hanttracker.api.dto.AuthDtos.RegisterRequest;
+import com.hanttracker.api.dto.AuthDtos.ResetPasswordRequest;
 import com.hanttracker.api.dto.UserDto;
 import com.hanttracker.api.repo.UserAccountRepository;
+import com.hanttracker.api.security.AccountSetup;
 import com.hanttracker.api.security.CurrentUser;
 import com.hanttracker.api.security.JwtService;
+import com.hanttracker.api.security.RateLimits;
+import com.hanttracker.api.service.EmailAccountService;
+import com.hanttracker.api.service.Mailer;
 import com.hanttracker.api.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,43 +41,105 @@ public class AuthController {
     private final PasswordEncoder encoder;
     private final JwtService jwt;
     private final UserService userService;
+    private final RateLimits limits;
+    private final AccountSetup setup;
+    private final EmailAccountService email;
+    private final Mailer mailer;
+    private final String defaultPassword;
+    /** Checked for unknown emails, so they take as long as a wrong password. */
+    private final String unknownUserHash;
 
     public AuthController(
             UserAccountRepository users,
             PasswordEncoder encoder,
             JwtService jwt,
-            UserService userService) {
+            UserService userService,
+            RateLimits limits,
+            AccountSetup setup,
+            EmailAccountService email,
+            Mailer mailer,
+            @Value("${app.default-password}") String defaultPassword) {
         this.users = users;
         this.encoder = encoder;
         this.jwt = jwt;
         this.userService = userService;
+        this.limits = limits;
+        this.setup = setup;
+        this.email = email;
+        this.mailer = mailer;
+        this.defaultPassword = defaultPassword;
+        this.unknownUserHash = encoder.encode(UUID.randomUUID().toString());
     }
 
+    /**
+     * Unknown emails and wrong passwords get the same answer in the same time,
+     * so a login can't tell which emails have accounts.
+     */
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        UserAccount user =
-                users.findByEmailIgnoreCase(request.email().trim()).orElseThrow(AuthController::badCredentials);
+    public LoginResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+        String email = request.email().trim();
+        String emailKey = email.toLowerCase(Locale.ROOT);
+        if (!limits.loginPerAddress.tryAcquire(http.getRemoteAddr())
+                || !limits.loginFailuresPerEmail.hasRoom(emailKey)) {
+            throw new TooManyRequestsException();
+        }
 
-        if (!encoder.matches(request.password(), user.getPasswordHash())) {
+        Optional<UserAccount> found = users.findByEmailIgnoreCase(email);
+        boolean matches = encoder.matches(
+                request.password(), found.map(UserAccount::getPasswordHash).orElse(unknownUserHash));
+        if (found.isEmpty() || !matches) {
+            limits.loginFailuresPerEmail.tryAcquire(emailKey);
             throw badCredentials();
         }
+        UserAccount user = found.get();
         if (user.getStatus() == UserStatus.LOCKED) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This account is locked");
         }
+        // The old default password is known to everyone, so it has to go.
+        if (!user.isMustChangePassword() && request.password().equals(defaultPassword)) {
+            user.setMustChangePassword(true);
+            users.save(user);
+        }
 
-        return new LoginResponse(jwt.issue(user), UserDto.of(user));
+        return new LoginResponse(jwt.issue(user), UserDto.forSession(user, setup.requiredStep(user)));
     }
 
-    /** Sign-up creates a pending request; an admin turns it into an account. */
+    /**
+     * Sign-up creates a pending request; an admin turns it into an account. The
+     * answer is the same whether or not the email already has one.
+     */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public AccountRequestDto register(@Valid @RequestBody RegisterRequest request) {
-        return userService.register(request);
+    public void register(@Valid @RequestBody RegisterRequest request, HttpServletRequest http) {
+        if (!limits.registerPerAddress.tryAcquire(http.getRemoteAddr())) {
+            throw new TooManyRequestsException();
+        }
+        userService.register(request);
+    }
+
+    @GetMapping("/options")
+    public AuthOptions options() {
+        return new AuthOptions(mailer.enabled());
+    }
+
+    /** Always 202: the answer doesn't say whether the email has an account. */
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request, HttpServletRequest http) {
+        email.sendResetLink(request.email(), http.getRemoteAddr());
+    }
+
+    /** Sets the new password and logs the player in. */
+    @PostMapping("/reset-password")
+    public LoginResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request, HttpServletRequest http) {
+        UserAccount user = email.resetPassword(request.token(), request.newPassword(), http.getRemoteAddr());
+        return new LoginResponse(jwt.issue(user), UserDto.forSession(user, setup.requiredStep(user)));
     }
 
     @GetMapping("/me")
     public UserDto me() {
-        return UserDto.of(CurrentUser.require());
+        UserAccount user = CurrentUser.require();
+        return UserDto.forSession(user, setup.requiredStep(user));
     }
 
     private static ResponseStatusException badCredentials() {

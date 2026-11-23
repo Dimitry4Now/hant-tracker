@@ -8,14 +8,21 @@ import com.hanttracker.api.dto.AccountDtos.ChangePasswordRequest;
 import com.hanttracker.api.dto.AccountDtos.UpdateProfileRequest;
 import com.hanttracker.api.dto.AccountRequestDto;
 import com.hanttracker.api.dto.AuthDtos.RegisterRequest;
+import com.hanttracker.api.dto.CreatedUserDto;
+import com.hanttracker.api.dto.TemporaryPasswordDto;
 import com.hanttracker.api.dto.UserDto;
 import com.hanttracker.api.dto.UserDtos.CreateUserRequest;
 import com.hanttracker.api.repo.AccountRequestRepository;
+import com.hanttracker.api.repo.PasswordResetRepository;
 import com.hanttracker.api.repo.UserAccountRepository;
+import com.hanttracker.api.security.Secrets;
 import com.hanttracker.api.web.ConflictException;
 import com.hanttracker.api.web.NotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,29 +35,48 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
+    /** Sign-ups waiting for an admin; more than this is someone flooding the form. */
+    static final int MAX_PENDING_REQUESTS = 50;
+
     private final UserAccountRepository users;
     private final AccountRequestRepository requests;
     private final PasswordEncoder encoder;
+    private final PasswordResetRepository resets;
+    private final Mailer mailer;
     private final String defaultPassword;
 
     public UserService(
             UserAccountRepository users,
             AccountRequestRepository requests,
             PasswordEncoder encoder,
+            PasswordResetRepository resets,
+            Mailer mailer,
             @Value("${app.default-password}") String defaultPassword) {
         this.users = users;
         this.requests = requests;
         this.encoder = encoder;
+        this.resets = resets;
+        this.mailer = mailer;
         this.defaultPassword = defaultPassword;
     }
 
+    /** Admins see everything; players only what they need to show names. */
     @Transactional(readOnly = true)
-    public List<UserDto> list() {
-        return users.findAllByOrderByIdAsc().stream().map(UserDto::of).toList();
+    public List<UserDto> list(boolean admin) {
+        return users.findAllByOrderByIdAsc().stream()
+                .map(admin ? UserDto::of : UserDto::forPlayers)
+                .toList();
     }
 
-    public UserDto create(CreateUserRequest request) {
+    /**
+     * Without a password from the admin, the player gets a random one for the
+     * admin to pass on. Either way they replace it at their first login.
+     */
+    public CreatedUserDto create(CreateUserRequest request) {
         requireEmailFree(request.email());
+        String temporary = StringUtils.hasText(request.password()) ? null : Secrets.temporaryPassword();
 
         UserAccount user = new UserAccount();
         user.setFullName(request.fullName());
@@ -59,11 +85,24 @@ public class UserService {
         user.setRole(request.role());
         user.setStatus(UserStatus.ACTIVE);
         user.setJoinedOn(LocalDate.now());
-        user.setPasswordHash(
-                encoder.encode(
-                        StringUtils.hasText(request.password()) ? request.password() : defaultPassword));
+        user.setPasswordHash(encoder.encode(temporary != null ? temporary : request.password()));
+        user.setMustChangePassword(true);
 
-        return UserDto.of(users.save(user));
+        return new CreatedUserDto(UserDto.of(users.save(user)), temporary);
+    }
+
+    /**
+     * Gives a player a random one-time password, for when they forgot theirs.
+     * It signs them out everywhere, and they replace it at their next login.
+     */
+    public TemporaryPasswordDto resetPassword(Long id) {
+        UserAccount user = findUser(id);
+        String temporary = Secrets.temporaryPassword();
+        user.setPasswordHash(encoder.encode(temporary));
+        user.setMustChangePassword(true);
+        user.setTokenVersion(user.getTokenVersion() + 1);
+        resets.deleteByUserId(user.getId());
+        return new TemporaryPasswordDto(temporary);
     }
 
     public UserDto setStatus(Long id, UserStatus status) {
@@ -78,12 +117,16 @@ public class UserService {
         return UserDto.of(user);
     }
 
-    /** Admin-side, so no password check — the admin is fixing someone else's account. */
+    /**
+     * Admin-side, so no password check — the admin is fixing someone else's
+     * account. The player still has to confirm the new email themselves.
+     */
     public UserDto changeEmail(Long id, String email) {
         UserAccount user = findUser(id);
         String trimmed = email.trim();
         if (!trimmed.equalsIgnoreCase(user.getEmail())) {
             requireEmailFree(trimmed);
+            user.setEmailVerified(false);
         }
         user.setEmail(trimmed);
         return UserDto.of(user);
@@ -97,8 +140,13 @@ public class UserService {
         String email = request.email().trim();
 
         if (!email.equalsIgnoreCase(user.getEmail())) {
+            // With email on, a new address is confirmed with a code (POST /api/account/email).
+            if (mailer.enabled()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Change your email with a confirmation code");
+            }
             requireCurrentPassword(user, request.currentPassword());
             requireEmailFree(email);
+            user.setEmailVerified(false);
         }
 
         user.setDisplayName(request.displayName().trim());
@@ -106,10 +154,37 @@ public class UserService {
         return UserDto.of(user);
     }
 
-    public void changePassword(Long id, ChangePasswordRequest request) {
+    /**
+     * Replaces the player's password and signs out their other sessions; the
+     * caller gets a fresh token for this one.
+     */
+    public UserAccount changePassword(Long id, ChangePasswordRequest request) {
         UserAccount user = findUser(id);
         requireCurrentPassword(user, request.currentPassword());
-        user.setPasswordHash(encoder.encode(request.newPassword()));
+        if (request.newPassword().equals(request.currentPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pick a new password, not the current one");
+        }
+        setPassword(user, request.newPassword());
+        return user;
+    }
+
+    /** Sets a password the player chose, which clears the need to change it. */
+    void setPassword(UserAccount user, String password) {
+        requireUsablePassword(password);
+        user.setPasswordHash(encoder.encode(password));
+        user.setMustChangePassword(false);
+        user.setTokenVersion(user.getTokenVersion() + 1);
+        resets.deleteByUserId(user.getId());
+    }
+
+    /** BCrypt reads only the first 72 bytes, and the old default password is public. */
+    void requireUsablePassword(String password) {
+        if (password.equals(defaultPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pick a password other than the default one");
+        }
+        if (password.getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "That password is too long");
+        }
     }
 
     // --- sign-up requests -----------------------------------------------
@@ -119,9 +194,21 @@ public class UserService {
         return requests.findAllByOrderByRequestedOnDesc().stream().map(AccountRequestDto::of).toList();
     }
 
-    /** Stores a pending sign-up with its hashed password, for an admin to approve. */
-    public AccountRequestDto register(RegisterRequest request) {
-        requireEmailFree(request.email());
+    /**
+     * Stores a pending sign-up with its hashed password, for an admin to approve.
+     * A taken email, or a queue already full of requests, is quietly dropped:
+     * telling the visitor would tell anyone which emails have accounts.
+     */
+    public void register(RegisterRequest request) {
+        if (emailTaken(request.email())) {
+            log.info("Sign-up for an email that is already taken; ignored");
+            return;
+        }
+        if (requests.count() >= MAX_PENDING_REQUESTS) {
+            log.warn("Sign-up ignored: {} requests are already waiting", MAX_PENDING_REQUESTS);
+            return;
+        }
+        requireUsablePassword(request.password());
 
         AccountRequest pending = new AccountRequest();
         pending.setFullName(request.fullName());
@@ -129,8 +216,7 @@ public class UserService {
         pending.setEmail(request.email());
         pending.setPasswordHash(encoder.encode(request.password()));
         pending.setRequestedOn(LocalDate.now());
-
-        return AccountRequestDto.of(requests.save(pending));
+        requests.save(pending);
     }
 
     public UserDto approveRequest(Long id) {
@@ -173,8 +259,12 @@ public class UserService {
     }
 
     private void requireEmailFree(String email) {
-        if (users.existsByEmailIgnoreCase(email) || requests.existsByEmailIgnoreCase(email)) {
+        if (emailTaken(email)) {
             throw new ConflictException("That email is already taken");
         }
+    }
+
+    private boolean emailTaken(String email) {
+        return users.existsByEmailIgnoreCase(email) || requests.existsByEmailIgnoreCase(email);
     }
 }

@@ -215,6 +215,8 @@ public class DevDataSeeder implements CommandLineRunner {
         user.setRole(role);
         user.setStatus(status);
         user.setJoinedOn(LocalDate.now().minusYears(2));
+        // Dev sends emails to the log, so unconfirmed players would be asked for a code.
+        user.setEmailVerified(true);
         return user;
     }
 

@@ -82,3 +82,13 @@
   flex-direction: column;
   gap: 16px;
 }
+
+.issued-password {
+  display: block;
+  margin: 14px 0 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 1.25rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+  user-select: all;
+}

@@ -8,7 +8,8 @@ import { AuthService } from './auth.service';
 /**
  * Attaches the bearer token to API calls, and drops the session when the API
  * rejects it — an expired or revoked token should send the player to /login
- * instead of leaving broken screens behind.
+ * instead of leaving broken screens behind. A 428 means the player has a step
+ * to take first (a new password, a real email), so the app shows it.
  */
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthService);
@@ -26,6 +27,8 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
       if ((status === 401 || status === 403) && auth.isLoggedIn()) {
         auth.logout();
         void router.navigate(['/login']);
+      } else if (status === 428 && auth.isLoggedIn()) {
+        auth.refresh().subscribe(() => void router.navigate(['/setup']));
       }
       return throwError(() => error);
     })

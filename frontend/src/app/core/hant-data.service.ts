@@ -61,13 +61,21 @@ export class HantDataService {
     return this.http.post<Game>(`${API_BASE}/games`, input);
   }
 
+  /** Without a password in the input, the API makes a one-time one and returns it. */
   createUser(input: {
     fullName: string;
     displayName: string;
     email: string;
     role: User['role'];
-  }): Observable<User> {
-    return this.http.post<User>(`${API_BASE}/users`, input);
+  }): Observable<{ user: User; temporaryPassword: string | null }> {
+    return this.http.post<{ user: User; temporaryPassword: string | null }>(`${API_BASE}/users`, input);
+  }
+
+  /** A one-time password for a player who forgot theirs; it signs them out everywhere. */
+  resetUserPassword(id: number): Observable<string> {
+    return this.http
+      .post<{ temporaryPassword: string }>(`${API_BASE}/users/${id}/reset-password`, {})
+      .pipe(map((response) => response.temporaryPassword));
   }
 
   approveRequest(id: number): Observable<void> {

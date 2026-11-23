@@ -18,10 +18,12 @@
       <label for="m-display-name">Display name</label>
       <input id="m-display-name" class="m-input" type="text" formControlName="displayName" autocomplete="nickname" />
     </div>
-    <div class="m-field">
-      <label for="m-email">Email</label>
-      <input id="m-email" class="m-input" type="email" formControlName="email" autocomplete="email" />
-    </div>
+    @if (!page.emailByCode()) {
+      <div class="m-field">
+        <label for="m-email">Email</label>
+        <input id="m-email" class="m-input" type="email" formControlName="email" autocomplete="email" />
+      </div>
+    }
     @if (page.emailChanged()) {
       <div class="m-field">
         <label for="m-profile-password">Current password</label>
@@ -42,6 +44,31 @@
       {{ page.savingProfile() ? 'Saving…' : 'Save profile' }}
     </button>
   </form>
+
+  @if (page.emailByCode()) {
+    <div class="panel">
+      <div>
+        <h2>Email</h2>
+        <p class="m-hint">Reset links go here, so it has to be one you can read</p>
+      </div>
+      @if (page.changingEmail()) {
+        <app-email-confirm [mobile]="true" label="New email" idPrefix="m-account-email"
+                           (confirmed)="page.emailConfirmed($event)" />
+        <button type="button" class="m-btn-outline" (click)="page.changingEmail.set(false)">Cancel</button>
+      } @else {
+        <div>
+          {{ auth.user()?.email }}
+          <span [class]="auth.user()?.emailVerified ? 'm-tag-accent' : 'm-tag'">
+            {{ auth.user()?.emailVerified ? 'Confirmed' : 'Not confirmed' }}
+          </span>
+        </div>
+        @if (page.emailSaved()) {
+          <span class="saved">Email confirmed.</span>
+        }
+        <button type="button" class="m-btn-outline accent-outline" (click)="page.startEmailChange()">Change email</button>
+      }
+    </div>
+  }
 
   <form class="panel" [formGroup]="page.password" (ngSubmit)="page.savePassword()">
     <div>

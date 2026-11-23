@@ -1,5 +1,8 @@
 package com.hanttracker.api.web;
 
+import com.hanttracker.api.domain.UserRole;
+import com.hanttracker.api.dto.CreatedUserDto;
+import com.hanttracker.api.dto.TemporaryPasswordDto;
 import com.hanttracker.api.dto.UserDto;
 import com.hanttracker.api.dto.UserDtos.ChangeEmailRequest;
 import com.hanttracker.api.dto.UserDtos.CreateUserRequest;
@@ -32,13 +35,20 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> list() {
-        return users.list();
+        return users.list(CurrentUser.require().getRole() == UserRole.ADMIN);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto create(@Valid @RequestBody CreateUserRequest request) {
+    public CreatedUserDto create(@Valid @RequestBody CreateUserRequest request) {
         return users.create(request);
+    }
+
+    /** A one-time password for a player who forgot theirs; they replace it at next login. */
+    @PostMapping("/{id}/reset-password")
+    public TemporaryPasswordDto resetPassword(@PathVariable Long id) {
+        requireSomeoneElse(id);
+        return users.resetPassword(id);
     }
 
     @PatchMapping("/{id}/status")

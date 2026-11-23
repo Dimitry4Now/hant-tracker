@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { adminGuard, authGuard } from './core/guards';
+import { adminGuard, authGuard, setupGuard } from './core/guards';
 
 export const routes: Routes = [
   {
@@ -14,6 +14,21 @@ export const routes: Routes = [
     path: 'register',
     loadComponent: () =>
       import('./features/auth/register.component').then((m) => m.RegisterComponent)
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/forgot-password.component').then((m) => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/auth/reset-password.component').then((m) => m.ResetPasswordComponent)
+  },
+  {
+    path: 'setup',
+    canActivate: [setupGuard],
+    loadComponent: () => import('./features/auth/setup.component').then((m) => m.SetupComponent)
   },
   {
     path: '',

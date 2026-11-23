@@ -9,6 +9,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import com.hanttracker.api.dto.SheetReadingDto;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -35,7 +38,9 @@ class GeminiSheetReaderTests {
     void setUp() {
         RestClient.Builder builder = RestClient.builder().baseUrl(GeminiSheetReader.BASE_URL);
         gemini = MockRestServiceServer.bindTo(builder).build();
-        reader = new GeminiSheetReader(builder.build(), JsonMapper.builder().build(), "key", "flash, lite", Duration.ZERO);
+        RestClient client = builder.build();
+        reader = new GeminiSheetReader(
+                timeout -> client, System::nanoTime, JsonMapper.builder().build(), "key", "flash, lite", Duration.ZERO, Duration.ofSeconds(55));
     }
 
     @Test
@@ -96,5 +101,30 @@ class GeminiSheetReaderTests {
                 .isInstanceOfSatisfying(ResponseStatusException.class,
                         e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY));
         gemini.verify();
+    }
+
+    @Test
+    void givesEachAttemptOnlyTheTimeLeft() {
+        RestClient.Builder builder = RestClient.builder().baseUrl(GeminiSheetReader.BASE_URL);
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        RestClient client = builder.build();
+        AtomicLong now = new AtomicLong();
+        List<Duration> timeouts = new ArrayList<>();
+        // Each answer takes 25 seconds.
+        GeminiSheetReader slow = new GeminiSheetReader(
+                timeout -> {
+                    timeouts.add(timeout);
+                    now.addAndGet(Duration.ofSeconds(25).toNanos());
+                    return client;
+                },
+                now::get, JsonMapper.builder().build(), "key", "flash, lite", Duration.ZERO, Duration.ofSeconds(55));
+        server.expect(times(2), requestTo(FLASH)).andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
+
+        // A third attempt would start with 5s left of 55, too little, so it says busy.
+        assertThatThrownBy(() -> slow.read(new byte[] {1}, "image/jpeg", 2))
+                .isInstanceOfSatisfying(ResponseStatusException.class,
+                        e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT));
+        assertThat(timeouts).containsExactly(Duration.ofSeconds(55), Duration.ofSeconds(30));
+        server.verify();
     }
 }

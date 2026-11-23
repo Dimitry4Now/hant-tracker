@@ -56,9 +56,13 @@ export class RegisterComponent {
       },
       error: (error: unknown) => {
         this.submitting.set(false);
-        const taken = error instanceof HttpErrorResponse && error.status === 409;
+        const status = error instanceof HttpErrorResponse ? error.status : 0;
         this.error.set(
-          taken ? 'That email already has an account or a pending request.' : 'Could not send the request.'
+          status === 429
+            ? 'Too many requests from here. Try again in an hour.'
+            : status === 400
+              ? 'Pick another password; that one is not allowed.'
+              : 'Could not send the request.'
         );
       }
     });

@@ -23,12 +23,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final AccountSetup accountSetup;
 
     @Value("${app.cors.allowed-origins}")
     private List<String> allowedOrigins;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, AccountSetup accountSetup) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.accountSetup = accountSetup;
     }
 
     @Bean
@@ -44,7 +46,13 @@ public class SecurityConfig {
                                         // 403/409 comes back out as a 401.
                                         .requestMatchers("/error")
                                         .permitAll()
-                                        .requestMatchers("/api/auth/login", "/api/auth/register")
+                                        .requestMatchers(
+                                                "/api/auth/login",
+                                                "/api/auth/register",
+                                                "/api/auth/forgot-password",
+                                                "/api/auth/reset-password")
+                                        .permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/api/auth/options")
                                         .permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/stats/public")
                                         .permitAll()
@@ -65,6 +73,8 @@ public class SecurityConfig {
                 // 401 instead of a redirect to a login page the API does not serve.
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                // Not a bean, so it runs only here, once the token has been read.
+                .addFilterAfter(new AccountSetupFilter(accountSetup), JwtAuthFilter.class)
                 .build();
     }
 

@@ -1,14 +1,24 @@
 export type UserRole = 'ADMIN' | 'USER';
 export type UserStatus = 'ACTIVE' | 'LOCKED';
 
+/** What a signed-in player must do before the rest of the app opens up. */
+export type RequiredStep = 'CHANGE_PASSWORD' | 'CONFIRM_EMAIL';
+
 export interface User {
   id: number;
+  /** Empty in other players' rows: only admins see full names and emails. */
   fullName: string;
   displayName: string;
   email: string;
   role: UserRole;
   status: UserStatus;
   joinedOn: string;
+  /** Still has to replace the default password, or one an admin set. */
+  mustChangePassword: boolean;
+  /** Confirmed this email with a code, so a reset link can go to it. */
+  emailVerified: boolean;
+  /** Only on the signed-in player's own account: the step to take first. */
+  requiredStep?: RequiredStep | null;
 }
 
 export interface AccountRequest {

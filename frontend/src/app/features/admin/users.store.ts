@@ -5,6 +5,12 @@ import { AuthService } from '../../core/auth.service';
 import { HantDataService } from '../../core/hant-data.service';
 import { User } from '../../core/models';
 
+/** A one-time password the admin has to pass on; shown once. */
+export interface IssuedPassword {
+  name: string;
+  password: string;
+}
+
 /**
  * State behind the users page — the list, the new-user form and the per-user
  * actions — shared by the desktop page and its mobile layout.
@@ -18,6 +24,8 @@ export class UsersStore {
   readonly users = signal<User[]>([]);
   readonly showForm = signal(false);
   readonly saving = signal(false);
+  readonly issued = signal<IssuedPassword | null>(null);
+  readonly copied = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     fullName: ['', Validators.required],
@@ -46,9 +54,12 @@ export class UsersStore {
       return;
     }
     this.saving.set(true);
-    this.data.createUser(this.form.getRawValue()).subscribe(() => {
+    this.data.createUser(this.form.getRawValue()).subscribe(({ user, temporaryPassword }) => {
       this.saving.set(false);
       this.showForm.set(false);
+      if (temporaryPassword) {
+        this.issue(user.displayName, temporaryPassword);
+      }
       this.load();
       done?.();
     });
@@ -95,9 +106,38 @@ export class UsersStore {
     });
   }
 
-  resetPassword(user: User): void {
-    // Awaiting the API endpoint; the design only shows the action.
-    alert(`A password reset would be sent to ${user.email}.`);
+  /**
+   * Gives the player a one-time password for the admin to pass on. It signs
+   * them out everywhere, and they pick their own at their next login.
+   */
+  resetPassword(user: User, done?: () => void): void {
+    if (!confirm(`Give ${user.displayName} a one-time password? Their current password stops working.`)) {
+      return;
+    }
+    this.data.resetUserPassword(user.id).subscribe({
+      next: (password) => {
+        this.issue(user.displayName, password);
+        this.load();
+        done?.();
+      },
+      error: () => alert('Could not reset the password.')
+    });
+  }
+
+  copyIssued(): void {
+    const issued = this.issued();
+    if (issued) {
+      void navigator.clipboard?.writeText(issued.password).then(() => this.copied.set(true));
+    }
+  }
+
+  dismissIssued(): void {
+    this.issued.set(null);
+  }
+
+  private issue(name: string, password: string): void {
+    this.copied.set(false);
+    this.issued.set({ name, password });
   }
 
   private load(): void {

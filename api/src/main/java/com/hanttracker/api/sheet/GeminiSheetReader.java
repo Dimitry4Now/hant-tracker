@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.LongSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,10 +85,19 @@ public class GeminiSheetReader implements SheetReader {
             "required", List.of("headers", "rows"),
             "propertyOrdering", List.of("headers", "date", "rows"));
 
-    /** Requests still start within this, so the answer is back before nginx gives up at 60s. */
-    private static final Duration RETRY_BUDGET = Duration.ofSeconds(30);
+    /**
+     * The whole read, retries and pauses included, ends within this
+     * (app.ocr.deadline), so the answer is back before nginx gives up. Keep it
+     * a few seconds under nginx's proxy_read_timeout for the sheet endpoint.
+     */
+    private final Duration deadline;
 
-    private final RestClient client;
+    /** An attempt with less time left than this would only time out. */
+    static final Duration MIN_ATTEMPT = Duration.ofSeconds(10);
+
+    /** A client whose requests give up after the given time. */
+    private final Function<Duration, RestClient> clients;
+    private final LongSupplier nanoTime;
     private final JsonMapper json;
     private final String apiKey;
     /** Tried in order: each has its own free quota, and one may be busy while another is not. */
@@ -97,12 +108,22 @@ public class GeminiSheetReader implements SheetReader {
     public GeminiSheetReader(
             JsonMapper json,
             @Value("${app.ocr.gemini.api-key:}") String apiKey,
-            @Value("${app.ocr.gemini.model}") String models) {
-        this(client(), json, apiKey, models, Duration.ofSeconds(2));
+            @Value("${app.ocr.gemini.model}") String models,
+            @Value("${app.ocr.deadline}") Duration deadline) {
+        this(clients(), System::nanoTime, json, apiKey, models, Duration.ofSeconds(2), deadline);
     }
 
-    GeminiSheetReader(RestClient client, JsonMapper json, String apiKey, String models, Duration retryDelay) {
-        this.client = client;
+    GeminiSheetReader(
+            Function<Duration, RestClient> clients,
+            LongSupplier nanoTime,
+            JsonMapper json,
+            String apiKey,
+            String models,
+            Duration retryDelay,
+            Duration deadline) {
+        this.clients = clients;
+        this.deadline = deadline;
+        this.nanoTime = nanoTime;
         this.json = json;
         this.apiKey = apiKey;
         this.models = Arrays.stream(models.split(",")).map(String::trim).filter(m -> !m.isEmpty()).toList();
@@ -111,7 +132,7 @@ public class GeminiSheetReader implements SheetReader {
         if (apiKey.isBlank()) {
             log.warn("Sheet reading is off: GEMINI_API_KEY is not set");
         } else {
-            log.info("Sheet reading uses Gemini models {}", this.models);
+            log.info("Sheet reading uses Gemini models {}, answering within {}s", this.models, deadline.toSeconds());
         }
     }
 
@@ -136,16 +157,18 @@ public class GeminiSheetReader implements SheetReader {
                         "responseMimeType", "application/json",
                         "responseSchema", SCHEMA)));
 
-        long started = System.nanoTime();
+        long started = nanoTime.getAsLong();
         boolean busy = false;
         models:
         for (String model : models) {
             for (int attempt = 1; attempt <= 2; attempt++) {
-                if (Duration.ofNanos(System.nanoTime() - started).compareTo(RETRY_BUDGET) > 0) {
+                Duration left = deadline.minus(Duration.ofNanos(nanoTime.getAsLong() - started));
+                if (left.compareTo(MIN_ATTEMPT) < 0) {
+                    busy = true;
                     break models;
                 }
                 try {
-                    return json.readValue(answerText(generate(model, body)), SheetReadingDto.class);
+                    return json.readValue(answerText(generate(clients.apply(left), model, body)), SheetReadingDto.class);
                 } catch (RestClientResponseException e) {
                     int code = e.getStatusCode().value();
                     log.warn("Gemini {} answered {}: {}", model, code, e.getResponseBodyAsString());
@@ -175,7 +198,7 @@ public class GeminiSheetReader implements SheetReader {
                 : new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Gemini's free quota is used up");
     }
 
-    private String generate(String model, String body) {
+    private String generate(RestClient client, String model, String body) {
         return client.post()
                 .uri("/models/{model}:generateContent", model)
                 .header("x-goog-api-key", apiKey)
@@ -193,13 +216,17 @@ public class GeminiSheetReader implements SheetReader {
         }
     }
 
-    private static RestClient client() {
-        // A sheet takes the model a while to read; the default timeouts are too short,
-        // but nginx stops waiting at 60s, so there is no point waiting longer here.
-        JdkClientHttpRequestFactory requests = new JdkClientHttpRequestFactory(
-                HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build());
-        requests.setReadTimeout(Duration.ofSeconds(50));
-        return RestClient.builder().baseUrl(BASE_URL).requestFactory(requests).build();
+    /**
+     * A sheet takes the model a while to read, so each request may use all the
+     * time left before the deadline, and no more.
+     */
+    private static Function<Duration, RestClient> clients() {
+        HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        return timeout -> {
+            JdkClientHttpRequestFactory requests = new JdkClientHttpRequestFactory(http);
+            requests.setReadTimeout(timeout);
+            return RestClient.builder().baseUrl(BASE_URL).requestFactory(requests).build();
+        };
     }
 
     /** The JSON the model wrote, out of Gemini's response envelope. */

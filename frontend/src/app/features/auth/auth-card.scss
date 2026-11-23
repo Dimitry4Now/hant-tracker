@@ -76,3 +76,16 @@ form {
   max-width: none;
   padding: 22px 18px;
 }
+
+.notice {
+  font-size: 0.8125rem;
+  color: var(--accent);
+}
+
+.step {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}

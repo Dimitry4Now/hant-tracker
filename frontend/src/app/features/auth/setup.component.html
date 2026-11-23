@@ -1,0 +1,60 @@
+@if (viewport.isMobile()) {
+  <app-back-bar title="Your account" />
+}
+<div class="wrap" [class.mobile]="viewport.isMobile()">
+  @if (!viewport.isMobile()) {
+    <div class="toggle-slot"><app-theme-toggle /></div>
+  }
+  <div class="brand-slot"><app-brand [size]="22" /></div>
+
+  <div class="card">
+    @switch (auth.requiredStep()) {
+      @case ('CHANGE_PASSWORD') {
+        <h1>Pick a new password</h1>
+        <p class="lede">
+          Your password is the old default or one an admin set for you, so it has to be replaced
+          before you go on.
+        </p>
+        <form [formGroup]="password" (ngSubmit)="savePassword()">
+          <div class="field">
+            <label for="currentPassword">Current password</label>
+            <input id="currentPassword" type="password" formControlName="currentPassword"
+                   autocomplete="current-password" />
+          </div>
+          <div class="field">
+            <label for="newPassword">New password</label>
+            <input id="newPassword" type="password" formControlName="newPassword"
+                   autocomplete="new-password" placeholder="at least 8 characters" />
+          </div>
+          <div class="field">
+            <label for="confirmPassword">Confirm new password</label>
+            <input id="confirmPassword" type="password" formControlName="confirmPassword"
+                   autocomplete="new-password" />
+          </div>
+          @if (password.hasError('passwordMismatch') && password.get('confirmPassword')?.touched) {
+            <div class="error">Passwords do not match.</div>
+          } @else if (password.invalid && password.touched) {
+            <div class="error">Fill in every field; the new password needs at least 8 characters.</div>
+          }
+          @if (error(); as message) {
+            <div class="error">{{ message }}</div>
+          }
+          <button type="submit" class="btn" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Save password' }}
+          </button>
+        </form>
+      }
+      @case ('CONFIRM_EMAIL') {
+        <h1>Add your real email</h1>
+        <p class="lede">
+          We'll email you a code to confirm it. With a confirmed email you can reset a forgotten
+          password yourself.
+        </p>
+        <app-email-confirm [initialEmail]="auth.user()?.email ?? ''" label="Your email"
+                           idPrefix="setup-email" (confirmed)="next($event)" />
+      }
+    }
+
+    <div class="alt"><a href="" (click)="$event.preventDefault(); logout()">Log out</a></div>
+  </div>
+</div>

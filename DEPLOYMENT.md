@@ -28,7 +28,7 @@ access to `server/logs`.
 On a build machine or CI, from a clean checkout:
 
 ```
-cd api      && ./gradlew clean bootJar     # build/libs/api-0.0.1-SNAPSHOT.jar
+cd api      && ./gradlew clean bootJar     # build/libs/api-<version>.jar
 cd frontend && npm ci && npm run build     # dist/frontend/browser/
 ```
 
@@ -82,8 +82,12 @@ DB_PASSWORD=a-strong-password
 JWT_SECRET=the-openssl-output-from-above
 LOG_DIR=/opt/hant-tracker/server/logs
 
-# Password given to players an admin adds by hand.
+# The password accounts used to be given. Players still on it must pick a new
+# one at their next login; new accounts never get it. Keep the old value.
 DEFAULT_PASSWORD=change-me-on-first-login
+
+# Where the app is reached; reset links in emails point here.
+PUBLIC_URL=https://hant.example.com
 
 # Only for the very first start — see step 8.
 ADMIN_EMAIL=you@example.com
@@ -92,6 +96,16 @@ ADMIN_NAME=Your Name
 
 # Optional: reading photos of paper sheets. Without it the import is off.
 GEMINI_API_KEY=your-key-from-aistudio.google.com
+# How long a reading may take; keep it under nginx's timeout (step 7).
+#OCR_DEADLINE=55s
+
+# Optional: email, for players to confirm a real address and reset a
+# forgotten password themselves. Without it admins reset passwords.
+#SPRING_MAIL_HOST=smtp-relay.brevo.com
+#SPRING_MAIL_PORT=587
+#SPRING_MAIL_USERNAME=your-smtp-login
+#SPRING_MAIL_PASSWORD=your-smtp-key
+#MAIL_FROM=Hant Tracker <hant@example.com>
 ```
 
 It holds credentials, so lock it down:
@@ -100,6 +114,16 @@ It holds credentials, so lock it down:
 sudo chown hant:hant /opt/hant-tracker/server/hant-tracker.env
 sudo chmod 600 /opt/hant-tracker/server/hant-tracker.env
 ```
+
+**Email.** With `SPRING_MAIL_HOST` set, players without a confirmed email are
+asked for their real one at their next login and confirm it with a six-digit
+code, and the login page offers "Forgot your password?", which emails a link
+valid once for an hour. Any SMTP service works on port 587 with STARTTLS: a
+Gmail account's app password (`smtp.gmail.com`, needs two-step verification),
+or Brevo's free plan (`smtp-relay.brevo.com`, 300 emails a day, `MAIL_FROM`
+must be a sender verified there). The log says at startup whether email is
+on. Without it, admins reset passwords from the users page, which gives a
+one-time password to pass on.
 
 `CORS_ORIGINS` is not needed while nginx serves the client and the API under one
 domain — the browser only ever makes same-origin requests. Set it only if the
@@ -118,7 +142,7 @@ everything else works as before.
 From the build machine:
 
 ```
-scp api/build/libs/api-0.0.1-SNAPSHOT.jar you@server:/tmp/hant-tracker.jar
+scp api/build/libs/api-*.jar you@server:/tmp/hant-tracker.jar
 rsync -av --delete frontend/dist/frontend/browser/ you@server:/tmp/hant-client/
 ```
 
@@ -192,8 +216,21 @@ server {
     }
 
     location /api/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Reading a sheet photo waits on Gemini, which can take a while. Only this
+    # endpoint waits longer than nginx's default 60s; the app's OCR_DEADLINE
+    # must stay a few seconds under proxy_read_timeout.
+    location ~ ^/api/games/\d+/sheet$ {
         # Sheet photos are uploaded here; nginx's default 1 MB would refuse them.
         client_max_body_size 10m;
+        proxy_read_timeout 180s;
+        proxy_send_timeout 180s;
         proxy_pass http://127.0.0.1:8080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -202,6 +239,9 @@ server {
     }
 }
 ```
+
+With `proxy_read_timeout 180s`, set `OCR_DEADLINE=170s` in the environment
+file and restart the service; with nginx's default, leave it at 55s.
 
 ```
 sudo ln -s /etc/nginx/sites-available/hant-tracker /etc/nginx/sites-enabled/

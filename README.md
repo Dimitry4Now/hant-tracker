@@ -142,8 +142,16 @@ and — set these before exposing it anywhere — `JWT_SECRET` and `CORS_ORIGINS
 It runs no seeder; the first admin comes from `ADMIN_EMAIL` / `ADMIN_PASSWORD`,
 which are used once on an empty database and can be removed afterwards.
 
-A player an admin adds by hand gets `app.default-password` (`DEFAULT_PASSWORD`,
-`changeme` by default) until they are given a real one.
+A player an admin adds by hand gets a one-time password, shown once for the
+admin to pass on. Anyone logging in with a one-time password, or with the old
+`app.default-password` (`DEFAULT_PASSWORD`) accounts used to get, has to pick
+a new one before anything else: the API answers `428` with a `requiredStep`,
+and the app shows `/setup`. Changing a password signs out older sessions.
+
+With an SMTP server configured (`SPRING_MAIL_HOST`, see `DEPLOYMENT.md`),
+players also confirm a real email with an emailed code, and can reset a
+forgotten password through a link sent to it. Dev writes those emails to the
+log. Logins, sign-ups and emails are rate limited per address and per email.
 
 Auth is a stateless JWT: `POST /api/auth/login` returns a token plus the user,
 and the token goes back as `Authorization: Bearer …`. Sign-ups (`POST
@@ -155,15 +163,19 @@ Endpoints:
 | --- | --- | --- |
 | POST | `/api/auth/login` | public |
 | POST | `/api/auth/register` | public |
+| GET | `/api/auth/options` | public |
+| POST | `/api/auth/forgot-password`, `/api/auth/reset-password` | public |
 | GET | `/api/auth/me` | any user |
+| PUT | `/api/account/profile`, `/api/account/password` | any user |
+| POST | `/api/account/email`, `/api/account/email/confirm` | any user |
 | GET | `/api/stats/public` | public |
 | GET | `/api/stats/dashboard` | any user |
 | GET | `/api/games`, `/api/games/{id}` | any user |
 | POST | `/api/games`, `/api/games/{id}/rounds` | admin |
 | PUT | `/api/games/{id}/money`, `/api/games/{id}/status` | admin |
-| GET | `/api/users` | any user |
-| POST | `/api/users` | admin |
-| PATCH | `/api/users/{id}/status`, `/api/users/{id}/name` | admin |
+| GET | `/api/users` | any user (names only; admins see everything) |
+| POST | `/api/users`, `/api/users/{id}/reset-password` | admin |
+| PATCH | `/api/users/{id}/status`, `/api/users/{id}/name`, `/api/users/{id}/email` | admin |
 | GET | `/api/account-requests` | admin |
 | POST | `/api/account-requests/{id}/approve`, `/reject` | admin |
 
@@ -178,7 +190,7 @@ API does not recompute or enforce the scoring rules.
 
 ```
 cd frontend && npm run build     # dist/frontend
-cd api && ./gradlew bootJar      # build/libs/api-0.0.1-SNAPSHOT.jar
+cd api && ./gradlew bootJar      # build/libs/api-<version>.jar
 ```
 
 The frontend calls `/api` on its own origin, so serving `dist/frontend` behind
