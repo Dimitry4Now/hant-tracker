@@ -1,21 +1,30 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
+import { User } from '../../core/models';
+import { EmailConfirmComponent } from '../../shared/email-confirm.component';
 import { ViewportService } from '../../core/viewport.service';
 import { AccountMobileComponent } from '../mobile/account/account-mobile.component';
 
 @Component({
   selector: 'app-account',
-  imports: [ReactiveFormsModule, AccountMobileComponent],
+  imports: [ReactiveFormsModule, AccountMobileComponent, EmailConfirmComponent],
   templateUrl: './account.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './account.component.scss'
 })
 export class AccountComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
   readonly viewport = inject(ViewportService);
+
+  /** With email on, a new address is confirmed with a code instead of typed in the profile. */
+  private readonly options = toSignal(this.auth.options$);
+  readonly emailByCode = computed(() => this.options()?.passwordResetByEmail ?? false);
+  readonly changingEmail = signal(false);
+  readonly emailSaved = signal(false);
 
   readonly savingProfile = signal(false);
   readonly profileError = signal<string | null>(null);
@@ -42,6 +51,9 @@ export class AccountComponent {
 
   /** A new email needs the current password; a new display name does not. */
   emailChanged(): boolean {
+    if (this.emailByCode()) {
+      return false;
+    }
     const current = this.auth.user()?.email ?? '';
     return this.profile.controls.email.value.trim().toLowerCase() !== current.toLowerCase();
   }
@@ -63,7 +75,8 @@ export class AccountComponent {
     this.auth
       .updateProfile({
         displayName: displayName.trim(),
-        email: email.trim(),
+        // The code flow owns the email when it is on; the profile leaves it as it is.
+        email: this.emailByCode() ? (this.auth.user()?.email ?? email).trim() : email.trim(),
         currentPassword: currentPassword || undefined
       })
       .subscribe({
@@ -77,6 +90,17 @@ export class AccountComponent {
           this.profileError.set(describe(error, 'That email is already taken.'));
         }
       });
+  }
+
+  startEmailChange(): void {
+    this.emailSaved.set(false);
+    this.changingEmail.set(true);
+  }
+
+  emailConfirmed(user: User): void {
+    this.changingEmail.set(false);
+    this.emailSaved.set(true);
+    this.profile.controls.email.setValue(user.email);
   }
 
   savePassword(): void {

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
 import { formatDate } from '../../../core/game-stats';
 import { ThemeService } from '../../../core/theme.service';
+import { EmailConfirmComponent } from '../../../shared/email-confirm.component';
 import { initials } from '../../../shared/mobile/initials';
 import { AccountComponent } from '../../account/account.component';
 
@@ -13,7 +14,7 @@ import { AccountComponent } from '../../account/account.component';
  */
 @Component({
   selector: 'app-account-mobile',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, EmailConfirmComponent],
   templateUrl: './account-mobile.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './account-mobile.component.scss'

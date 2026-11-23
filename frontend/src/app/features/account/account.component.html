@@ -15,10 +15,12 @@
       <label for="displayName">Display name</label>
       <input id="displayName" type="text" formControlName="displayName" />
     </div>
-    <div class="field">
-      <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email" autocomplete="email" />
-    </div>
+    @if (!emailByCode()) {
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" autocomplete="email" />
+      </div>
+    }
     @if (emailChanged()) {
       <div class="field">
         <label for="profileCurrentPassword">Current password</label>
@@ -43,6 +45,34 @@
       </button>
     </div>
   </form>
+
+  @if (emailByCode()) {
+    <div class="card new-form">
+      <h2>Email</h2>
+      <p class="hint">Reset links go here, so it has to be one you can read</p>
+      @if (changingEmail()) {
+        <app-email-confirm label="New email" idPrefix="account-email" (confirmed)="emailConfirmed($event)" />
+        <div class="form-actions">
+          <button type="button" class="btn-ghost" (click)="changingEmail.set(false)">Cancel</button>
+        </div>
+      } @else {
+        <div class="field">
+          <span>{{ auth.user()?.email }}</span>
+          @if (auth.user()?.emailVerified) {
+            <span class="badge badge-accent">Confirmed</span>
+          } @else {
+            <span class="badge">Not confirmed</span>
+          }
+        </div>
+        @if (emailSaved()) {
+          <span class="saved">Email confirmed.</span>
+        }
+        <div class="form-actions">
+          <button type="button" class="btn-secondary btn" (click)="startEmailChange()">Change email</button>
+        </div>
+      }
+    </div>
+  }
 
   <form class="card new-form" [formGroup]="password" (ngSubmit)="savePassword()">
     <h2>Password</h2>
