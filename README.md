@@ -1,6 +1,11 @@
 # Hant Tracker
 
 [![CI](https://github.com/Dimitry4Now/hant-tracker/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Dimitry4Now/hant-tracker/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Dimitry4Now/hant-tracker?label=release)](https://github.com/Dimitry4Now/hant-tracker/releases/latest)
+![Java 21](https://img.shields.io/badge/Java-21-E76F00?logo=openjdk&logoColor=white)
+![Spring Boot 4](https://img.shields.io/badge/Spring%20Boot-4-6DB33F?logo=springboot&logoColor=white)
+![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?logo=angular&logoColor=white)
+[![License: AGPL-3.0](https://img.shields.io/github/license/Dimitry4Now/hant-tracker)](LICENSE)
 
 We play cards. Every week, around a table, with a pen and a paper sheet —
 because that is the fun part and no app is going to improve on it. What the
