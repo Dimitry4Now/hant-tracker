@@ -12,18 +12,15 @@ export const routes: Routes = [
   },
   {
     path: 'register',
-    loadComponent: () =>
-      import('./features/auth/register.component').then((m) => m.RegisterComponent)
+    loadComponent: () => import('./features/auth/register.component').then((m) => m.RegisterComponent)
   },
   {
     path: 'forgot-password',
-    loadComponent: () =>
-      import('./features/auth/forgot-password.component').then((m) => m.ForgotPasswordComponent)
+    loadComponent: () => import('./features/auth/forgot-password.component').then((m) => m.ForgotPasswordComponent)
   },
   {
     path: 'reset-password',
-    loadComponent: () =>
-      import('./features/auth/reset-password.component').then((m) => m.ResetPasswordComponent)
+    loadComponent: () => import('./features/auth/reset-password.component').then((m) => m.ResetPasswordComponent)
   },
   {
     path: 'setup',
@@ -37,24 +34,20 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
+        loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
       },
       {
         path: 'analysis',
-        loadComponent: () =>
-          import('./features/analysis/analysis.component').then((m) => m.AnalysisComponent)
+        loadComponent: () => import('./features/analysis/analysis.component').then((m) => m.AnalysisComponent)
       },
       {
         // Every round of a game; read-only unless you're an admin.
         path: 'games/:id',
-        loadComponent: () =>
-          import('./features/admin/game-detail.component').then((m) => m.GameDetailComponent)
+        loadComponent: () => import('./features/admin/game-detail.component').then((m) => m.GameDetailComponent)
       },
       {
         path: 'account',
-        loadComponent: () =>
-          import('./features/account/account.component').then((m) => m.AccountComponent)
+        loadComponent: () => import('./features/account/account.component').then((m) => m.AccountComponent)
       },
       {
         path: 'admin',
@@ -63,23 +56,19 @@ export const routes: Routes = [
           { path: '', pathMatch: 'full', redirectTo: 'requests' },
           {
             path: 'requests',
-            loadComponent: () =>
-              import('./features/admin/requests.component').then((m) => m.RequestsComponent)
+            loadComponent: () => import('./features/admin/requests.component').then((m) => m.RequestsComponent)
           },
           {
             path: 'games',
-            loadComponent: () =>
-              import('./features/admin/games.component').then((m) => m.GamesComponent)
+            loadComponent: () => import('./features/admin/games.component').then((m) => m.GamesComponent)
           },
           {
             path: 'games/:id',
-            loadComponent: () =>
-              import('./features/admin/game-detail.component').then((m) => m.GameDetailComponent)
+            loadComponent: () => import('./features/admin/game-detail.component').then((m) => m.GameDetailComponent)
           },
           {
             path: 'users',
-            loadComponent: () =>
-              import('./features/admin/users.component').then((m) => m.UsersComponent)
+            loadComponent: () => import('./features/admin/users.component').then((m) => m.UsersComponent)
           }
         ]
       }

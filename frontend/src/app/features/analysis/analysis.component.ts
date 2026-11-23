@@ -34,13 +34,11 @@ export class AnalysisComponent {
   readonly status = statusLabel;
 
   constructor() {
-    forkJoin({ games: this.data.getGames(), users: this.data.getUsers() }).subscribe(
-      ({ games, users }) => {
-        this.games.set(games);
-        this.users.set(users);
-        this.selectedId.set(games[0]?.id ?? null);
-      }
-    );
+    forkJoin({ games: this.data.getGames(), users: this.data.getUsers() }).subscribe(({ games, users }) => {
+      this.games.set(games);
+      this.users.set(users);
+      this.selectedId.set(games[0]?.id ?? null);
+    });
   }
 
   select(id: number): void {

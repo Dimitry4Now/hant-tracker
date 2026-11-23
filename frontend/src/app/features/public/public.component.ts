@@ -56,9 +56,7 @@ export class PublicComponent {
     const unit = PLOT_HEIGHT / this.axisMax();
 
     return (this.stats()?.gamesByMonth ?? []).map((month) => {
-      const played = month.weeks
-        .map((count, index) => ({ count, index }))
-        .filter((week) => week.count > 0);
+      const played = month.weeks.map((count, index) => ({ count, index })).filter((week) => week.count > 0);
 
       // Rendered top-down, so the last week played sits on top and carries
       // the rounded end; the stack stays anchored square to the baseline.

@@ -13,14 +13,7 @@ import { ThemeToggleComponent } from '../shared/theme-toggle.component';
 
 @Component({
   selector: 'app-shell',
-  imports: [
-      RouterOutlet,
-      RouterLink,
-      RouterLinkActive,
-      BrandComponent,
-      ThemeToggleComponent,
-      IconComponent
-  ],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, BrandComponent, ThemeToggleComponent, IconComponent],
   templateUrl: './shell.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './shell.component.scss'

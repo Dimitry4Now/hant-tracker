@@ -44,9 +44,7 @@ export class GamesStore {
   }
 
   togglePlayer(id: number): void {
-    this.picked.update((ids) =>
-      ids.includes(id) ? ids.filter((existing) => existing !== id) : [...ids, id]
-    );
+    this.picked.update((ids) => (ids.includes(id) ? ids.filter((existing) => existing !== id) : [...ids, id]));
   }
 
   /** `replaceUrl` drops the page that opened the form from history — mobile opens it as a sheet. */
@@ -57,28 +55,26 @@ export class GamesStore {
     }
     this.saving.set(true);
     const { playedOn, note } = this.form.getRawValue();
-    this.data
-      .createGame({ playedOn, playerIds: this.picked(), note: note.trim() || null })
-      .subscribe((game) => {
-        this.saving.set(false);
-        this.showForm.set(false);
-        void this.router.navigate(['/admin/games', game.id], { replaceUrl });
-      });
+    this.data.createGame({ playedOn, playerIds: this.picked(), note: note.trim() || null }).subscribe((game) => {
+      this.saving.set(false);
+      this.showForm.set(false);
+      void this.router.navigate(['/admin/games', game.id], { replaceUrl });
+    });
   }
 
   deleteGame(game: Game): void {
-    if (!confirm(`Delete the game from ${gameLabel(game)} and its ${game.rounds.length} rounds? This cannot be undone.`)) {
+    if (
+      !confirm(`Delete the game from ${gameLabel(game)} and its ${game.rounds.length} rounds? This cannot be undone.`)
+    ) {
       return;
     }
     this.data.deleteGame(game.id).subscribe(() => this.load());
   }
 
   private load(): void {
-    forkJoin({ games: this.data.getGames(), users: this.data.getUsers() }).subscribe(
-      ({ games, users }) => {
-        this.games.set(games);
-        this.users.set(users);
-      }
-    );
+    forkJoin({ games: this.data.getGames(), users: this.data.getUsers() }).subscribe(({ games, users }) => {
+      this.games.set(games);
+      this.users.set(users);
+    });
   }
 }

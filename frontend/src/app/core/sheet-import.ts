@@ -33,10 +33,7 @@ export function endsInMajstorska(rounds: number): boolean {
  * round goes. A round with an unread cell stays, and so does a misread one
  * once the count is right.
  */
-export function roundRows(
-  reading: SheetReading,
-  columns: number
-): { totals: TotalsGrid; uncertain: boolean[][] } {
+export function roundRows(reading: SheetReading, columns: number): { totals: TotalsGrid; uncertain: boolean[][] } {
   const rows = reading.rows.filter((row) => row.kind === 'ROUND');
   const totals = rows.map((row) => fit(row.totals, columns, null));
   const uncertain = rows.map((row) => fit(row.uncertain, columns, false));
@@ -153,9 +150,42 @@ function problemsIn(deltas: (number | null)[], ctx: ScoreContext): (string | nul
 }
 
 const LATIN: Record<string, string> = {
-  а: 'a', б: 'b', в: 'v', г: 'g', ѓ: 'g', д: 'd', е: 'e', ж: 'z', з: 'z', ѕ: 'd', и: 'i', й: 'j', ј: 'j',
-  к: 'k', ќ: 'k', л: 'l', љ: 'l', м: 'm', н: 'n', њ: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't',
-  у: 'u', ф: 'f', х: 'h', ц: 'c', ч: 'c', џ: 'd', ш: 's', щ: 's', ъ: 'a', ю: 'y', я: 'y'
+  а: 'a',
+  б: 'b',
+  в: 'v',
+  г: 'g',
+  ѓ: 'g',
+  д: 'd',
+  е: 'e',
+  ж: 'z',
+  з: 'z',
+  ѕ: 'd',
+  и: 'i',
+  й: 'j',
+  ј: 'j',
+  к: 'k',
+  ќ: 'k',
+  л: 'l',
+  љ: 'l',
+  м: 'm',
+  н: 'n',
+  њ: 'n',
+  о: 'o',
+  п: 'p',
+  р: 'r',
+  с: 's',
+  т: 't',
+  у: 'u',
+  ф: 'f',
+  х: 'h',
+  ц: 'c',
+  ч: 'c',
+  џ: 'd',
+  ш: 's',
+  щ: 's',
+  ъ: 'a',
+  ю: 'y',
+  я: 'y'
 };
 
 /** A name's first letter in Latin, so "Д" on the sheet matches "Dimitar" in the app. */

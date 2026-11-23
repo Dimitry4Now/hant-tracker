@@ -21,8 +21,16 @@ import { User } from '../core/models';
         </p>
         <div [class]="mobile() ? 'm-field' : 'field'">
           <label [for]="id('code')">Code</label>
-          <input [id]="id('code')" [class.m-input]="mobile()" type="text" inputmode="numeric"
-                 autocomplete="one-time-code" maxlength="6" formControlName="code" placeholder="123456" />
+          <input
+            [id]="id('code')"
+            [class.m-input]="mobile()"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+            formControlName="code"
+            placeholder="123456"
+          />
         </div>
         @if (error(); as message) {
           <span class="error">{{ message }}</span>
@@ -38,8 +46,14 @@ import { User } from '../core/models';
       <form [formGroup]="emailForm" (ngSubmit)="send()">
         <div [class]="mobile() ? 'm-field' : 'field'">
           <label [for]="id('email')">{{ label() }}</label>
-          <input [id]="id('email')" [class.m-input]="mobile()" type="email" autocomplete="email"
-                 formControlName="email" placeholder="you@example.com" />
+          <input
+            [id]="id('email')"
+            [class.m-input]="mobile()"
+            type="email"
+            autocomplete="email"
+            formControlName="email"
+            placeholder="you@example.com"
+          />
         </div>
         @if (emailForm.invalid && emailForm.touched) {
           <span class="error">Enter a valid email.</span>
@@ -56,9 +70,20 @@ import { User } from '../core/models';
     }
   `,
   styles: `
-    form { display: flex; flex-direction: column; gap: 14px; }
-    .actions { display: flex; flex-direction: column; gap: 8px; }
-    .hint { font-size: 0.8125rem; color: var(--muted); }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .hint {
+      font-size: 0.8125rem;
+      color: var(--muted);
+    }
     .link {
       align-self: center;
       background: none;

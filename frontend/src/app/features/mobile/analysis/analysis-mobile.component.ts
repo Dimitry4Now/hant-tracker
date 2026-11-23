@@ -32,7 +32,7 @@ export class AnalysisMobileComponent {
   });
   readonly selected = computed(() => this.games()[this.index()] ?? null);
   readonly newer = computed(() => (this.index() > 0 ? this.games()[this.index() - 1] : null));
-  readonly older = computed(() => (this.index() >= 0 ? this.games()[this.index() + 1] ?? null : null));
+  readonly older = computed(() => (this.index() >= 0 ? (this.games()[this.index() + 1] ?? null) : null));
 
   readonly standings = computed(() => {
     const game = this.selected();
@@ -77,8 +77,6 @@ export class AnalysisMobileComponent {
   }
 
   subtitle(game: Game): string {
-    return game.gamesThatDay > 1
-      ? `Game ${game.gameOfDay} of ${game.gamesThatDay} that day`
-      : shortDate(game.playedOn);
+    return game.gamesThatDay > 1 ? `Game ${game.gameOfDay} of ${game.gamesThatDay} that day` : shortDate(game.playedOn);
   }
 }

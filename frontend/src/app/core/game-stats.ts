@@ -32,7 +32,7 @@ export function standingsFor(game: Game, users: User[]): PlayerStanding[] {
     .map((row, index) => ({
       ...row,
       place: index + 1,
-      result: index === 0 && game.inProgress ? 'Leading' : PLACE_LABELS[index] ?? `${index + 1}th`
+      result: index === 0 && game.inProgress ? 'Leading' : (PLACE_LABELS[index] ?? `${index + 1}th`)
     }));
 }
 

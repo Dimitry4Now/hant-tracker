@@ -37,8 +37,16 @@ const GAME: Game = {
 
 function user(id: number, displayName: string, role: UserRole = 'USER'): User {
   return {
-    id, displayName, role, fullName: '', email: '', status: 'ACTIVE', joinedOn: '2025-01-01',
-    mustChangePassword: false, emailVerified: true, requiredStep: null
+    id,
+    displayName,
+    role,
+    fullName: '',
+    email: '',
+    status: 'ACTIVE',
+    joinedOn: '2025-01-01',
+    mustChangePassword: false,
+    emailVerified: true,
+    requiredStep: null
   };
 }
 

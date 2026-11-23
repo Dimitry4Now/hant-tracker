@@ -2,16 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { API_BASE } from './api.config';
-import {
-  AccountRequest,
-  DashboardStats,
-  Game,
-  GameMoney,
-  PublicStats,
-  Round,
-  SheetReading,
-  User
-} from './models';
+import { AccountRequest, DashboardStats, Game, GameMoney, PublicStats, Round, SheetReading, User } from './models';
 
 /** Thin HTTP layer over the Spring Boot API. */
 @Injectable({ providedIn: 'root' })
@@ -53,11 +44,7 @@ export class HantDataService {
   // --- write -----------------------------------------------------------
 
   /** Creates a game and returns it — several games can share a date. */
-  createGame(input: {
-    playedOn: string;
-    playerIds: number[];
-    note: string | null;
-  }): Observable<Game> {
+  createGame(input: { playedOn: string; playerIds: number[]; note: string | null }): Observable<Game> {
     return this.http.post<Game>(`${API_BASE}/games`, input);
   }
 
@@ -99,10 +86,7 @@ export class HantDataService {
   }
 
   /** Players can only change while the game has no rounds; the API answers 409 otherwise. */
-  updateGame(
-    id: number,
-    input: { playedOn: string; playerIds: number[]; note: string | null }
-  ): Observable<void> {
+  updateGame(id: number, input: { playedOn: string; playerIds: number[]; note: string | null }): Observable<void> {
     return this.http.put<Game>(`${API_BASE}/games/${id}`, input).pipe(toVoid());
   }
 

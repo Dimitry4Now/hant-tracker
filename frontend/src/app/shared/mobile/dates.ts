@@ -17,9 +17,7 @@ export function monthLabel(iso: string, month: 'long' | 'short' = 'long'): strin
 
 /** "Thu 17 Sept". */
 export function shortDate(iso: string): string {
-  return parse(iso)
-    .toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
-    .replace(',', '');
+  return parse(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).replace(',', '');
 }
 
 /** "17 Sept". */
