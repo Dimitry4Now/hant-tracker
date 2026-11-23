@@ -31,9 +31,7 @@ import { User } from '../core/models';
           <button type="submit" [class]="mobile() ? 'm-btn block' : 'btn'" [disabled]="busy()">
             {{ busy() ? 'Checking…' : 'Confirm email' }}
           </button>
-          <button type="button" [class]="mobile() ? 'm-btn-outline block' : 'btn-ghost'" (click)="back()">
-            Use another email
-          </button>
+          <button type="button" class="link" (click)="back()">Use another email</button>
         </div>
       </form>
     } @else {
@@ -61,6 +59,17 @@ import { User } from '../core/models';
     form { display: flex; flex-direction: column; gap: 14px; }
     .actions { display: flex; flex-direction: column; gap: 8px; }
     .hint { font-size: 0.8125rem; color: var(--muted); }
+    .link {
+      align-self: center;
+      background: none;
+      border: none;
+      padding: 4px;
+      color: var(--accent);
+      font: inherit;
+      font-size: 0.8125rem;
+      text-decoration: underline;
+      cursor: pointer;
+    }
   `
 })
 export class EmailConfirmComponent implements OnInit {

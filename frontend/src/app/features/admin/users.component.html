@@ -80,6 +80,9 @@
             @if (isMe(user)) {
               <span class="badge badge-accent you">You</span>
             }
+            @if (user.mustChangePassword) {
+              <span class="badge you" title="Still on the default or a one-time password">New password due</span>
+            }
           </div>
           <div class="email muted">{{ user.email }}</div>
         </div>
@@ -94,9 +97,6 @@
               [class.badge-negative]="user.status === 'LOCKED'">
           {{ user.status === 'ACTIVE' ? 'Active' : 'Locked' }}
         </span>
-        @if (user.mustChangePassword) {
-          <span class="badge" title="Still on the default or a one-time password">New password due</span>
-        }
       </div>
       <div class="td muted" [class.last-row]="last">{{ formatDate(user.joinedOn) }}</div>
       <div class="td actions" [class.last-row]="last">
