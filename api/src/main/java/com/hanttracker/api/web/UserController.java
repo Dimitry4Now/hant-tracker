@@ -1,5 +1,6 @@
 package com.hanttracker.api.web;
 
+import com.hanttracker.api.domain.UserRole;
 import com.hanttracker.api.dto.UserDto;
 import com.hanttracker.api.dto.UserDtos.ChangeEmailRequest;
 import com.hanttracker.api.dto.UserDtos.CreateUserRequest;
@@ -32,7 +33,7 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> list() {
-        return users.list();
+        return users.list(CurrentUser.require().getRole() == UserRole.ADMIN);
     }
 
     @PostMapping

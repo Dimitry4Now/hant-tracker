@@ -44,9 +44,12 @@ public class UserService {
         this.defaultPassword = defaultPassword;
     }
 
+    /** Admins see everything; players only what they need to show names. */
     @Transactional(readOnly = true)
-    public List<UserDto> list() {
-        return users.findAllByOrderByIdAsc().stream().map(UserDto::of).toList();
+    public List<UserDto> list(boolean admin) {
+        return users.findAllByOrderByIdAsc().stream()
+                .map(admin ? UserDto::of : UserDto::forPlayers)
+                .toList();
     }
 
     public UserDto create(CreateUserRequest request) {

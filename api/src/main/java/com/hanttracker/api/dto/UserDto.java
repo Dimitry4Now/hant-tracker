@@ -14,6 +14,15 @@ public record UserDto(
         UserStatus status,
         LocalDate joinedOn) {
 
+    /**
+     * What other players see: enough to show names in games and standings,
+     * without anyone's full name or email.
+     */
+    public static UserDto forPlayers(UserAccount user) {
+        return new UserDto(
+                user.getId(), null, user.getDisplayName(), null, user.getRole(), user.getStatus(), user.getJoinedOn());
+    }
+
     public static UserDto of(UserAccount user) {
         return new UserDto(
                 user.getId(),
