@@ -59,4 +59,7 @@ export class UsersMobileComponent {
   create(): void {
     this.store.create(() => this.sheet.close());
   }
+
+  /** Closes the user's sheet, so the one-time password shows on its own. */
+  readonly closeSheet = (): void => this.sheet.close();
 }

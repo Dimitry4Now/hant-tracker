@@ -32,6 +32,9 @@
       @if (user.status === 'LOCKED') {
         <span class="m-tag negative">Locked</span>
       }
+      @if (user.mustChangePassword) {
+        <span class="m-tag">New password due</span>
+      }
     </span>
     <span class="m-hint">{{ user.email }}</span>
   </span>
@@ -62,8 +65,8 @@
       <button type="button" (click)="store.changeEmail(user)">
         <span class="title">Change email</span><span class="m-hint">{{ user.email }}</span>
       </button>
-      <button type="button" (click)="store.resetPassword(user)">
-        <span class="title">Reset password</span><span class="m-hint">Sends a reset to their email</span>
+      <button type="button" (click)="store.resetPassword(user, closeSheet)">
+        <span class="title">Reset password</span><span class="m-hint">Gives them a one-time password to pass on</span>
       </button>
       <button type="button" (click)="store.toggleLock(user)">
         @if (user.status === 'LOCKED') {
@@ -75,6 +78,17 @@
     </div>
     <div sheet-footer>
       <button type="button" class="m-btn-outline" (click)="sheet.close()">Cancel</button>
+    </div>
+  </app-sheet>
+}
+
+@if (store.issued(); as issued) {
+  <app-sheet [title]="'One-time password for ' + issued.name" (closed)="store.dismissIssued()">
+    <p class="m-hint">Pass it on now — it isn't shown again. They pick their own at their next login.</p>
+    <code class="issued-password">{{ issued.password }}</code>
+    <div sheet-footer>
+      <button type="button" class="m-btn block" (click)="store.copyIssued()">{{ store.copied() ? 'Copied' : 'Copy' }}</button>
+      <button type="button" class="m-btn-outline block" (click)="store.dismissIssued()">Done</button>
     </div>
   </app-sheet>
 }

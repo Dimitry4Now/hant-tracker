@@ -23,6 +23,8 @@ export class UsersComponent {
   readonly showForm = this.store.showForm;
   readonly saving = this.store.saving;
   readonly form = this.store.form;
+  readonly issued = this.store.issued;
+  readonly copied = this.store.copied;
   readonly formatDate = formatDate;
 
   openForm(): void {
@@ -55,5 +57,13 @@ export class UsersComponent {
 
   resetPassword(user: User): void {
     this.store.resetPassword(user);
+  }
+
+  copyIssued(): void {
+    this.store.copyIssued();
+  }
+
+  dismissIssued(): void {
+    this.store.dismissIssued();
   }
 }
