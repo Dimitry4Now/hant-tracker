@@ -35,14 +35,21 @@ export class GameDetailMobileComponent {
   /** 'round' for a new round, 'round-<id>' to edit one, or 'import' to read the paper sheet. */
   readonly sheet = queryState('sheet');
 
-  readonly tabs: { id: Tab; label: string }[] = [
+  private readonly allTabs: { id: Tab; label: string }[] = [
     { id: 'sheet', label: 'Sheet' },
     { id: 'money', label: 'Money' },
     { id: 'details', label: 'Details' }
   ];
+  /** Details is the edit form, so players only get the sheet and the money. */
+  readonly tabs = computed(() =>
+    this.store.canEdit() ? this.allTabs : this.allTabs.filter((t) => t.id !== 'details')
+  );
   readonly tab = computed<Tab>(() => {
     const value = this.tabParam.value();
-    return value === 'money' || value === 'details' ? value : 'sheet';
+    if (value === 'details' && this.store.canEdit()) {
+      return 'details';
+    }
+    return value === 'money' ? 'money' : 'sheet';
   });
 
   readonly formatDate = formatDate;
@@ -101,7 +108,7 @@ export class GameDetailMobileComponent {
     if (navigationId > 1) {
       this.location.back();
     } else {
-      void this.router.navigate(['/admin/games']);
+      void this.router.navigate([this.store.listLink()]);
     }
   }
 

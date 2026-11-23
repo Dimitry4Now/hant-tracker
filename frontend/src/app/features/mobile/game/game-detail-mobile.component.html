@@ -7,9 +7,11 @@
       <div class="m-detail-title">{{ formatDate(g.playedOn) }}</div>
       <div class="m-detail-sub" [class.accent]="g.inProgress">{{ subtitle() }}</div>
     </div>
-    <button type="button" class="m-icon-btn" aria-label="Game options: edit or delete" (click)="menuOpen.set(true)">
-      <app-icon name="more" />
-    </button>
+    @if (store.canEdit()) {
+      <button type="button" class="m-icon-btn" aria-label="Game options: edit or delete" (click)="menuOpen.set(true)">
+        <app-icon name="more" />
+      </button>
+    }
   </header>
 
   <div class="content">
@@ -39,7 +41,7 @@
     }
 
     <div class="m-segmented" role="tablist" aria-label="Game sections">
-      @for (t of tabs; track t.id) {
+      @for (t of tabs(); track t.id) {
         <button type="button" role="tab" [attr.aria-selected]="tab() === t.id" (click)="setTab(t.id)">{{ t.label }}</button>
       }
     </div>
@@ -61,7 +63,9 @@
             </div>
             @for (round of g.rounds; track round.id) {
               <button type="button" class="round" [class.hant]="round.hant || round.majstorska"
-                      [attr.aria-label]="'Round ' + round.number + ', edit'" (click)="editRound(round)">
+                      [disabled]="!store.canEdit()"
+                      [attr.aria-label]="'Round ' + round.number + (store.canEdit() ? ', edit' : '')"
+                      (click)="editRound(round)">
                 <span class="sheet-row">
                   <span class="rd">
                     <span class="no">{{ round.number }}</span>
@@ -85,16 +89,21 @@
               </button>
             }
           </section>
-          <p class="m-hint">Tap a round to edit or delete it. Winner of each round in rust; small figures are the round's own points.</p>
+          <p class="m-hint">
+            @if (store.canEdit()) { Tap a round to edit or delete it. }
+            Winner of each round in rust; small figures are the round's own points.
+          </p>
         } @else {
           <div class="empty">
             <p>No rounds yet.</p>
             <p class="m-hint">{{ nextDealer() }} deals the first hand.</p>
-            <button type="button" class="m-btn-outline import" (click)="importSheet()">Import from a photo of the sheet</button>
+            @if (store.canEdit()) {
+              <button type="button" class="m-btn-outline import" (click)="importSheet()">Import from a photo of the sheet</button>
+            }
           </div>
         }
 
-        @if (g.inProgress) {
+        @if (store.canEdit() && g.inProgress) {
           <div class="m-action-bar">
             <div class="next">
               <span>Next up: round {{ g.rounds.length + 1 }}</span>
@@ -107,7 +116,7 @@
               </button>
             </div>
           </div>
-        } @else {
+        } @else if (store.canEdit()) {
           <div class="bar-actions">
             <button type="button" class="m-btn-outline grow" (click)="addRound()">
               <app-icon name="plus" [size]="18" />Add a round
@@ -131,8 +140,9 @@
                     <span class="name">{{ player.name }}</span>
                     <span class="m-hint">≈ {{ store.amounts.at(i).value | denToEur }}</span>
                   </label>
-                  <div class="amount" [class.neg]="store.amounts.at(i).value < 0">
-                    <input [id]="'money-' + i" type="number" step="1" [formControlName]="i" />
+                  <div class="amount" [class.neg]="store.amounts.at(i).value < 0" [class.readonly]="!store.canEdit()">
+                    <input [id]="'money-' + i" type="number" step="1" [formControlName]="i"
+                           [readonly]="!store.canEdit()" />
                     <span>ден</span>
                   </div>
                 </div>
@@ -145,12 +155,14 @@
             <div class="sum off">Amounts are off by {{ moneyTotal() | signed: 'ден' }}</div>
           }
         </section>
-        <div class="m-action-bar">
-          @if (store.saved(); as message) {
-            <div class="next accent">{{ message }}</div>
-          }
-          <button type="button" class="m-btn block" (click)="store.saveMoney()">Save amounts</button>
-        </div>
+        @if (store.canEdit()) {
+          <div class="m-action-bar">
+            @if (store.saved(); as message) {
+              <div class="next accent">{{ message }}</div>
+            }
+            <button type="button" class="m-btn block" (click)="store.saveMoney()">Save amounts</button>
+          </div>
+        }
       }
 
       @case ('details') {
@@ -208,11 +220,11 @@
     }
   </div>
 
-  @if (sheet.value() === 'import') {
+  @if (store.canEdit() && sheet.value() === 'import') {
     <app-sheet-import-mobile (closed)="sheet.close()" />
   }
 
-  @if (roundScreen() !== undefined) {
+  @if (store.canEdit() && roundScreen() !== undefined) {
     <app-round-form-mobile [roundId]="roundScreen() ?? null" (closed)="sheet.close()" />
   }
 

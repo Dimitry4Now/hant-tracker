@@ -38,6 +38,8 @@ export class GameDetailComponent {
   readonly gameError = this.store.gameError;
   readonly picked = this.store.picked;
   readonly gameForm = this.store.gameForm;
+  readonly canEdit = this.store.canEdit;
+  readonly listLink = this.store.listLink;
 
   readonly outcomes = OUTCOMES;
   readonly outcomeLabels = OUTCOME_LABELS;
@@ -46,7 +48,7 @@ export class GameDetailComponent {
 
   /** Column layout depends on the player count, so it is built at runtime. */
   readonly roundsColumns = computed(
-    () => `0.7fr repeat(${this.players().length}, 0.9fr) 2.2fr auto`
+    () => `0.7fr repeat(${this.players().length}, 0.9fr) 2.2fr${this.canEdit() ? ' auto' : ''}`
   );
 
   get entries(): FormArray {
@@ -85,9 +87,9 @@ export class GameDetailComponent {
     this.store.saveRound();
   }
 
-  editRound(round: Round, form: HTMLElement): void {
+  editRound(round: Round): void {
     this.store.editRound(round);
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('round-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   cancelRoundEdit(): void {

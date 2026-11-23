@@ -46,6 +46,12 @@ export const routes: Routes = [
           import('./features/analysis/analysis.component').then((m) => m.AnalysisComponent)
       },
       {
+        // Every round of a game; read-only unless you're an admin.
+        path: 'games/:id',
+        loadComponent: () =>
+          import('./features/admin/game-detail.component').then((m) => m.GameDetailComponent)
+      },
+      {
         path: 'account',
         loadComponent: () =>
           import('./features/account/account.component').then((m) => m.AccountComponent)
