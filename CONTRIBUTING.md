@@ -30,7 +30,21 @@ cd frontend && npm run build && npm test
 cd api && ./gradlew build
 ```
 
-Both must pass. If a change touches scoring, add or update the tests in
+Both must pass. CI runs the same on every pull request, and more:
+
+- **API · tests**: the API's tests, with coverage from JaCoCo.
+- **API · PostgreSQL**: starts the built jar with the prod profile on a real
+  PostgreSQL, so every migration runs there (the tests use H2).
+- **API · jar** and **Web · build**: the artifacts that get deployed, plus
+  `npm audit` on what ships to browsers.
+- **Web · tests**: the frontend's tests, with coverage over every file in
+  `src/app`.
+
+The `ci` job passes only when all of them do. Each run's summary shows the
+coverage; it may not drop below the minimums at the top of
+`.github/workflows/ci.yml`. To see it locally: `./gradlew test` writes
+`api/build/reports/jacoco/test/html`, and `npx ng test --watch=false --coverage`
+writes `frontend/coverage/frontend`. If a change touches scoring, add or update the tests in
 `frontend/src/app/core/` — the scoring rules are the one part of the codebase
 where a silent mistake corrupts real, already-played history.
 
@@ -42,7 +56,12 @@ where a silent mistake corrupts real, already-played history.
   `feat(frontend): …`, `fix(api): …`, `docs: …`, `refactor: …`, `chore: …`.
   The subject line stays under ~50 characters; the body explains the reasoning
   when it is not obvious from the diff.
-- Branch off `develop`. `master` is the deployed branch.
+- Branch off `develop` and open a pull request into it; merged branches are
+  deleted automatically.
+- A release is a `vX.Y.Z` tag on `develop`, after the version in
+  `api/build.gradle` and `frontend/package.json` is bumped. Pushing the tag
+  publishes a GitHub Release with the jar and the built frontend;
+  `scripts/deploy.sh` deploys.
 
 ## Scope of a pull request
 

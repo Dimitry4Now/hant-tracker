@@ -1,5 +1,7 @@
 # Hant Tracker
 
+[![CI](https://github.com/Dimitry4Now/hant-tracker/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/Dimitry4Now/hant-tracker/actions/workflows/ci.yml)
+
 We play cards. Every week, around a table, with a pen and a paper sheet —
 because that is the fun part and no app is going to improve on it. What the
 paper is bad at is remembering. A sheet tells you who won *that* night; it
