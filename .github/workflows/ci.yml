@@ -1,0 +1,273 @@
+name: CI
+
+# Every pull request and every push to develop runs the checks; the "ci" job
+# at the end gathers them, and it is the one the develop ruleset requires.
+# A pushed v* tag (on develop) checks the same and publishes a GitHub Release
+# with the API jar and the built frontend attached. Deploying stays
+# scripts/deploy.sh.
+on:
+  push:
+    branches: [develop]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to a pull request cancels its run that is still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  # Coverage may not drop below these (percent of lines); raise them as tests grow.
+  API_COVERAGE_MIN: 65
+  WEB_COVERAGE_MIN: 12
+
+jobs:
+  api-test:
+    name: API · tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      # Actions are pinned to commits, since a tag can be moved; Dependabot
+      # proposes updates.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - name: Test
+        run: ./gradlew test --console=plain
+      - name: Coverage
+        if: always()
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import os, xml.etree.ElementTree as ET
+          report = 'build/reports/jacoco/test/jacocoTestReport.xml'
+          if not os.path.exists(report):
+              raise SystemExit
+          root = ET.parse(report).getroot()
+          def pct(node, kind):
+              c = next((c for c in node.findall('counter') if c.get('type') == kind), None)
+              return 100 * int(c.get('covered')) / (int(c.get('covered')) + int(c.get('missed'))) if c is not None else None
+          def show(value):
+              return '–' if value is None else f"{value:.1f}%"
+          print(f"### API coverage: {pct(root, 'LINE'):.1f}% of lines\n")
+          print("| Package | Lines | Branches |\n|---|---|---|")
+          for p in sorted(root.findall('package'), key=lambda p: p.get('name')):
+              print(f"| {p.get('name').replace('/', '.')} | {show(pct(p, 'LINE'))} | {show(pct(p, 'BRANCH'))} |")
+          print(f"\nThe minimum is {os.environ['API_COVERAGE_MIN']}% of lines.")
+          with open(os.environ['GITHUB_ENV'], 'a') as env:
+              env.write(f"API_COVERAGE={pct(root, 'LINE'):.1f}\n")
+          EOF
+      - name: Coverage minimum
+        run: |
+          echo "API coverage ${API_COVERAGE}% (minimum ${API_COVERAGE_MIN}%)"
+          awk -v c="$API_COVERAGE" -v m="$API_COVERAGE_MIN" 'BEGIN { exit !(c >= m) }' ||
+            { echo "::error::API coverage ${API_COVERAGE}% is below ${API_COVERAGE_MIN}%"; exit 1; }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: api-test-reports
+          path: |
+            api/build/reports/tests/test
+            api/build/reports/jacoco/test/html
+          retention-days: 7
+
+  # The tests run on H2; production runs PostgreSQL. This starts the real jar
+  # with the prod profile on PostgreSQL, so every migration and Hibernate's
+  # schema check run there too.
+  api-postgres:
+    name: API · PostgreSQL
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: hant_tracker
+          POSTGRES_PASSWORD: ci-only
+          POSTGRES_DB: hant_tracker
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hant_tracker"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - name: Build the jar
+        working-directory: api
+        run: ./gradlew bootJar --console=plain
+      - name: Start it on PostgreSQL
+        env:
+          SPRING_PROFILES_ACTIVE: prod
+          DB_URL: jdbc:postgresql://localhost:5432/hant_tracker
+          DB_USER: hant_tracker
+          DB_PASSWORD: ci-only
+          JWT_SECRET: ci-only-secret-ci-only-secret-ci-only-secret
+          LOG_DIR: ${{ runner.temp }}/logs
+          SERVER_PORT: 8099
+        run: |
+          java -jar api/build/libs/api-*.jar > app.log 2>&1 &
+          app=$!
+          for _ in $(seq 90); do
+            grep -qE "Started ApiApplication|APPLICATION FAILED" app.log && break
+            sleep 1
+          done
+          grep -E "Successfully applied|Schema \"public\" is up to date|Started ApiApplication" app.log || true
+          if ! grep -q "Started ApiApplication" app.log; then
+            echo "::error::The API did not start on PostgreSQL"
+            cat app.log
+            exit 1
+          fi
+          curl -fsS localhost:8099/api/auth/options
+          kill "$app"
+
+  api-build:
+    name: API · jar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - name: Build
+        working-directory: api
+        run: ./gradlew bootJar --console=plain
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: api-jar
+          path: api/build/libs/api-*.jar
+          if-no-files-found: error
+          retention-days: 7
+
+  web-test:
+    name: Web · tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Test
+        run: npx ng test --watch=false --coverage
+      - name: Coverage
+        if: always()
+        run: |
+          node - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('node:fs');
+          const path = 'coverage/frontend/coverage-summary.json';
+          if (!fs.existsSync(path)) process.exit(0);
+          const t = JSON.parse(fs.readFileSync(path, 'utf8')).total;
+          console.log(`### Web coverage: ${t.lines.pct}% of lines\n`);
+          console.log('| Lines | Statements | Branches | Functions |\n|---|---|---|---|');
+          console.log(`| ${t.lines.pct}% | ${t.statements.pct}% | ${t.branches.pct}% | ${t.functions.pct}% |`);
+          console.log(`\nEvery file in src/app counts. The minimum is ${process.env.WEB_COVERAGE_MIN}% of lines.`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `WEB_COVERAGE=${t.lines.pct}\n`);
+          EOF
+      - name: Coverage minimum
+        run: |
+          echo "Web coverage ${WEB_COVERAGE}% (minimum ${WEB_COVERAGE_MIN}%)"
+          awk -v c="$WEB_COVERAGE" -v m="$WEB_COVERAGE_MIN" 'BEGIN { exit !(c >= m) }' ||
+            { echo "::error::Web coverage ${WEB_COVERAGE}% is below ${WEB_COVERAGE_MIN}%"; exit 1; }
+
+  web-build:
+    name: Web · build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      # Only what ships to browsers; build tools get Dependabot's updates.
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Build
+        run: npm run build
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-dist
+          path: frontend/dist/frontend/browser
+          if-no-files-found: error
+          retention-days: 7
+
+  # The one check the develop ruleset requires. It passes only if every job
+  # above did: a required check that is skipped counts as passed, so it runs
+  # even when one of them failed.
+  ci:
+    name: ci
+    needs: [api-test, api-postgres, api-build, web-test, web-build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: All jobs passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          for r in $RESULTS; do [ "$r" = success ] || exit 1; done
+
+  release:
+    name: Release
+    needs: ci
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Anyone who can push a tag could otherwise release any commit.
+      - name: Tag is on develop
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/develop; then
+            echo "::error::$GITHUB_REF_NAME is not on develop; tag a merged commit"
+            exit 1
+          fi
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: artifacts
+      - name: Package
+        run: |
+          mkdir release
+          cp artifacts/api-jar/api-*.jar release/
+          (cd artifacts/web-dist && zip -qr "$GITHUB_WORKSPACE/release/hant-tracker-web-$GITHUB_REF_NAME.zip" .)
+          ls -l release
+      - uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
+        with:
+          files: release/*
+          generate_release_notes: true

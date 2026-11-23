@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -76,6 +78,18 @@ public class SecurityConfig {
                 // Not a bean, so it runs only here, once the token has been read.
                 .addFilterAfter(new AccountSetupFilter(accountSetup), JwtAuthFilter.class)
                 .build();
+    }
+
+    /**
+     * Logins go through /api/auth and the JWT filter, not Spring's own login, so
+     * there are no users here. Without it Spring Boot makes an in-memory user
+     * with a generated password, and warns about it at every start.
+     */
+    @Bean
+    public UserDetailsService noSpringLogins() {
+        return username -> {
+            throw new UsernameNotFoundException(username);
+        };
     }
 
     @Bean

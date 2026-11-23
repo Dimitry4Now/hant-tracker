@@ -1,0 +1,41 @@
+# Proposes dependency updates once a week, grouped so each ecosystem is one
+# pull request rather than one per package. Security fixes come as soon as
+# an advisory is published (repository setting), not on this schedule.
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /api
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      api:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # Angular's packages have to move together.
+      angular:
+        patterns: ["@angular/*", "@angular-devkit/*"]
+      web:
+        patterns: ["*"]
+        exclude-patterns: ["@angular/*", "@angular-devkit/*"]
+
+  # The actions in the workflows are pinned to commits; this keeps them current.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]
