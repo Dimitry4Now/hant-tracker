@@ -62,22 +62,34 @@ class StatsServiceTests {
         YearMonth thisMonth = YearMonth.now();
 
         GameDto g1 = games.create(new CreateGameRequest(thisMonth.atDay(1), ids(ada, bob, cid), null));
-        games.addRound(g1.id(), round(1, false, entry(ada, RoundOutcome.WINNER, -50),
-                entry(bob, RoundOutcome.NOT_OPENED, 100), entry(cid, RoundOutcome.OPENED, 30)));
-        games.addRound(g1.id(), round(2, true, entry(bob, RoundOutcome.WINNER, -100),
-                entry(ada, RoundOutcome.NOT_OPENED, 200), entry(cid, RoundOutcome.QUIT, 40)));
+        games.addRound(
+                g1.id(),
+                round(
+                        1,
+                        false,
+                        entry(ada, RoundOutcome.WINNER, -50),
+                        entry(bob, RoundOutcome.NOT_OPENED, 100),
+                        entry(cid, RoundOutcome.OPENED, 30)));
+        games.addRound(
+                g1.id(),
+                round(
+                        2,
+                        true,
+                        entry(bob, RoundOutcome.WINNER, -100),
+                        entry(ada, RoundOutcome.NOT_OPENED, 200),
+                        entry(cid, RoundOutcome.QUIT, 40)));
         games.saveMoney(g1.id(), List.of(money(bob, 300), money(ada, -200), money(cid, -100)));
         games.setInProgress(g1.id(), false);
 
         GameDto g2 = games.create(new CreateGameRequest(thisMonth.minusMonths(1).atDay(15), ids(ada, bob), null));
-        games.addRound(g2.id(), round(1, false, entry(ada, RoundOutcome.WINNER, -50),
-                entry(bob, RoundOutcome.OPENED, 20)));
+        games.addRound(
+                g2.id(), round(1, false, entry(ada, RoundOutcome.WINNER, -50), entry(bob, RoundOutcome.OPENED, 20)));
         games.saveMoney(g2.id(), List.of(money(ada, 100), money(bob, -100)));
         games.setInProgress(g2.id(), false);
 
         GameDto g3 = games.create(new CreateGameRequest(thisMonth.atDay(2), ids(ada, cid), null));
-        games.addRound(g3.id(), round(1, false, entry(cid, RoundOutcome.WINNER, -50),
-                entry(ada, RoundOutcome.OPENED, 10)));
+        games.addRound(
+                g3.id(), round(1, false, entry(cid, RoundOutcome.WINNER, -50), entry(ada, RoundOutcome.OPENED, 10)));
 
         // The stats read database views, which Hibernate doesn't know depend on
         // these tables, so it won't flush them first. In the app each request
