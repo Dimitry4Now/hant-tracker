@@ -41,8 +41,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (header != null
                 && header.startsWith(PREFIX)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
-            jwt.readUserId(header.substring(PREFIX.length()))
-                    .flatMap(users::findById)
+            jwt.read(header.substring(PREFIX.length()))
+                    .flatMap(subject -> users.findById(subject.userId())
+                            // A password change raises the version, signing out older tokens.
+                            .filter(user -> user.getTokenVersion() == subject.version()))
                     // A locked account keeps its token but stops being usable.
                     .filter(user -> user.getStatus() == UserStatus.ACTIVE)
                     .ifPresent(this::authenticate);

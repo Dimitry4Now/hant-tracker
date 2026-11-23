@@ -7,6 +7,7 @@ import com.hanttracker.api.dto.AuthDtos.LoginResponse;
 import com.hanttracker.api.dto.AuthDtos.RegisterRequest;
 import com.hanttracker.api.dto.UserDto;
 import com.hanttracker.api.repo.UserAccountRepository;
+import com.hanttracker.api.security.AccountSetup;
 import com.hanttracker.api.security.CurrentUser;
 import com.hanttracker.api.security.JwtService;
 import com.hanttracker.api.security.RateLimits;
@@ -16,6 +17,7 @@ import jakarta.validation.Valid;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +37,8 @@ public class AuthController {
     private final JwtService jwt;
     private final UserService userService;
     private final RateLimits limits;
+    private final AccountSetup setup;
+    private final String defaultPassword;
     /** Checked for unknown emails, so they take as long as a wrong password. */
     private final String unknownUserHash;
 
@@ -43,12 +47,16 @@ public class AuthController {
             PasswordEncoder encoder,
             JwtService jwt,
             UserService userService,
-            RateLimits limits) {
+            RateLimits limits,
+            AccountSetup setup,
+            @Value("${app.default-password}") String defaultPassword) {
         this.users = users;
         this.encoder = encoder;
         this.jwt = jwt;
         this.userService = userService;
         this.limits = limits;
+        this.setup = setup;
+        this.defaultPassword = defaultPassword;
         this.unknownUserHash = encoder.encode(UUID.randomUUID().toString());
     }
 
@@ -76,8 +84,13 @@ public class AuthController {
         if (user.getStatus() == UserStatus.LOCKED) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This account is locked");
         }
+        // The old default password is known to everyone, so it has to go.
+        if (!user.isMustChangePassword() && request.password().equals(defaultPassword)) {
+            user.setMustChangePassword(true);
+            users.save(user);
+        }
 
-        return new LoginResponse(jwt.issue(user), UserDto.of(user));
+        return new LoginResponse(jwt.issue(user), UserDto.forSession(user, setup.requiredStep(user)));
     }
 
     /**
@@ -95,7 +108,8 @@ public class AuthController {
 
     @GetMapping("/me")
     public UserDto me() {
-        return UserDto.of(CurrentUser.require());
+        UserAccount user = CurrentUser.require();
+        return UserDto.forSession(user, setup.requiredStep(user));
     }
 
     private static ResponseStatusException badCredentials() {

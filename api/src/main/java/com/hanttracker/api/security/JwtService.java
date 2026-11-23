@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
+    private static final String VERSION = "ver";
+
     private final SecretKey key;
     private final Duration ttl;
 
@@ -33,17 +35,23 @@ public class JwtService {
                 .subject(String.valueOf(user.getId()))
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
+                .claim(VERSION, user.getTokenVersion())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(ttl)))
                 .signWith(key)
                 .compact();
     }
 
-    /** The user id in the token, or empty when it is missing, expired or forged. */
-    public Optional<Long> readUserId(String token) {
+    /** Who a token is for, and the account's token version when it was issued. */
+    public record Subject(long userId, int version) {}
+
+    /** The token's subject, or empty when it is missing, expired or forged. */
+    public Optional<Subject> read(String token) {
         try {
             Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
-            return Optional.of(Long.valueOf(claims.getSubject()));
+            // Tokens from before versions existed count as version 0.
+            Integer version = claims.get(VERSION, Integer.class);
+            return Optional.of(new Subject(Long.parseLong(claims.getSubject()), version == null ? 0 : version));
         } catch (JwtException | IllegalArgumentException e) {
             return Optional.empty();
         }

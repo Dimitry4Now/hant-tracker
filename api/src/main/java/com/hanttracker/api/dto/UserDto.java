@@ -12,7 +12,11 @@ public record UserDto(
         String email,
         UserRole role,
         UserStatus status,
-        LocalDate joinedOn) {
+        LocalDate joinedOn,
+        /** For admins: this player still has to replace their password. */
+        boolean mustChangePassword,
+        /** Only in the player's own session: what they must do first, if anything. */
+        RequiredStep requiredStep) {
 
     /**
      * What other players see: enough to show names in games and standings,
@@ -20,7 +24,15 @@ public record UserDto(
      */
     public static UserDto forPlayers(UserAccount user) {
         return new UserDto(
-                user.getId(), null, user.getDisplayName(), null, user.getRole(), user.getStatus(), user.getJoinedOn());
+                user.getId(), null, user.getDisplayName(), null, user.getRole(), user.getStatus(), user.getJoinedOn(),
+                false, null);
+    }
+
+    /** The signed-in player's own account, with the step they must take first. */
+    public static UserDto forSession(UserAccount user, RequiredStep requiredStep) {
+        UserDto dto = of(user);
+        return new UserDto(dto.id(), dto.fullName(), dto.displayName(), dto.email(), dto.role(), dto.status(),
+                dto.joinedOn(), dto.mustChangePassword(), requiredStep);
     }
 
     public static UserDto of(UserAccount user) {
@@ -31,6 +43,8 @@ public record UserDto(
                 user.getEmail(),
                 user.getRole(),
                 user.getStatus(),
-                user.getJoinedOn());
+                user.getJoinedOn(),
+                user.isMustChangePassword(),
+                null);
     }
 }

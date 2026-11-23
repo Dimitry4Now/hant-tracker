@@ -8,12 +8,16 @@ import com.hanttracker.api.dto.AccountDtos.ChangePasswordRequest;
 import com.hanttracker.api.dto.AccountDtos.UpdateProfileRequest;
 import com.hanttracker.api.dto.AccountRequestDto;
 import com.hanttracker.api.dto.AuthDtos.RegisterRequest;
+import com.hanttracker.api.dto.CreatedUserDto;
+import com.hanttracker.api.dto.TemporaryPasswordDto;
 import com.hanttracker.api.dto.UserDto;
 import com.hanttracker.api.dto.UserDtos.CreateUserRequest;
 import com.hanttracker.api.repo.AccountRequestRepository;
 import com.hanttracker.api.repo.UserAccountRepository;
+import com.hanttracker.api.security.Secrets;
 import com.hanttracker.api.web.ConflictException;
 import com.hanttracker.api.web.NotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import org.slf4j.Logger;
@@ -59,8 +63,13 @@ public class UserService {
                 .toList();
     }
 
-    public UserDto create(CreateUserRequest request) {
+    /**
+     * Without a password from the admin, the player gets a random one for the
+     * admin to pass on. Either way they replace it at their first login.
+     */
+    public CreatedUserDto create(CreateUserRequest request) {
         requireEmailFree(request.email());
+        String temporary = StringUtils.hasText(request.password()) ? null : Secrets.temporaryPassword();
 
         UserAccount user = new UserAccount();
         user.setFullName(request.fullName());
@@ -69,11 +78,23 @@ public class UserService {
         user.setRole(request.role());
         user.setStatus(UserStatus.ACTIVE);
         user.setJoinedOn(LocalDate.now());
-        user.setPasswordHash(
-                encoder.encode(
-                        StringUtils.hasText(request.password()) ? request.password() : defaultPassword));
+        user.setPasswordHash(encoder.encode(temporary != null ? temporary : request.password()));
+        user.setMustChangePassword(true);
 
-        return UserDto.of(users.save(user));
+        return new CreatedUserDto(UserDto.of(users.save(user)), temporary);
+    }
+
+    /**
+     * Gives a player a random one-time password, for when they forgot theirs.
+     * It signs them out everywhere, and they replace it at their next login.
+     */
+    public TemporaryPasswordDto resetPassword(Long id) {
+        UserAccount user = findUser(id);
+        String temporary = Secrets.temporaryPassword();
+        user.setPasswordHash(encoder.encode(temporary));
+        user.setMustChangePassword(true);
+        user.setTokenVersion(user.getTokenVersion() + 1);
+        return new TemporaryPasswordDto(temporary);
     }
 
     public UserDto setStatus(Long id, UserStatus status) {
@@ -116,10 +137,36 @@ public class UserService {
         return UserDto.of(user);
     }
 
-    public void changePassword(Long id, ChangePasswordRequest request) {
+    /**
+     * Replaces the player's password and signs out their other sessions; the
+     * caller gets a fresh token for this one.
+     */
+    public UserAccount changePassword(Long id, ChangePasswordRequest request) {
         UserAccount user = findUser(id);
         requireCurrentPassword(user, request.currentPassword());
-        user.setPasswordHash(encoder.encode(request.newPassword()));
+        if (request.newPassword().equals(request.currentPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pick a new password, not the current one");
+        }
+        setPassword(user, request.newPassword());
+        return user;
+    }
+
+    /** Sets a password the player chose, which clears the need to change it. */
+    void setPassword(UserAccount user, String password) {
+        requireUsablePassword(password);
+        user.setPasswordHash(encoder.encode(password));
+        user.setMustChangePassword(false);
+        user.setTokenVersion(user.getTokenVersion() + 1);
+    }
+
+    /** BCrypt reads only the first 72 bytes, and the old default password is public. */
+    void requireUsablePassword(String password) {
+        if (password.equals(defaultPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pick a password other than the default one");
+        }
+        if (password.getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "That password is too long");
+        }
     }
 
     // --- sign-up requests -----------------------------------------------
@@ -143,6 +190,7 @@ public class UserService {
             log.warn("Sign-up ignored: {} requests are already waiting", MAX_PENDING_REQUESTS);
             return;
         }
+        requireUsablePassword(request.password());
 
         AccountRequest pending = new AccountRequest();
         pending.setFullName(request.fullName());
