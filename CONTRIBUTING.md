@@ -26,9 +26,13 @@ own origin — the same arrangement as production.
 ## Before you open a pull request
 
 ```
-cd frontend && npm run build && npm test
-cd api && ./gradlew build
+cd frontend && npm run build && npm test && npm run lint && npm run format:check
+cd api && ./gradlew build          # includes spotlessCheck
 ```
+
+`npm run format` and `./gradlew spotlessApply` fix the formatting for you:
+Prettier for the frontend's TypeScript and SCSS (templates are left as
+written; ESLint checks them), palantir-java-format for the API.
 
 Both must pass. CI runs the same on every pull request, and more:
 
@@ -39,6 +43,8 @@ Both must pass. CI runs the same on every pull request, and more:
   `npm audit` on what ships to browsers.
 - **Web · tests**: the frontend's tests, with coverage over every file in
   `src/app`.
+- **API · format**, **Web · lint** and **Scripts · ShellCheck**: Spotless,
+  ESLint with Prettier, and ShellCheck on every shell script in `scripts/`.
 
 The `ci` job passes only when all of them do. Each run's summary shows the
 coverage; it may not drop below the minimums at the top of
