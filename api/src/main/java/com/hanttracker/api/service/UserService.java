@@ -16,6 +16,8 @@ import com.hanttracker.api.web.ConflictException;
 import com.hanttracker.api.web.NotFoundException;
 import java.time.LocalDate;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +29,11 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @Transactional
 public class UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
+    /** Sign-ups waiting for an admin; more than this is someone flooding the form. */
+    static final int MAX_PENDING_REQUESTS = 50;
 
     private final UserAccountRepository users;
     private final AccountRequestRepository requests;
@@ -122,9 +129,20 @@ public class UserService {
         return requests.findAllByOrderByRequestedOnDesc().stream().map(AccountRequestDto::of).toList();
     }
 
-    /** Stores a pending sign-up with its hashed password, for an admin to approve. */
-    public AccountRequestDto register(RegisterRequest request) {
-        requireEmailFree(request.email());
+    /**
+     * Stores a pending sign-up with its hashed password, for an admin to approve.
+     * A taken email, or a queue already full of requests, is quietly dropped:
+     * telling the visitor would tell anyone which emails have accounts.
+     */
+    public void register(RegisterRequest request) {
+        if (emailTaken(request.email())) {
+            log.info("Sign-up for an email that is already taken; ignored");
+            return;
+        }
+        if (requests.count() >= MAX_PENDING_REQUESTS) {
+            log.warn("Sign-up ignored: {} requests are already waiting", MAX_PENDING_REQUESTS);
+            return;
+        }
 
         AccountRequest pending = new AccountRequest();
         pending.setFullName(request.fullName());
@@ -132,8 +150,7 @@ public class UserService {
         pending.setEmail(request.email());
         pending.setPasswordHash(encoder.encode(request.password()));
         pending.setRequestedOn(LocalDate.now());
-
-        return AccountRequestDto.of(requests.save(pending));
+        requests.save(pending);
     }
 
     public UserDto approveRequest(Long id) {
@@ -176,8 +193,12 @@ public class UserService {
     }
 
     private void requireEmailFree(String email) {
-        if (users.existsByEmailIgnoreCase(email) || requests.existsByEmailIgnoreCase(email)) {
+        if (emailTaken(email)) {
             throw new ConflictException("That email is already taken");
         }
+    }
+
+    private boolean emailTaken(String email) {
+        return users.existsByEmailIgnoreCase(email) || requests.existsByEmailIgnoreCase(email);
     }
 }
