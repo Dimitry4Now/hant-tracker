@@ -21,6 +21,13 @@ updates:
     commit-message:
       prefix: chore
       include: scope
+    # Angular decides which TypeScript and zone.js versions it works with;
+    # those move with Angular (ng update), not on their own.
+    ignore:
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: zone.js
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     groups:
       # Angular's packages have to move together.
       angular:
