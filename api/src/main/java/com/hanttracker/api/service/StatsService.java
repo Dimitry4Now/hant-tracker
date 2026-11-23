@@ -43,8 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StatsService {
 
     private static final DateTimeFormatter MONTH = DateTimeFormatter.ofPattern("MMM", Locale.ENGLISH);
-    private static final DateTimeFormatter MONTH_YEAR =
-            DateTimeFormatter.ofPattern("MMM yyyy", Locale.ENGLISH);
+    private static final DateTimeFormatter MONTH_YEAR = DateTimeFormatter.ofPattern("MMM yyyy", Locale.ENGLISH);
     private static final int MONTHS_SHOWN = 12;
     private static final int WEEK_BUCKETS = 5;
 
@@ -52,8 +51,7 @@ public class StatsService {
     private final GameSummaryRepository summaries;
     private final UserAccountRepository users;
 
-    public StatsService(
-            PlayerGameStatsRepository stats, GameSummaryRepository summaries, UserAccountRepository users) {
+    public StatsService(PlayerGameStatsRepository stats, GameSummaryRepository summaries, UserAccountRepository users) {
         this.stats = stats;
         this.summaries = summaries;
         this.users = users;
@@ -87,20 +85,18 @@ public class StatsService {
         List<LeaderboardRowDto> rows = new ArrayList<>();
         for (UserAccount player : users.findAllByOrderByIdAsc()) {
             PlayerTotals t = totals.getOrDefault(player.getId(), PlayerTotals.NONE);
-            rows.add(
-                    new LeaderboardRowDto(
-                            player.getId(),
-                            player.getDisplayName(),
-                            t.wins(),
-                            t.losses(),
-                            t.rounds(),
-                            t.roundWinRate(),
-                            t.netDen()));
+            rows.add(new LeaderboardRowDto(
+                    player.getId(),
+                    player.getDisplayName(),
+                    t.wins(),
+                    t.losses(),
+                    t.rounds(),
+                    t.roundWinRate(),
+                    t.netDen()));
         }
-        rows.sort(
-                Comparator.<LeaderboardRowDto>comparingInt(LeaderboardRowDto::wins)
-                        .thenComparingInt(LeaderboardRowDto::netDen)
-                        .reversed());
+        rows.sort(Comparator.<LeaderboardRowDto>comparingInt(LeaderboardRowDto::wins)
+                .thenComparingInt(LeaderboardRowDto::netDen)
+                .reversed());
         return rows;
     }
 
@@ -113,7 +109,8 @@ public class StatsService {
 
         int rounds = games.stream().mapToInt(GameSummary::getRounds).sum();
         int hantRounds = games.stream().mapToInt(GameSummary::getHantRounds).sum();
-        int regularRounds = games.stream().mapToInt(GameSummary::getRegularRounds).sum();
+        int regularRounds =
+                games.stream().mapToInt(GameSummary::getRegularRounds).sum();
         YearMonth end = YearMonth.now();
         YearMonth start = end.minusMonths(MONTHS_SHOWN - 1L);
 
@@ -158,27 +155,22 @@ public class StatsService {
 
     private List<RankingDto> rankings(List<UserAccount> players, Map<Long, PlayerTotals> totals) {
         return players.stream()
-                .map(
-                        player -> {
-                            PlayerTotals t = totals.getOrDefault(player.getId(), PlayerTotals.NONE);
-                            return new RankingDto(
-                                    player.getDisplayName(), t.games(), t.winRate(), t.rounds(), t.roundWinRate());
-                        })
-                .sorted(
-                        Comparator.<RankingDto>comparingInt(RankingDto::games)
-                                .thenComparingInt(RankingDto::winRate)
-                                .reversed())
+                .map(player -> {
+                    PlayerTotals t = totals.getOrDefault(player.getId(), PlayerTotals.NONE);
+                    return new RankingDto(
+                            player.getDisplayName(), t.games(), t.winRate(), t.rounds(), t.roundWinRate());
+                })
+                .sorted(Comparator.<RankingDto>comparingInt(RankingDto::games)
+                        .thenComparingInt(RankingDto::winRate)
+                        .reversed())
                 .toList();
     }
 
     /** A one-word read on how someone plays, from the mix of their round outcomes. */
     private List<PlaystyleDto> playstyles(List<UserAccount> players, Map<Long, PlayerTotals> totals) {
         return players.stream()
-                .map(
-                        player ->
-                                new PlaystyleDto(
-                                        player.getDisplayName(),
-                                        styleFor(totals.getOrDefault(player.getId(), PlayerTotals.NONE))))
+                .map(player -> new PlaystyleDto(
+                        player.getDisplayName(), styleFor(totals.getOrDefault(player.getId(), PlayerTotals.NONE))))
                 .toList();
     }
 
@@ -206,9 +198,8 @@ public class StatsService {
     /** Every player's all-time totals, from one read of the view. */
     private Map<Long, PlayerTotals> totalsByPlayer() {
         return stats.findAll(Specification.unrestricted()).stream()
-                .collect(
-                        Collectors.groupingBy(
-                                PlayerGameStats::getPlayerId,
-                                Collectors.collectingAndThen(Collectors.toList(), PlayerTotals::of)));
+                .collect(Collectors.groupingBy(
+                        PlayerGameStats::getPlayerId,
+                        Collectors.collectingAndThen(Collectors.toList(), PlayerTotals::of)));
     }
 }

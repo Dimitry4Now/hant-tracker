@@ -40,38 +40,36 @@ public class SecurityConfig {
         return http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        auth ->
-                                auth.requestMatchers(HttpMethod.OPTIONS, "/**")
-                                        .permitAll()
-                                        // Error dispatches are filtered too — without this every
-                                        // 403/409 comes back out as a 401.
-                                        .requestMatchers("/error")
-                                        .permitAll()
-                                        .requestMatchers(
-                                                "/api/auth/login",
-                                                "/api/auth/register",
-                                                "/api/auth/forgot-password",
-                                                "/api/auth/reset-password")
-                                        .permitAll()
-                                        .requestMatchers(HttpMethod.GET, "/api/auth/options")
-                                        .permitAll()
-                                        .requestMatchers(HttpMethod.GET, "/api/stats/public")
-                                        .permitAll()
-                                        .requestMatchers("/api/account-requests/**")
-                                        .hasRole("ADMIN")
-                                        .requestMatchers(HttpMethod.POST, "/api/games/**")
-                                        .hasRole("ADMIN")
-                                        .requestMatchers(HttpMethod.PUT, "/api/games/**")
-                                        .hasRole("ADMIN")
-                                        .requestMatchers(HttpMethod.DELETE, "/api/games/**")
-                                        .hasRole("ADMIN")
-                                        .requestMatchers(HttpMethod.POST, "/api/users/**")
-                                        .hasRole("ADMIN")
-                                        .requestMatchers(HttpMethod.PATCH, "/api/users/**")
-                                        .hasRole("ADMIN")
-                                        .anyRequest()
-                                        .authenticated())
+                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**")
+                        .permitAll()
+                        // Error dispatches are filtered too — without this every
+                        // 403/409 comes back out as a 401.
+                        .requestMatchers("/error")
+                        .permitAll()
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/options")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/stats/public")
+                        .permitAll()
+                        .requestMatchers("/api/account-requests/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/games/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/games/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/games/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/users/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/users/**")
+                        .hasRole("ADMIN")
+                        .anyRequest()
+                        .authenticated())
                 // 401 instead of a redirect to a login page the API does not serve.
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

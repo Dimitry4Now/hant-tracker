@@ -10,15 +10,28 @@ import { HantDataService } from '../../../core/hant-data.service';
   template: `
     <h1 class="m-title">Admin</h1>
     <div class="m-segmented" role="tablist" aria-label="Admin sections">
-      <a role="tab" routerLink="/admin/requests" routerLinkActive #req="routerLinkActive"
-         [attr.aria-selected]="req.isActive" [replaceUrl]="true">
+      <a
+        role="tab"
+        routerLink="/admin/requests"
+        routerLinkActive
+        #req="routerLinkActive"
+        [attr.aria-selected]="req.isActive"
+        [replaceUrl]="true"
+      >
         Requests
         @if (pending() > 0) {
           <span class="count">{{ pending() }}</span>
         }
       </a>
-      <a role="tab" routerLink="/admin/users" routerLinkActive #users="routerLinkActive"
-         [attr.aria-selected]="users.isActive" [replaceUrl]="true">Users</a>
+      <a
+        role="tab"
+        routerLink="/admin/users"
+        routerLinkActive
+        #users="routerLinkActive"
+        [attr.aria-selected]="users.isActive"
+        [replaceUrl]="true"
+        >Users</a
+      >
     </div>
   `,
   styles: [

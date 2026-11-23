@@ -1,4 +1,14 @@
-import { Component, DestroyRef, computed, effect, inject, input, output, untracked, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  untracked,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { formatDate } from '../../../core/game-stats';
 import { RoundOutcome } from '../../../core/models';
@@ -28,7 +38,7 @@ export class RoundFormMobileComponent {
 
   readonly editing = computed(() => {
     const id = this.roundId();
-    return id === null ? null : this.store.game()?.rounds.find((round) => round.id === id) ?? null;
+    return id === null ? null : (this.store.game()?.rounds.find((round) => round.id === id) ?? null);
   });
 
   constructor() {

@@ -33,9 +33,15 @@ class GameServiceTests {
     }
 
     private static CreateRoundRequest round(int number, boolean majstorska) {
-        return new CreateRoundRequest(number, 1L, majstorska, false, null, List.of(
-                new RoundEntryDto(1L, RoundOutcome.WINNER, null, -50),
-                new RoundEntryDto(2L, RoundOutcome.NOT_OPENED, null, 100)));
+        return new CreateRoundRequest(
+                number,
+                1L,
+                majstorska,
+                false,
+                null,
+                List.of(
+                        new RoundEntryDto(1L, RoundOutcome.WINNER, null, -50),
+                        new RoundEntryDto(2L, RoundOutcome.NOT_OPENED, null, 100)));
     }
 
     @Test

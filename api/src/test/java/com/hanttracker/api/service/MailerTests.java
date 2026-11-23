@@ -30,14 +30,16 @@ class MailerTests {
     @Test
     void anAddressWithOrWithoutANameTurnsEmailOn() {
         assertThat(new Mailer(smtp(), "hant@example.com", "", false).enabled()).isTrue();
-        assertThat(new Mailer(smtp(), "Hant Tracker <hant@example.com>", "", false).enabled()).isTrue();
+        assertThat(new Mailer(smtp(), "Hant Tracker <hant@example.com>", "", false).enabled())
+                .isTrue();
         // The SMTP login is the sender when MAIL_FROM is empty.
         assertThat(new Mailer(smtp(), "", "login@example.com", false).enabled()).isTrue();
     }
 
     @Test
     void withoutSmtpOnlyDevsLogCounts() {
-        assertThat(new Mailer(noSmtp(), "hant@example.com", "", false).enabled()).isFalse();
+        assertThat(new Mailer(noSmtp(), "hant@example.com", "", false).enabled())
+                .isFalse();
         assertThat(new Mailer(noSmtp(), "", "", true).enabled()).isTrue();
     }
 }

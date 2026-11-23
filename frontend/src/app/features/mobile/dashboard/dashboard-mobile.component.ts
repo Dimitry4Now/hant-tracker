@@ -28,10 +28,9 @@ export class DashboardMobileComponent {
   private readonly users = signal<User[]>([]);
 
   readonly thisMonth = new Date().toLocaleDateString('en-GB', { month: 'long' });
-  readonly lastMonth = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleDateString(
-    'en-GB',
-    { month: 'long' }
-  );
+  readonly lastMonth = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleDateString('en-GB', {
+    month: 'long'
+  });
 
   readonly live = computed(() => this.games().find((game) => game.inProgress) ?? null);
 

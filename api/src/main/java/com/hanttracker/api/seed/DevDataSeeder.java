@@ -63,18 +63,16 @@ public class DevDataSeeder implements CommandLineRunner {
             return;
         }
 
-        List<UserAccount> players =
-                List.of(
-                        user("Player A", "Player A", "playera@example.com", UserRole.ADMIN, UserStatus.ACTIVE),
-                        user("Player B", "Player B", "playerb@example.com", UserRole.USER, UserStatus.ACTIVE),
-                        user("Player C", "Player C", "playerc@example.com", UserRole.USER, UserStatus.ACTIVE),
-                        user("Player D", "Player D", "playerd@example.com", UserRole.USER, UserStatus.LOCKED));
+        List<UserAccount> players = List.of(
+                user("Player A", "Player A", "playera@example.com", UserRole.ADMIN, UserStatus.ACTIVE),
+                user("Player B", "Player B", "playerb@example.com", UserRole.USER, UserStatus.ACTIVE),
+                user("Player C", "Player C", "playerc@example.com", UserRole.USER, UserStatus.ACTIVE),
+                user("Player D", "Player D", "playerd@example.com", UserRole.USER, UserStatus.LOCKED));
         users.saveAll(players);
 
-        requests.saveAll(
-                List.of(
-                        request("Marko Petrovski", "Marko P.", "marko@example.com", 2),
-                        request("Ivana Kostova", "Ivana K.", "ivana@example.com", 0)));
+        requests.saveAll(List.of(
+                request("Marko Petrovski", "Marko P.", "marko@example.com", 2),
+                request("Ivana Kostova", "Ivana K.", "ivana@example.com", 0)));
 
         List<Long> seats = players.stream().map(UserAccount::getId).toList();
         seedGames(seats);
@@ -92,13 +90,11 @@ public class DevDataSeeder implements CommandLineRunner {
             Game game = game(playedOn, 1, seats, inProgress, week == 1 ? TRANSCRIPT_NOTE : null);
             if (week == 1) {
                 transcriptRounds(game, seats);
-                game.setMoney(
-                        new ArrayList<>(
-                                List.of(
-                                        new MoneyEntry(seats.get(0), -50),
-                                        new MoneyEntry(seats.get(1), -50),
-                                        new MoneyEntry(seats.get(2), 150),
-                                        new MoneyEntry(seats.get(3), -50))));
+                game.setMoney(new ArrayList<>(List.of(
+                        new MoneyEntry(seats.get(0), -50),
+                        new MoneyEntry(seats.get(1), -50),
+                        new MoneyEntry(seats.get(2), 150),
+                        new MoneyEntry(seats.get(3), -50))));
             } else {
                 fillerRounds(game, seats, inProgress ? 12 : 9 + (week % 8), !inProgress);
             }
@@ -115,8 +111,7 @@ public class DevDataSeeder implements CommandLineRunner {
         games.saveAll(seeded);
     }
 
-    private static final String TRANSCRIPT_NOTE =
-            "Great Majstorska finish — Player C closed it out with a clean Hant.";
+    private static final String TRANSCRIPT_NOTE = "Great Majstorska finish — Player C closed it out with a clean Hant.";
 
     /** The 24 Aug game from the GameDetail artboard, points as recorded. */
     private static final int[][] TRANSCRIPT = {
@@ -179,9 +174,8 @@ public class DevDataSeeder implements CommandLineRunner {
         for (int seat = 0; seat < seats.size(); seat++) {
             int value = points[seat];
             RoundOutcome outcome = outcomeFor(value);
-            entries.add(
-                    new RoundEntryValue(
-                            seats.get(seat), outcome, outcome == RoundOutcome.OPENED ? value : null, value));
+            entries.add(new RoundEntryValue(
+                    seats.get(seat), outcome, outcome == RoundOutcome.OPENED ? value : null, value));
         }
         round.setEntries(entries);
         return round;
@@ -194,8 +188,7 @@ public class DevDataSeeder implements CommandLineRunner {
         return points >= 100 ? RoundOutcome.NOT_OPENED : RoundOutcome.OPENED;
     }
 
-    private Game game(
-            LocalDate playedOn, int gameOfDay, List<Long> seats, boolean inProgress, String note) {
+    private Game game(LocalDate playedOn, int gameOfDay, List<Long> seats, boolean inProgress, String note) {
         Game game = new Game();
         game.setPlayedOn(playedOn);
         game.setGameOfDay(gameOfDay);
@@ -205,8 +198,7 @@ public class DevDataSeeder implements CommandLineRunner {
         return game;
     }
 
-    private UserAccount user(
-            String fullName, String displayName, String email, UserRole role, UserStatus status) {
+    private UserAccount user(String fullName, String displayName, String email, UserRole role, UserStatus status) {
         UserAccount user = new UserAccount();
         user.setFullName(fullName);
         user.setDisplayName(displayName);

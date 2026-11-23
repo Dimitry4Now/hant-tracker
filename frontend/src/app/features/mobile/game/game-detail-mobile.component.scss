@@ -46,7 +46,9 @@
 
   &.first {
     font-weight: 600;
-    .num { color: var(--accent); }
+    .num {
+      color: var(--accent);
+    }
   }
 }
 
@@ -141,7 +143,9 @@
   text-align: left;
   cursor: pointer;
 
-  &.hant { background: var(--hant-row); }
+  &.hant {
+    background: var(--hant-row);
+  }
 }
 
 .rd {
@@ -214,7 +218,9 @@
   flex-direction: column;
   gap: 8px;
 
-  h2 { font-size: 17px; }
+  h2 {
+    font-size: 17px;
+  }
 }
 
 .details {
@@ -265,14 +271,20 @@
     color: var(--text-secondary);
   }
 
-  &.neg { color: var(--negative); }
+  &.neg {
+    color: var(--negative);
+  }
 }
 
 .sum {
   font-size: 12px;
 
-  &.ok { color: var(--accent); }
-  &.off { color: var(--negative); }
+  &.ok {
+    color: var(--accent);
+  }
+  &.off {
+    color: var(--negative);
+  }
 }
 
 .picks {

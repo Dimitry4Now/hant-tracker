@@ -24,10 +24,22 @@ import { AdminTabsComponent } from './admin-tabs.component';
             <span class="m-hint">{{ when(request.requestedOn) }}</span>
           </div>
           <div class="actions">
-            <button type="button" class="m-btn-outline m-btn-danger" (click)="reject.emit(request.id)"
-                    [attr.aria-label]="'Reject ' + request.fullName">Reject</button>
-            <button type="button" class="m-btn" (click)="approve.emit(request.id)"
-                    [attr.aria-label]="'Approve ' + request.fullName">Approve</button>
+            <button
+              type="button"
+              class="m-btn-outline m-btn-danger"
+              (click)="reject.emit(request.id)"
+              [attr.aria-label]="'Reject ' + request.fullName"
+            >
+              Reject
+            </button>
+            <button
+              type="button"
+              class="m-btn"
+              (click)="approve.emit(request.id)"
+              [attr.aria-label]="'Approve ' + request.fullName"
+            >
+              Approve
+            </button>
           </div>
         </article>
       } @empty {

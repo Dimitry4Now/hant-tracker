@@ -39,9 +39,7 @@ export class DashboardComponent {
     const { key, dir } = this.sort();
     const sign = dir === 'asc' ? 1 : -1;
     return [...rows].sort((a, b) =>
-      key === 'name'
-        ? sign * a.name.localeCompare(b.name)
-        : sign * ((a[key] as number) - (b[key] as number))
+      key === 'name' ? sign * a.name.localeCompare(b.name) : sign * ((a[key] as number) - (b[key] as number))
     );
   });
 

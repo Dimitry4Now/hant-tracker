@@ -107,8 +107,13 @@ ol {
   &.first {
     font-weight: 600;
 
-    .rank { background: var(--accent); color: var(--bg); }
-    .result { color: var(--accent); }
+    .rank {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .result {
+      color: var(--accent);
+    }
   }
 }
 

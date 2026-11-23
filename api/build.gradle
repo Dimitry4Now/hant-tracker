@@ -1,6 +1,7 @@
 plugins {
 	id 'java'
 	id 'jacoco'
+	id 'com.diffplug.spotless' version '8.12.0'
 	id 'org.springframework.boot' version '4.2.0'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -45,6 +46,17 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 	finalizedBy 'jacocoTestReport'
+}
+
+// Formatting: ./gradlew spotlessApply rewrites the code, spotlessCheck (part
+// of check, and CI) fails on any difference.
+spotless {
+	java {
+		palantirJavaFormat('2.103.0')
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
 }
 
 // Coverage: build/reports/jacoco/test, as HTML and as XML for CI's summary.

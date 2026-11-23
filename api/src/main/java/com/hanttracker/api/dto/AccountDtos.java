@@ -18,5 +18,6 @@ public final class AccountDtos {
     public record ConfirmEmailRequest(@NotBlank String code) {}
 
     public record ChangePasswordRequest(
-            @NotBlank String currentPassword, @NotBlank @Size(min = 8) String newPassword) {}
+            @NotBlank String currentPassword,
+            @NotBlank @Size(min = 8) String newPassword) {}
 }

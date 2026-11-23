@@ -66,22 +66,43 @@ public class GeminiSheetReader implements SheetReader {
 
     private static final Map<String, Object> SCHEMA = Map.of(
             "type", "OBJECT",
-            "properties", Map.of(
-                    "headers", Map.of("type", "ARRAY", "items", Map.of("type", "STRING")),
-                    "date", Map.of("type", "STRING", "nullable", true),
-                    "rows", Map.of(
-                            "type", "ARRAY",
-                            "items", Map.of(
-                                    "type", "OBJECT",
-                                    "properties", Map.of(
-                                            "kind", Map.of("type", "STRING", "enum", List.of("ROUND", "MONEY")),
-                                            "totals", Map.of(
-                                                    "type", "ARRAY",
-                                                    "items", Map.of("type", "INTEGER", "nullable", true)),
-                                            "uncertain", Map.of(
-                                                    "type", "ARRAY", "items", Map.of("type", "BOOLEAN"))),
-                                    "required", List.of("kind", "totals", "uncertain"),
-                                    "propertyOrdering", List.of("kind", "totals", "uncertain")))),
+            "properties",
+                    Map.of(
+                            "headers", Map.of("type", "ARRAY", "items", Map.of("type", "STRING")),
+                            "date", Map.of("type", "STRING", "nullable", true),
+                            "rows",
+                                    Map.of(
+                                            "type",
+                                            "ARRAY",
+                                            "items",
+                                            Map.of(
+                                                    "type", "OBJECT",
+                                                    "properties",
+                                                            Map.of(
+                                                                    "kind",
+                                                                            Map.of(
+                                                                                    "type",
+                                                                                    "STRING",
+                                                                                    "enum",
+                                                                                    List.of("ROUND", "MONEY")),
+                                                                    "totals",
+                                                                            Map.of(
+                                                                                    "type",
+                                                                                    "ARRAY",
+                                                                                    "items",
+                                                                                    Map.of(
+                                                                                            "type",
+                                                                                            "INTEGER",
+                                                                                            "nullable",
+                                                                                            true)),
+                                                                    "uncertain",
+                                                                            Map.of(
+                                                                                    "type",
+                                                                                    "ARRAY",
+                                                                                    "items",
+                                                                                    Map.of("type", "BOOLEAN"))),
+                                                    "required", List.of("kind", "totals", "uncertain"),
+                                                    "propertyOrdering", List.of("kind", "totals", "uncertain")))),
             "required", List.of("headers", "rows"),
             "propertyOrdering", List.of("headers", "date", "rows"));
 
@@ -97,11 +118,13 @@ public class GeminiSheetReader implements SheetReader {
 
     /** A client whose requests give up after the given time. */
     private final Function<Duration, RestClient> clients;
+
     private final LongSupplier nanoTime;
     private final JsonMapper json;
     private final String apiKey;
     /** Tried in order: each has its own free quota, and one may be busy while another is not. */
     private final List<String> models;
+
     private final Duration retryDelay;
 
     @Autowired
@@ -126,7 +149,10 @@ public class GeminiSheetReader implements SheetReader {
         this.nanoTime = nanoTime;
         this.json = json;
         this.apiKey = apiKey;
-        this.models = Arrays.stream(models.split(",")).map(String::trim).filter(m -> !m.isEmpty()).toList();
+        this.models = Arrays.stream(models.split(","))
+                .map(String::trim)
+                .filter(m -> !m.isEmpty())
+                .toList();
         this.retryDelay = retryDelay;
         // Says at start whether the key reached the app — it is easy to put in the wrong file.
         if (apiKey.isBlank()) {
@@ -147,15 +173,20 @@ public class GeminiSheetReader implements SheetReader {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Sheet reading is not configured");
         }
         String body = json.writeValueAsString(Map.of(
-                "contents", List.of(Map.of("parts", List.of(
-                        Map.of("text", PROMPT.formatted(players, players, players)),
-                        Map.of("inlineData", Map.of(
-                                "mimeType", mimeType,
-                                "data", Base64.getEncoder().encodeToString(image)))))),
-                "generationConfig", Map.of(
-                        "temperature", 0,
-                        "responseMimeType", "application/json",
-                        "responseSchema", SCHEMA)));
+                "contents",
+                        List.of(Map.of(
+                                "parts",
+                                List.of(
+                                        Map.of("text", PROMPT.formatted(players, players, players)),
+                                        Map.of(
+                                                "inlineData",
+                                                Map.of(
+                                                        "mimeType",
+                                                        mimeType,
+                                                        "data",
+                                                        Base64.getEncoder().encodeToString(image)))))),
+                "generationConfig",
+                        Map.of("temperature", 0, "responseMimeType", "application/json", "responseSchema", SCHEMA)));
 
         long started = nanoTime.getAsLong();
         boolean busy = false;
@@ -168,7 +199,8 @@ public class GeminiSheetReader implements SheetReader {
                     break models;
                 }
                 try {
-                    return json.readValue(answerText(generate(clients.apply(left), model, body)), SheetReadingDto.class);
+                    return json.readValue(
+                            answerText(generate(clients.apply(left), model, body)), SheetReadingDto.class);
                 } catch (RestClientResponseException e) {
                     int code = e.getStatusCode().value();
                     log.warn("Gemini {} answered {}: {}", model, code, e.getResponseBodyAsString());
@@ -221,18 +253,26 @@ public class GeminiSheetReader implements SheetReader {
      * time left before the deadline, and no more.
      */
     private static Function<Duration, RestClient> clients() {
-        HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        HttpClient http =
+                HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         return timeout -> {
             JdkClientHttpRequestFactory requests = new JdkClientHttpRequestFactory(http);
             requests.setReadTimeout(timeout);
-            return RestClient.builder().baseUrl(BASE_URL).requestFactory(requests).build();
+            return RestClient.builder()
+                    .baseUrl(BASE_URL)
+                    .requestFactory(requests)
+                    .build();
         };
     }
 
     /** The JSON the model wrote, out of Gemini's response envelope. */
     private String answerText(String response) {
         StringBuilder text = new StringBuilder();
-        for (JsonNode part : json.readTree(response).path("candidates").path(0).path("content").path("parts")) {
+        for (JsonNode part : json.readTree(response)
+                .path("candidates")
+                .path(0)
+                .path("content")
+                .path("parts")) {
             text.append(part.path("text").asString(""));
         }
         if (text.isEmpty()) {

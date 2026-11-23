@@ -18,10 +18,24 @@ import { User } from '../core/models';
             <span class="badge badge-accent">First dealer</span>
           }
           <span class="moves">
-            <button type="button" class="btn-ghost" [disabled]="first" (click)="move(i, -1)"
-                    [attr.aria-label]="'Move ' + nameOf(id) + ' up'">↑</button>
-            <button type="button" class="btn-ghost" [disabled]="last" (click)="move(i, 1)"
-                    [attr.aria-label]="'Move ' + nameOf(id) + ' down'">↓</button>
+            <button
+              type="button"
+              class="btn-ghost"
+              [disabled]="first"
+              (click)="move(i, -1)"
+              [attr.aria-label]="'Move ' + nameOf(id) + ' up'"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              class="btn-ghost"
+              [disabled]="last"
+              (click)="move(i, 1)"
+              [attr.aria-label]="'Move ' + nameOf(id) + ' down'"
+            >
+              ↓
+            </button>
           </span>
         </li>
       }

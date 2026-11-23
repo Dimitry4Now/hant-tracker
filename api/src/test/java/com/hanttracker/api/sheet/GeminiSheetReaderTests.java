@@ -40,7 +40,13 @@ class GeminiSheetReaderTests {
         gemini = MockRestServiceServer.bindTo(builder).build();
         RestClient client = builder.build();
         reader = new GeminiSheetReader(
-                timeout -> client, System::nanoTime, JsonMapper.builder().build(), "key", "flash, lite", Duration.ZERO, Duration.ofSeconds(55));
+                timeout -> client,
+                System::nanoTime,
+                JsonMapper.builder().build(),
+                "key",
+                "flash, lite",
+                Duration.ZERO,
+                Duration.ofSeconds(55));
     }
 
     @Test
@@ -79,7 +85,8 @@ class GeminiSheetReaderTests {
         gemini.expect(times(2), requestTo(LITE)).andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
 
         assertThatThrownBy(() -> reader.read(new byte[] {1}, "image/jpeg", 2))
-                .isInstanceOfSatisfying(ResponseStatusException.class,
+                .isInstanceOfSatisfying(
+                        ResponseStatusException.class,
                         e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT));
     }
 
@@ -89,7 +96,8 @@ class GeminiSheetReaderTests {
         gemini.expect(requestTo(LITE)).andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS));
 
         assertThatThrownBy(() -> reader.read(new byte[] {1}, "image/jpeg", 2))
-                .isInstanceOfSatisfying(ResponseStatusException.class,
+                .isInstanceOfSatisfying(
+                        ResponseStatusException.class,
                         e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS));
     }
 
@@ -98,7 +106,8 @@ class GeminiSheetReaderTests {
         gemini.expect(requestTo(FLASH)).andRespond(withStatus(HttpStatus.BAD_REQUEST));
 
         assertThatThrownBy(() -> reader.read(new byte[] {1}, "image/jpeg", 2))
-                .isInstanceOfSatisfying(ResponseStatusException.class,
+                .isInstanceOfSatisfying(
+                        ResponseStatusException.class,
                         e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY));
         gemini.verify();
     }
@@ -117,12 +126,18 @@ class GeminiSheetReaderTests {
                     now.addAndGet(Duration.ofSeconds(25).toNanos());
                     return client;
                 },
-                now::get, JsonMapper.builder().build(), "key", "flash, lite", Duration.ZERO, Duration.ofSeconds(55));
+                now::get,
+                JsonMapper.builder().build(),
+                "key",
+                "flash, lite",
+                Duration.ZERO,
+                Duration.ofSeconds(55));
         server.expect(times(2), requestTo(FLASH)).andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
 
         // A third attempt would start with 5s left of 55, too little, so it says busy.
         assertThatThrownBy(() -> slow.read(new byte[] {1}, "image/jpeg", 2))
-                .isInstanceOfSatisfying(ResponseStatusException.class,
+                .isInstanceOfSatisfying(
+                        ResponseStatusException.class,
                         e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT));
         assertThat(timeouts).containsExactly(Duration.ofSeconds(55), Duration.ofSeconds(30));
         server.verify();

@@ -1,24 +1,24 @@
 package com.hanttracker.api.web;
 
+import com.hanttracker.api.domain.UserAccount;
 import com.hanttracker.api.dto.AccountDtos.ChangePasswordRequest;
 import com.hanttracker.api.dto.AccountDtos.ConfirmEmailRequest;
 import com.hanttracker.api.dto.AccountDtos.EmailRequest;
 import com.hanttracker.api.dto.AccountDtos.UpdateProfileRequest;
 import com.hanttracker.api.dto.AuthDtos.LoginResponse;
 import com.hanttracker.api.dto.UserDto;
-import com.hanttracker.api.domain.UserAccount;
 import com.hanttracker.api.security.AccountSetup;
 import com.hanttracker.api.security.CurrentUser;
 import com.hanttracker.api.security.JwtService;
 import com.hanttracker.api.service.EmailAccountService;
 import com.hanttracker.api.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Lets any logged-in user edit their own account. */

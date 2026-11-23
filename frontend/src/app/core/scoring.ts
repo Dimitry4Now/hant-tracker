@@ -20,11 +20,7 @@ export const LAST_ROUND_TO_QUIT = 12;
  * Majstorska Hant is still 200. A quitter pays 50, or 100 in a
  * Majstorska, a Hant or both.
  */
-export function pointsFor(
-  outcome: RoundOutcome,
-  cardValue: number | null,
-  ctx: ScoreContext
-): number {
+export function pointsFor(outcome: RoundOutcome, cardValue: number | null, ctx: ScoreContext): number {
   switch (outcome) {
     case 'WINNER':
       return ctx.hant ? -150 : -50;

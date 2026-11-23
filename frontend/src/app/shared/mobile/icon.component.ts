@@ -21,8 +21,16 @@ export type IconName =
   host: { 'aria-hidden': 'true', style: 'display: inline-flex; flex-shrink: 0' },
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <svg
+      [attr.width]="size()"
+      [attr.height]="size()"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
       @switch (name()) {
         @case ('dashboard') {
           <rect x="4" y="4" width="7" height="7" rx="1.5" />
@@ -51,7 +59,9 @@ export type IconName =
         }
         @case ('sun') {
           <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+          <path
+            d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"
+          />
         }
         @case ('plus') {
           <path d="M12 5v14M5 12h14" stroke-width="2" />

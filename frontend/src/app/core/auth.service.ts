@@ -52,25 +52,21 @@ export class AuthService {
   readonly requiredStep = computed(() => this.session()?.user.requiredStep ?? null);
 
   /** Asked once per page load; resets by email are off when the API can't be reached. */
-  readonly options$: Observable<AuthOptions> = this.http
-    .get<AuthOptions>(`${API_BASE}/auth/options`)
-    .pipe(
-      catchError(() => of({ passwordResetByEmail: false })),
-      shareReplay(1)
-    );
+  readonly options$: Observable<AuthOptions> = this.http.get<AuthOptions>(`${API_BASE}/auth/options`).pipe(
+    catchError(() => of({ passwordResetByEmail: false })),
+    shareReplay(1)
+  );
 
   get token(): string | null {
     return this.session()?.token ?? null;
   }
 
   login(email: string, password: string): Observable<LoginResult> {
-    return this.http
-      .post<LoginResponse>(`${API_BASE}/auth/login`, { email: email.trim(), password })
-      .pipe(
-        tap((response) => this.store(response)),
-        map((response): LoginResult => ({ user: response.user })),
-        catchError((error: unknown) => of<LoginResult>({ failure: loginFailure(error) }))
-      );
+    return this.http.post<LoginResponse>(`${API_BASE}/auth/login`, { email: email.trim(), password }).pipe(
+      tap((response) => this.store(response)),
+      map((response): LoginResult => ({ user: response.user })),
+      catchError((error: unknown) => of<LoginResult>({ failure: loginFailure(error) }))
+    );
   }
 
   /** Sign-up lands in the admin queue — no account exists until it is approved. */
@@ -80,19 +76,15 @@ export class AuthService {
 
   /** `currentPassword` is only checked by the API when the email changes. */
   updateProfile(input: ProfileInput): Observable<User> {
-    return this.http
-      .put<User>(`${API_BASE}/account/profile`, input)
-      .pipe(tap((user) => this.updateUser(user)));
+    return this.http.put<User>(`${API_BASE}/account/profile`, input).pipe(tap((user) => this.updateUser(user)));
   }
 
   /** The change signs out every session; the answer carries a new token for this one. */
   changePassword(currentPassword: string, newPassword: string): Observable<User> {
-    return this.http
-      .put<LoginResponse>(`${API_BASE}/account/password`, { currentPassword, newPassword })
-      .pipe(
-        tap((response) => this.store(response)),
-        map((response) => response.user)
-      );
+    return this.http.put<LoginResponse>(`${API_BASE}/account/password`, { currentPassword, newPassword }).pipe(
+      tap((response) => this.store(response)),
+      map((response) => response.user)
+    );
   }
 
   /** Emails a code to the address; it becomes the account's once confirmed. */
@@ -113,12 +105,10 @@ export class AuthService {
 
   /** Sets the new password from a reset link and logs the player in. */
   resetPassword(token: string, newPassword: string): Observable<User> {
-    return this.http
-      .post<LoginResponse>(`${API_BASE}/auth/reset-password`, { token, newPassword })
-      .pipe(
-        tap((response) => this.store(response)),
-        map((response) => response.user)
-      );
+    return this.http.post<LoginResponse>(`${API_BASE}/auth/reset-password`, { token, newPassword }).pipe(
+      tap((response) => this.store(response)),
+      map((response) => response.user)
+    );
   }
 
   /** Reloads the account, e.g. after the API said a step is required. */

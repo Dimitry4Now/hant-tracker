@@ -35,8 +35,14 @@ public class RateLimits {
 
     /** Forgets every count, for tests. */
     public void clear() {
-        List.of(loginPerAddress, loginFailuresPerEmail, registerPerAddress, forgotPerAddress, forgotPerEmail,
-                        resetPerAddress, emailCodePerUser)
+        List.of(
+                        loginPerAddress,
+                        loginFailuresPerEmail,
+                        registerPerAddress,
+                        forgotPerAddress,
+                        forgotPerEmail,
+                        resetPerAddress,
+                        emailCodePerUser)
                 .forEach(Throttle::clear);
     }
 }

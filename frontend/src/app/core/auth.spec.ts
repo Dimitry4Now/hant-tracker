@@ -31,11 +31,7 @@ describe('auth', () => {
   beforeEach(() => {
     localStorage.clear();
     TestBed.configureTestingModule({
-      providers: [
-        provideRouter([]),
-        provideHttpClient(withInterceptors([authInterceptor])),
-        provideHttpClientTesting()
-      ]
+      providers: [provideRouter([]), provideHttpClient(withInterceptors([authInterceptor])), provideHttpClientTesting()]
     });
     auth = TestBed.inject(AuthService);
     http = TestBed.inject(HttpTestingController);
@@ -95,7 +91,9 @@ describe('auth', () => {
     logIn(user());
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
-    TestBed.inject(HttpClient).get(`${API_BASE}/games`).subscribe({ error: () => undefined });
+    TestBed.inject(HttpClient)
+      .get(`${API_BASE}/games`)
+      .subscribe({ error: () => undefined });
     http.expectOne(`${API_BASE}/games`).flush({ requiredStep: 'CONFIRM_EMAIL' }, { status: 428, statusText: 'x' });
     http.expectOne(`${API_BASE}/auth/me`).flush(user('CONFIRM_EMAIL'));
 
@@ -108,7 +106,9 @@ describe('auth', () => {
     logIn(user());
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
-    TestBed.inject(HttpClient).get(`${API_BASE}/games`).subscribe({ error: () => undefined });
+    TestBed.inject(HttpClient)
+      .get(`${API_BASE}/games`)
+      .subscribe({ error: () => undefined });
     http.expectOne(`${API_BASE}/games`).flush({}, { status: 401, statusText: 'x' });
 
     expect(auth.isLoggedIn()).toBe(false);

@@ -19,8 +19,12 @@ import { IconComponent } from './icon.component';
           @if (first) {
             <span class="m-tag-accent">Deals first</span>
           } @else {
-            <button type="button" class="m-icon-btn" (click)="moveUp(i)"
-                    [attr.aria-label]="'Move ' + nameOf(id) + ' up'">
+            <button
+              type="button"
+              class="m-icon-btn"
+              (click)="moveUp(i)"
+              [attr.aria-label]="'Move ' + nameOf(id) + ' up'"
+            >
               <app-icon name="back" [size]="18" class="up" />
             </button>
           }

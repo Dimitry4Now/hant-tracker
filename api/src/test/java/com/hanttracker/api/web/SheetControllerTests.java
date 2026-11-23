@@ -43,8 +43,7 @@ class SheetControllerTests {
         GameDto game = games.create(new CreateGameRequest(LocalDate.of(2026, 8, 18), List.of(1L, 2L), null));
         MockMultipartFile text = new MockMultipartFile("image", "sheet.txt", "text/plain", new byte[] {1});
 
-        mvc.perform(multipart("/api/games/{id}/sheet", game.id()).file(text))
-                .andExpect(status().isBadRequest());
+        mvc.perform(multipart("/api/games/{id}/sheet", game.id()).file(text)).andExpect(status().isBadRequest());
     }
 
     @Test

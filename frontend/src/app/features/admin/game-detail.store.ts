@@ -108,15 +108,13 @@ export class GameDetailStore {
     });
 
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    forkJoin({ game: this.data.getGame(id), users: this.data.getUsers() }).subscribe(
-      ({ game, users }) => {
-        this.users.set(users);
-        this.game.set(game ?? null);
-        if (game) {
-          this.buildForms(game);
-        }
+    forkJoin({ game: this.data.getGame(id), users: this.data.getUsers() }).subscribe(({ game, users }) => {
+      this.users.set(users);
+      this.game.set(game ?? null);
+      if (game) {
+        this.buildForms(game);
       }
-    );
+    });
   }
 
   get entries(): FormArray {
@@ -228,9 +226,7 @@ export class GameDetailStore {
       })
     };
     const editing = this.editingRound();
-    const request = editing
-      ? this.data.updateRound(game.id, editing.id, round)
-      : this.data.addRound(game.id, round);
+    const request = editing ? this.data.updateRound(game.id, editing.id, round) : this.data.addRound(game.id, round);
     request.subscribe(() => {
       this.editingRound.set(null);
       this.reload(game.id);
@@ -300,9 +296,7 @@ export class GameDetailStore {
   }
 
   togglePlayer(id: number): void {
-    this.picked.update((ids) =>
-      ids.includes(id) ? ids.filter((existing) => existing !== id) : [...ids, id]
-    );
+    this.picked.update((ids) => (ids.includes(id) ? ids.filter((existing) => existing !== id) : [...ids, id]));
   }
 
   saveGame(done?: () => void): void {
@@ -312,21 +306,17 @@ export class GameDetailStore {
       return;
     }
     const { playedOn, note } = this.gameForm.getRawValue();
-    this.data
-      .updateGame(game.id, { playedOn, playerIds: this.picked(), note: note.trim() || null })
-      .subscribe({
-        next: () => {
-          this.editingGame.set(false);
-          this.reload(game.id);
-          done?.();
-        },
-        error: (error: unknown) => {
-          const conflict = error instanceof HttpErrorResponse && error.status === 409;
-          this.gameError.set(
-            conflict ? 'Players cannot change once the game has rounds.' : 'Could not save the game.'
-          );
-        }
-      });
+    this.data.updateGame(game.id, { playedOn, playerIds: this.picked(), note: note.trim() || null }).subscribe({
+      next: () => {
+        this.editingGame.set(false);
+        this.reload(game.id);
+        done?.();
+      },
+      error: (error: unknown) => {
+        const conflict = error instanceof HttpErrorResponse && error.status === 409;
+        this.gameError.set(conflict ? 'Players cannot change once the game has rounds.' : 'Could not save the game.');
+      }
+    });
   }
 
   /**
@@ -372,11 +362,7 @@ export class GameDetailStore {
     this.entries.clear();
 
     for (const playerId of game.playerIds) {
-      this.amounts.push(
-        this.fb.nonNullable.control(
-          game.money.find((m) => m.playerId === playerId)?.amountDen ?? 0
-        )
-      );
+      this.amounts.push(this.fb.nonNullable.control(game.money.find((m) => m.playerId === playerId)?.amountDen ?? 0));
       const entry = this.fb.nonNullable.group({
         playerId: [playerId],
         outcome: ['NOT_OPENED' as RoundOutcome],

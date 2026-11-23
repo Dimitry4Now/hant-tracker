@@ -13,9 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@SpringBootTest(properties = {
-    "app.seed.enabled=false",
-    "spring.datasource.url=jdbc:h2:mem:empty-tests;DB_CLOSE_DELAY=-1"
-})
+@SpringBootTest(
+        properties = {"app.seed.enabled=false", "spring.datasource.url=jdbc:h2:mem:empty-tests;DB_CLOSE_DELAY=-1"})
 @Transactional
 public @interface EmptyDatabase {}

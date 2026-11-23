@@ -81,6 +81,22 @@ jobs:
             api/build/reports/jacoco/test/html
           retention-days: 7
 
+  api-format:
+    name: API · format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - name: Spotless
+        working-directory: api
+        run: ./gradlew spotlessCheck --console=plain
+
   # The tests run on H2; production runs PostgreSQL. This starts the real jar
   # with the prod profile on PostgreSQL, so every migration and Hibernate's
   # schema check run there too.
@@ -195,6 +211,44 @@ jobs:
           awk -v c="$WEB_COVERAGE" -v m="$WEB_COVERAGE_MIN" 'BEGIN { exit !(c >= m) }' ||
             { echo "::error::Web coverage ${WEB_COVERAGE}% is below ${WEB_COVERAGE_MIN}%"; exit 1; }
 
+  web-lint:
+    name: Web · lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: ESLint
+        run: npm run lint
+      - name: Prettier
+        run: npm run format:check
+
+  # The deploy and backup scripts run with sudo on the server. ShellCheck
+  # comes with the runner image; every file under scripts/ with a shell
+  # shebang is checked.
+  scripts:
+    name: Scripts · ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: ShellCheck
+        run: |
+          shellcheck --version | sed -n 2p
+          mapfile -t files < <(grep -rlE '^#!.*(/| )(ba)?sh$' scripts --exclude-dir=node_modules)
+          printf '%s\n' "${files[@]}"
+          shellcheck "${files[@]}"
+
   web-build:
     name: Web · build
     runs-on: ubuntu-latest
@@ -228,7 +282,7 @@ jobs:
   # even when one of them failed.
   ci:
     name: ci
-    needs: [api-test, api-postgres, api-build, web-test, web-build]
+    needs: [api-test, api-format, api-postgres, api-build, web-test, web-lint, web-build, scripts]
     if: always()
     runs-on: ubuntu-latest
     steps:

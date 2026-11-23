@@ -261,7 +261,9 @@ a.btn {
   gap: 6px;
 }
 
-.field label {
+/* .field-label heads a group of controls, where a <label> has no one input to point at. */
+.field label,
+.field .field-label {
   font-size: 0.75rem;
   color: var(--muted);
 }

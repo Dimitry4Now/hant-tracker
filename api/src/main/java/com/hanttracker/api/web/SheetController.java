@@ -32,8 +32,7 @@ public class SheetController {
     }
 
     @PostMapping(path = "/{id}/sheet", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public SheetReadingDto read(@PathVariable Long id, @RequestParam("image") MultipartFile image)
-            throws IOException {
+    public SheetReadingDto read(@PathVariable Long id, @RequestParam("image") MultipartFile image) throws IOException {
         int players = games.get(id).playerIds().size();
         String type = image.getContentType();
         if (image.isEmpty() || type == null || !type.startsWith("image/")) {

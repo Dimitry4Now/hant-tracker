@@ -1,0 +1,6 @@
+# Templates are left to their authors: Prettier would re-indent every
+# @if/@for block, and ESLint's template rules check them for mistakes.
+*.html
+dist
+coverage
+.angular

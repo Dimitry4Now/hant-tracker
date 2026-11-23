@@ -14,8 +14,12 @@ import { IconComponent } from './icon.component';
         <app-icon name="back" />
       </a>
       <div class="grow m-detail-title">{{ title() }}</div>
-      <button type="button" class="m-icon-btn" (click)="theme.toggle()"
-              [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'">
+      <button
+        type="button"
+        class="m-icon-btn"
+        (click)="theme.toggle()"
+        [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+      >
         <app-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" [size]="20" />
       </button>
     </header>
