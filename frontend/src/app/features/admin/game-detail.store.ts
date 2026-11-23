@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../core/auth.service';
 import { HantDataService } from '../../core/hant-data.service';
 import { Game, Round, RoundEntry, RoundOutcome, User } from '../../core/models';
 import { ScoreContext, guessOutcome as guessOutcomeFor, pointsFor } from '../../core/scoring';
@@ -21,6 +22,14 @@ export class GameDetailStore {
   private readonly data = inject(HantDataService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+
+  /**
+   * Admins edit games; players get the same page read-only, to see every
+   * round (the API only lets admins change games anyway).
+   */
+  readonly canEdit = inject(AuthService).isAdmin;
+  /** Where "back to the games" goes: the admin's list, or a player's analysis. */
+  readonly listLink = computed(() => (this.canEdit() ? '/admin/games' : '/analysis'));
 
   readonly game = signal<Game | null>(null);
   readonly users = signal<User[]>([]);

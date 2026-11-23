@@ -298,3 +298,20 @@
     flex: 1;
   }
 }
+
+/* Players see the sheet read-only: rounds are rows, not buttons. */
+.round:disabled {
+  cursor: default;
+  color: inherit;
+  opacity: 1;
+}
+
+/* A player's view of the money: values, not fields to tap. */
+.amount.readonly {
+  border-color: transparent;
+  background: transparent;
+
+  input {
+    pointer-events: none;
+  }
+}

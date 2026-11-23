@@ -26,7 +26,10 @@
         <h2>{{ label(game) }}</h2>
         <span class="badge" [class.badge-accent]="!game.inProgress && game.majstorska">{{ status(game) }}</span>
       </div>
-      <div class="muted rounds-line">{{ game.rounds.length }} rounds played</div>
+      <div class="muted rounds-line">
+        {{ game.rounds.length }} rounds played ·
+        <a [routerLink]="['/games', game.id]">See every round</a>
+      </div>
 
       @if (game.note) {
         <div class="note">{{ game.note }}</div>
