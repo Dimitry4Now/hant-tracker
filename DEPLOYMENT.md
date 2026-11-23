@@ -47,6 +47,10 @@ sudo chown -R hant:hant /opt/hant-tracker/server
 sudo chown -R www-data:www-data /opt/hant-tracker/client
 ```
 
+If the host already has another Java as its default (`java -version` says 17,
+say), leave it: the service calls Java 21 by its full path (step 6). Find it
+with `ls /usr/lib/jvm/`.
+
 ## 3. Create the database
 
 ```
@@ -73,6 +77,7 @@ openssl rand -base64 48
 
 ```
 SPRING_PROFILES_ACTIVE=prod
+# Any free port; nginx's proxy_pass (step 7) must use the same one.
 SERVER_PORT=8080
 
 DB_URL=jdbc:postgresql://localhost:5432/hant_tracker
@@ -169,7 +174,9 @@ User=hant
 Group=hant
 WorkingDirectory=/opt/hant-tracker/server
 EnvironmentFile=/opt/hant-tracker/server/hant-tracker.env
-ExecStart=/usr/bin/java -XX:MaxRAMPercentage=75 -jar /opt/hant-tracker/server/hant-tracker.jar
+# Java 21 by its full path: /usr/bin/java may be another version. On arm64
+# the directory is java-21-openjdk-arm64.
+ExecStart=/usr/lib/jvm/java-21-openjdk-amd64/bin/java -XX:MaxRAMPercentage=75 -jar /opt/hant-tracker/server/hant-tracker.jar
 Restart=on-failure
 RestartSec=5
 # Spring Boot exits with 143 on SIGTERM; that is a clean stop, not a failure.
@@ -240,6 +247,13 @@ server {
 }
 ```
 
+The prod profile trusts the `X-Forwarded-*` headers nginx sends
+(`server.forward-headers-strategy=native`), so the API sees https and each
+visitor's own address. Logins depend on the first (without it a browser's login
+looks cross-origin and gets a 403), the rate limits on the second (without it
+everyone shares one limit). Keep those `proxy_set_header` lines in any proxy in
+front of the API.
+
 With `proxy_read_timeout 180s`, set `OCR_DEADLINE=170s` in the environment
 file and restart the service; with nginx's default, leave it at 55s.
 
@@ -267,7 +281,8 @@ sudo systemctl restart hant-tracker
 They do nothing once a user exists, but there is no reason to keep a password in
 a file. From then on, new players arrive through the sign-up form and an admin
 approves them under **Admin → Requests**, or are added directly under
-**Admin → Users** (they get `DEFAULT_PASSWORD`).
+**Admin → Users** (they get a one-time password to pass on, and pick their
+own at their first login).
 
 ## 9. Logs
 
@@ -319,13 +334,32 @@ gunzip -c /var/backups/hant-tracker-<timestamp>-predeploy.sql.gz \
 ## 11. Backups
 
 The database holds everything worth keeping; the jar and the client are
-rebuildable.
+rebuildable. From your machine, once:
 
 ```
-sudo -u postgres pg_dump hant_tracker | gzip > /var/backups/hant-tracker-$(date +%F).sql.gz
+scripts/install-backups.sh            # --host/--user as for deploy.sh
 ```
 
-Run it from cron nightly and copy the dumps off the host.
+It installs `/usr/local/sbin/hant-tracker-backup` and a systemd timer that
+runs it every night around 03:30: `pg_dump` into
+`/var/backups/hant-tracker-<timestamp>-nightly.sql.gz` (root-only), a check
+that the file is whole, and pruning to the newest 14. It takes a first backup
+on the spot. To see them work:
+
+```
+systemctl list-timers hant-tracker-backup.timer
+journalctl -u hant-tracker-backup -n 20
+sudo ls -lh /var/backups/hant-tracker-*
+```
+
+A backup on the same disk doesn't survive losing the server, so copy one off
+it now and then:
+
+```
+scripts/pull-backup.sh                 # newest dump to ./backups (git-ignored)
+```
+
+To restore a dump, use the commands in step 10 with its file name.
 
 ## Checks after any deploy
 

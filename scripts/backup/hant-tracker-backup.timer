@@ -1,0 +1,12 @@
+# Backs up the hant-tracker database every night around 03:30. Persistent
+# runs a missed backup at the next boot.
+[Unit]
+Description=Nightly hant-tracker database backup
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+RandomizedDelaySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

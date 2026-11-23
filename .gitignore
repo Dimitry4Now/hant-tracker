@@ -27,3 +27,6 @@ scripts/screenshots/node_modules/
 
 # real score sheets, used to tune sheet reading
 docs/ocr-samples/
+
+# Database dumps pulled from the server (scripts/pull-backup.sh)
+/backups/

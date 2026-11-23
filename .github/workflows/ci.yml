@@ -22,7 +22,7 @@ permissions:
 
 env:
   # Coverage may not drop below these (percent of lines); raise them as tests grow.
-  API_COVERAGE_MIN: 65
+  API_COVERAGE_MIN: 80
   WEB_COVERAGE_MIN: 12
 
 jobs:

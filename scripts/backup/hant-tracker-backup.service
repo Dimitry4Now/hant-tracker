@@ -1,0 +1,13 @@
+# Runs the nightly database backup; started by hant-tracker-backup.timer.
+# Installed by scripts/install-backups.sh. Its output is in
+# journalctl -u hant-tracker-backup.
+[Unit]
+Description=hant-tracker database backup
+After=postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/hant-tracker-backup
+Nice=10
+IOSchedulingClass=idle
