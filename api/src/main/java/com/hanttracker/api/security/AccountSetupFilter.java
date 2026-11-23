@@ -12,7 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Holds back a player who has a required step (a password to change) from
+ * Holds back a player who has a required step (a password to change, an email
+ * to confirm) from
  * everything but that step: the API answers 428 Precondition Required, which
  * the app takes as "show the step", not as an expired session.
  */
@@ -21,7 +22,10 @@ public class AccountSetupFilter extends OncePerRequestFilter {
     /** What a player with a required step can still do. */
     private static final Set<String> ALLOWED = Set.of(
             "GET /api/auth/me",
-            "PUT /api/account/password");
+            "GET /api/auth/options",
+            "PUT /api/account/password",
+            "POST /api/account/email",
+            "POST /api/account/email/confirm");
 
     private final AccountSetup setup;
 

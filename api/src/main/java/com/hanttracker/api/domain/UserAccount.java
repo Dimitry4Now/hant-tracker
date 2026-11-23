@@ -52,6 +52,10 @@ public class UserAccount {
     @Column(nullable = false)
     private boolean mustChangePassword;
 
+    /** The player confirmed this email with a code, so reset links may go to it. */
+    @Column(nullable = false)
+    private boolean emailVerified;
+
     /** Part of every login token; raising it signs out every older session. */
     @Column(nullable = false)
     private int tokenVersion;

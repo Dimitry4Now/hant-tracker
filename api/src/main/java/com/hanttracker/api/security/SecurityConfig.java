@@ -46,7 +46,13 @@ public class SecurityConfig {
                                         // 403/409 comes back out as a 401.
                                         .requestMatchers("/error")
                                         .permitAll()
-                                        .requestMatchers("/api/auth/login", "/api/auth/register")
+                                        .requestMatchers(
+                                                "/api/auth/login",
+                                                "/api/auth/register",
+                                                "/api/auth/forgot-password",
+                                                "/api/auth/reset-password")
+                                        .permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/api/auth/options")
                                         .permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/stats/public")
                                         .permitAll()

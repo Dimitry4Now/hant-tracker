@@ -62,6 +62,8 @@ class PasswordChangeTests {
         user.setEmail(name + "@example.com");
         user.setPasswordHash(encoder.encode(password));
         user.setRole(UserRole.USER);
+        // Unconfirmed emails are their own step, tested in EmailAccountTests.
+        user.setEmailVerified(true);
         return users.save(user);
     }
 

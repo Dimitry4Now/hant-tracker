@@ -6,5 +6,7 @@ package com.hanttracker.api.dto;
  */
 public enum RequiredStep {
     /** Still on the old default password, or one an admin set. */
-    CHANGE_PASSWORD
+    CHANGE_PASSWORD,
+    /** Hasn't confirmed a real email yet; only asked once the server can send email. */
+    CONFIRM_EMAIL
 }

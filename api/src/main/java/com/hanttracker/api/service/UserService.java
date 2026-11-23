@@ -13,6 +13,7 @@ import com.hanttracker.api.dto.TemporaryPasswordDto;
 import com.hanttracker.api.dto.UserDto;
 import com.hanttracker.api.dto.UserDtos.CreateUserRequest;
 import com.hanttracker.api.repo.AccountRequestRepository;
+import com.hanttracker.api.repo.PasswordResetRepository;
 import com.hanttracker.api.repo.UserAccountRepository;
 import com.hanttracker.api.security.Secrets;
 import com.hanttracker.api.web.ConflictException;
@@ -42,16 +43,22 @@ public class UserService {
     private final UserAccountRepository users;
     private final AccountRequestRepository requests;
     private final PasswordEncoder encoder;
+    private final PasswordResetRepository resets;
+    private final Mailer mailer;
     private final String defaultPassword;
 
     public UserService(
             UserAccountRepository users,
             AccountRequestRepository requests,
             PasswordEncoder encoder,
+            PasswordResetRepository resets,
+            Mailer mailer,
             @Value("${app.default-password}") String defaultPassword) {
         this.users = users;
         this.requests = requests;
         this.encoder = encoder;
+        this.resets = resets;
+        this.mailer = mailer;
         this.defaultPassword = defaultPassword;
     }
 
@@ -94,6 +101,7 @@ public class UserService {
         user.setPasswordHash(encoder.encode(temporary));
         user.setMustChangePassword(true);
         user.setTokenVersion(user.getTokenVersion() + 1);
+        resets.deleteByUserId(user.getId());
         return new TemporaryPasswordDto(temporary);
     }
 
@@ -109,12 +117,16 @@ public class UserService {
         return UserDto.of(user);
     }
 
-    /** Admin-side, so no password check — the admin is fixing someone else's account. */
+    /**
+     * Admin-side, so no password check — the admin is fixing someone else's
+     * account. The player still has to confirm the new email themselves.
+     */
     public UserDto changeEmail(Long id, String email) {
         UserAccount user = findUser(id);
         String trimmed = email.trim();
         if (!trimmed.equalsIgnoreCase(user.getEmail())) {
             requireEmailFree(trimmed);
+            user.setEmailVerified(false);
         }
         user.setEmail(trimmed);
         return UserDto.of(user);
@@ -128,8 +140,13 @@ public class UserService {
         String email = request.email().trim();
 
         if (!email.equalsIgnoreCase(user.getEmail())) {
+            // With email on, a new address is confirmed with a code (POST /api/account/email).
+            if (mailer.enabled()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Change your email with a confirmation code");
+            }
             requireCurrentPassword(user, request.currentPassword());
             requireEmailFree(email);
+            user.setEmailVerified(false);
         }
 
         user.setDisplayName(request.displayName().trim());
@@ -157,6 +174,7 @@ public class UserService {
         user.setPasswordHash(encoder.encode(password));
         user.setMustChangePassword(false);
         user.setTokenVersion(user.getTokenVersion() + 1);
+        resets.deleteByUserId(user.getId());
     }
 
     /** BCrypt reads only the first 72 bytes, and the old default password is public. */

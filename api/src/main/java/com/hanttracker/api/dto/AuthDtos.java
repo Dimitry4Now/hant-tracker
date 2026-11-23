@@ -13,6 +13,13 @@ public final class AuthDtos {
 
     public record LoginResponse(String token, UserDto user) {}
 
+    /** What the login page can offer. */
+    public record AuthOptions(boolean passwordResetByEmail) {}
+
+    public record ForgotPasswordRequest(@NotBlank @Email String email) {}
+
+    public record ResetPasswordRequest(@NotBlank String token, @NotBlank @Size(min = 8) String newPassword) {}
+
     public record RegisterRequest(
             @NotBlank String fullName,
             @NotBlank String displayName,

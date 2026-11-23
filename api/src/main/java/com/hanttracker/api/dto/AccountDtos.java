@@ -13,6 +13,10 @@ public final class AccountDtos {
     public record UpdateProfileRequest(
             @NotBlank String displayName, @NotBlank @Email String email, String currentPassword) {}
 
+    public record EmailRequest(@NotBlank @Email String email) {}
+
+    public record ConfirmEmailRequest(@NotBlank String code) {}
+
     public record ChangePasswordRequest(
             @NotBlank String currentPassword, @NotBlank @Size(min = 8) String newPassword) {}
 }

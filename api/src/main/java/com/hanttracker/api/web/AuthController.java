@@ -2,15 +2,20 @@ package com.hanttracker.api.web;
 
 import com.hanttracker.api.domain.UserAccount;
 import com.hanttracker.api.domain.UserStatus;
+import com.hanttracker.api.dto.AuthDtos.AuthOptions;
+import com.hanttracker.api.dto.AuthDtos.ForgotPasswordRequest;
 import com.hanttracker.api.dto.AuthDtos.LoginRequest;
 import com.hanttracker.api.dto.AuthDtos.LoginResponse;
 import com.hanttracker.api.dto.AuthDtos.RegisterRequest;
+import com.hanttracker.api.dto.AuthDtos.ResetPasswordRequest;
 import com.hanttracker.api.dto.UserDto;
 import com.hanttracker.api.repo.UserAccountRepository;
 import com.hanttracker.api.security.AccountSetup;
 import com.hanttracker.api.security.CurrentUser;
 import com.hanttracker.api.security.JwtService;
 import com.hanttracker.api.security.RateLimits;
+import com.hanttracker.api.service.EmailAccountService;
+import com.hanttracker.api.service.Mailer;
 import com.hanttracker.api.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -38,6 +43,8 @@ public class AuthController {
     private final UserService userService;
     private final RateLimits limits;
     private final AccountSetup setup;
+    private final EmailAccountService email;
+    private final Mailer mailer;
     private final String defaultPassword;
     /** Checked for unknown emails, so they take as long as a wrong password. */
     private final String unknownUserHash;
@@ -49,6 +56,8 @@ public class AuthController {
             UserService userService,
             RateLimits limits,
             AccountSetup setup,
+            EmailAccountService email,
+            Mailer mailer,
             @Value("${app.default-password}") String defaultPassword) {
         this.users = users;
         this.encoder = encoder;
@@ -56,6 +65,8 @@ public class AuthController {
         this.userService = userService;
         this.limits = limits;
         this.setup = setup;
+        this.email = email;
+        this.mailer = mailer;
         this.defaultPassword = defaultPassword;
         this.unknownUserHash = encoder.encode(UUID.randomUUID().toString());
     }
@@ -104,6 +115,25 @@ public class AuthController {
             throw new TooManyRequestsException();
         }
         userService.register(request);
+    }
+
+    @GetMapping("/options")
+    public AuthOptions options() {
+        return new AuthOptions(mailer.enabled());
+    }
+
+    /** Always 202: the answer doesn't say whether the email has an account. */
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request, HttpServletRequest http) {
+        email.sendResetLink(request.email(), http.getRemoteAddr());
+    }
+
+    /** Sets the new password and logs the player in. */
+    @PostMapping("/reset-password")
+    public LoginResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request, HttpServletRequest http) {
+        UserAccount user = email.resetPassword(request.token(), request.newPassword(), http.getRemoteAddr());
+        return new LoginResponse(jwt.issue(user), UserDto.forSession(user, setup.requiredStep(user)));
     }
 
     @GetMapping("/me")
