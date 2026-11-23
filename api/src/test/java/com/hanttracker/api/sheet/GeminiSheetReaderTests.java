@@ -40,7 +40,7 @@ class GeminiSheetReaderTests {
         gemini = MockRestServiceServer.bindTo(builder).build();
         RestClient client = builder.build();
         reader = new GeminiSheetReader(
-                timeout -> client, System::nanoTime, JsonMapper.builder().build(), "key", "flash, lite", Duration.ZERO);
+                timeout -> client, System::nanoTime, JsonMapper.builder().build(), "key", "flash, lite", Duration.ZERO, Duration.ofSeconds(55));
     }
 
     @Test
@@ -117,7 +117,7 @@ class GeminiSheetReaderTests {
                     now.addAndGet(Duration.ofSeconds(25).toNanos());
                     return client;
                 },
-                now::get, JsonMapper.builder().build(), "key", "flash, lite", Duration.ZERO);
+                now::get, JsonMapper.builder().build(), "key", "flash, lite", Duration.ZERO, Duration.ofSeconds(55));
         server.expect(times(2), requestTo(FLASH)).andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
 
         // A third attempt would start with 5s left of 55, too little, so it says busy.

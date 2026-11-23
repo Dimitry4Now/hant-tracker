@@ -86,10 +86,11 @@ public class GeminiSheetReader implements SheetReader {
             "propertyOrdering", List.of("headers", "date", "rows"));
 
     /**
-     * The whole read, retries and pauses included, ends within this, so the
-     * answer is back before nginx gives up at 60s.
+     * The whole read, retries and pauses included, ends within this
+     * (app.ocr.deadline), so the answer is back before nginx gives up. Keep it
+     * a few seconds under nginx's proxy_read_timeout for the sheet endpoint.
      */
-    static final Duration DEADLINE = Duration.ofSeconds(55);
+    private final Duration deadline;
 
     /** An attempt with less time left than this would only time out. */
     static final Duration MIN_ATTEMPT = Duration.ofSeconds(10);
@@ -107,8 +108,9 @@ public class GeminiSheetReader implements SheetReader {
     public GeminiSheetReader(
             JsonMapper json,
             @Value("${app.ocr.gemini.api-key:}") String apiKey,
-            @Value("${app.ocr.gemini.model}") String models) {
-        this(clients(), System::nanoTime, json, apiKey, models, Duration.ofSeconds(2));
+            @Value("${app.ocr.gemini.model}") String models,
+            @Value("${app.ocr.deadline}") Duration deadline) {
+        this(clients(), System::nanoTime, json, apiKey, models, Duration.ofSeconds(2), deadline);
     }
 
     GeminiSheetReader(
@@ -117,8 +119,10 @@ public class GeminiSheetReader implements SheetReader {
             JsonMapper json,
             String apiKey,
             String models,
-            Duration retryDelay) {
+            Duration retryDelay,
+            Duration deadline) {
         this.clients = clients;
+        this.deadline = deadline;
         this.nanoTime = nanoTime;
         this.json = json;
         this.apiKey = apiKey;
@@ -128,7 +132,7 @@ public class GeminiSheetReader implements SheetReader {
         if (apiKey.isBlank()) {
             log.warn("Sheet reading is off: GEMINI_API_KEY is not set");
         } else {
-            log.info("Sheet reading uses Gemini models {}", this.models);
+            log.info("Sheet reading uses Gemini models {}, answering within {}s", this.models, deadline.toSeconds());
         }
     }
 
@@ -158,7 +162,7 @@ public class GeminiSheetReader implements SheetReader {
         models:
         for (String model : models) {
             for (int attempt = 1; attempt <= 2; attempt++) {
-                Duration left = DEADLINE.minus(Duration.ofNanos(nanoTime.getAsLong() - started));
+                Duration left = deadline.minus(Duration.ofNanos(nanoTime.getAsLong() - started));
                 if (left.compareTo(MIN_ATTEMPT) < 0) {
                     busy = true;
                     break models;
@@ -214,7 +218,7 @@ public class GeminiSheetReader implements SheetReader {
 
     /**
      * A sheet takes the model a while to read, so each request may use all the
-     * time left before {@link #DEADLINE}, and no more.
+     * time left before the deadline, and no more.
      */
     private static Function<Duration, RestClient> clients() {
         HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
