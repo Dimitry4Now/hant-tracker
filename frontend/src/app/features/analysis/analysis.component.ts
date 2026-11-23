@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { HantDataService } from '../../core/hant-data.service';
 import { gameLabel, standingsFor, statusLabel } from '../../core/game-stats';
@@ -9,7 +10,7 @@ import { AnalysisMobileComponent } from '../mobile/analysis/analysis-mobile.comp
 
 @Component({
   selector: 'app-analysis',
-  imports: [SignedPipe, AnalysisMobileComponent],
+  imports: [RouterLink, SignedPipe, AnalysisMobileComponent],
   templateUrl: './analysis.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './analysis.component.scss'

@@ -44,12 +44,10 @@
       </div>
     }
 
-    @if (auth.isAdmin()) {
-      <a class="panel link" [routerLink]="['/admin/games', game.id]">
-        <span class="grow">Open the score sheet</span>
-        <app-icon name="chevron" [size]="18" class="chevron" />
-      </a>
-    }
+    <a class="panel link" [routerLink]="['/games', game.id]">
+      <span class="grow">See every round</span>
+      <app-icon name="chevron" [size]="18" class="chevron" />
+    </a>
   </div>
 
   <nav class="m-action-bar pager" aria-label="Other games">

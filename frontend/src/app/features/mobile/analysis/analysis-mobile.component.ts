@@ -1,6 +1,5 @@
 import { Component, DestroyRef, computed, effect, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/auth.service';
 import { formatDate, standingsFor, statusLabel } from '../../../core/game-stats';
 import { Game, User } from '../../../core/models';
 import { ViewportService } from '../../../core/viewport.service';
@@ -18,7 +17,6 @@ import { SignedPipe } from '../../../shared/signed.pipe';
   styleUrl: './analysis-mobile.component.scss'
 })
 export class AnalysisMobileComponent {
-  readonly auth = inject(AuthService);
   private readonly viewport = inject(ViewportService);
 
   readonly games = input.required<Game[]>();
